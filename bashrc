@@ -68,12 +68,20 @@ ps1_rvm() {
 }
 
 ps1_ruby='$(ps1_rvm)'
-ps1_vcs='$(__git_ps1 " (%s)")'
+ps1_vcs='$(__git_ps1 "(%s)")'
 
-if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then ps1_user="$ps1_user@"; fi
+if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
+	ps1_user="$ps1_user@"
+fi
+
+if [ "$ps1_user" == "" ] && [ -n "$ps1_host" ]; then
+	ps1_host="$txtgrn$ps1_host$txtrst"
+fi
+
 PS1="$ps1_user$ps1_host"
+
 if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 
-PS1="$PS1$txtcyn\w$txtpur$ps1_ruby$txtrst$txtylw$ps1_vcs$txtrst \$ "
+PS1="$PS1$txtcyn\w$txtylw$ps1_vcs$txtrst$txtpur$ps1_ruby$txtrst \$ "
 
 # End Setup Prompt
