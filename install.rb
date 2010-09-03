@@ -7,7 +7,6 @@ Dir.chdir File.dirname(__FILE__) do
   dotfiles_dir = Dir.pwd.sub(home + '/', '')
   
   Dir['*'].each do |file|
-    next if file == 'README'
     next unless File.extname(file).empty?
     target_name = file == 'bin' ? file : ".#{file}"
     target = File.join(home, target_name)
