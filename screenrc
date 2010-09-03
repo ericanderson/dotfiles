@@ -1,0 +1,18 @@
+termcapinfo vt100 'hs:ts=\E]0;:fs007:ds=\E]0;'
+
+activity "%c activity -> %n%f %t"
+autodetach on
+altscreen on
+bell "%c bell -> %n%f %t^G"
+defflow auto
+defscrollback 10000
+defutf8 on
+
+
+
+startup_message off
+caption always "%{=}%?%{r}%H %L=%{+b}%?%{b}%-Lw%47L>%?%{w}%n*%f %t %?%{b}%+Lw%?%{g}%-31=%c %l %Y-%m-%d"
+shell -bash
+
+
+#caption always "%-Lw%{= BW}%50>%n%f* %t%{-}%+Lw%<"
