@@ -8,6 +8,8 @@ if [ -f /opt/local/etc/bash_completion ]; then
 	. /opt/local/etc/bash_completion
 fi
 
+if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
+
 
 # Setup Prompt
 txtblk='\e[0;30m' # Black - Regular

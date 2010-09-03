@@ -8,6 +8,7 @@ export PATH=${PATH}:~/bin
 # Path for macports
 export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
+if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
 # Setup for RVM (SHOULD BE LAST!)
 [[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
