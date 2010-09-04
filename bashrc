@@ -62,10 +62,26 @@ case $USER in
 esac
 
 ps1_rvm() {
-	out=$(~/.rvm/bin/rvm-prompt v g )
-	if [ "$out" != "" ]; then echo " ($out)"; fi
+	
+	q=$(~/.rvm/bin/rvm-prompt i)
+	
+	if [ "$q" == "jruby" ]; then
+		out=" (jruby)"
+	else
+		q=$(~/.rvm/bin/rvm-prompt v g)
+		
+		if [ "$q" != "" ]; then 
+			out=" ($q)"
+		fi
+	fi
+	
+	if [ "$out" != "" ]; then echo "$out"; fi
 	
 }
+
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+GIT_PS1_SHOWSTASHSTATE=true
 
 ps1_ruby='$(ps1_rvm)'
 ps1_vcs='$(__git_ps1 "(%s)")'
