@@ -98,6 +98,6 @@ PS1="$ps1_user$ps1_host"
 
 if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 
-PS1="$PS1$txtcyn\w$txtylw$ps1_vcs$txtrst$txtpur$ps1_ruby$txtrst \$ "
+PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_ruby\[$txtrst\] \$ "
 
 # End Setup Prompt
