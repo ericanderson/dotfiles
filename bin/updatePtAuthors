@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AUTHORS_PATH="~/.gitsupport"
+AUTHORS_PATH="$HOME/.gitsupport"
 
 OUTFILE=`mktemp -t blah.XXXXXXX`
 
