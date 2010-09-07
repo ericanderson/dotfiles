@@ -2,7 +2,7 @@
 
 AUTHORS_PATH="~/.gitsupport"
 
-OUTFILE=`mktemp blah.XXXXXXX`
+OUTFILE=`mktemp -t blah.XXXXXXX`
 
 /usr/local/bin/wget https://git/authors.txt -O $AUTHORS_PATH/authors.tmp &> OUTFILE
 
