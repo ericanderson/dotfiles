@@ -1,6 +1,7 @@
 #!/bin/bash
-export GIT_SSL_NO_VERIFY=TRUE
 export SVN_EDITOR="vim"
+
+export CLICOLOR=1
 
 # Path for my own execs
 export PATH=${PATH}:~/bin
