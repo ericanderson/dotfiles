@@ -1,8 +1,5 @@
 alias t='todo.sh'
 alias thingsdb='cd /Users/ericanderson/Library/Application\ Support/Cultured\ Code/Things'
-source ~/.bash_completion.d/todo_completer.sh
-complete -F _todo_sh -o default t
-
 
 if [ -f /opt/local/etc/bash_completion ]; then
 	. /opt/local/etc/bash_completion
