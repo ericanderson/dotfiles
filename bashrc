@@ -1,5 +1,7 @@
 alias t='todo.sh'
-alias thingsdb='cd /Users/ericanderson/Library/Application\ Support/Cultured\ Code/Things'
+alias thingsdb='cd ~/Library/Application\ Support/Cultured\ Code/Things'
+
+alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/main.rb'
 
 if [ -f /opt/local/etc/bash_completion ]; then
 	. /opt/local/etc/bash_completion
@@ -95,6 +97,6 @@ PS1="$ps1_user$ps1_host"
 
 if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 
-PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_ruby\[$txtrst\] \$ "
+PS1="$PS1$txtcyn\w$txtylw$ps1_vcs$txtrst$txtpur$ps1_ruby$txtrst \$ "
 
 # End Setup Prompt
