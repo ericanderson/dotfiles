@@ -1,0 +1,25 @@
+#!/bin/sh
+# Script to set up a GIT repo 
+
+AUTHORS_PATH=~/.gitsupport
+
+if [[ ! -f "$AUTHORS_PATH/authors.txt" ]]; then
+    echo "Authors file not found at $AUTHORS_PATH";
+    exit 1;
+fi
+
+if [[ ! -d "$PWD/.git" ]]; then
+    echo "Script must be run in the root directory of a git repo"
+    exit 2;
+fi
+
+ln -s -f $AUTHORS_PATH/authors.txt $PWD/.git/authors.txt
+
+if [ "$?" != "0" ]; then
+	echo "Unable to create link to authors file"
+	exit 3;
+fi
+
+git config svn.authorsfile .git/authors.txt
+
+echo "Authors applied"

@@ -1,0 +1,1 @@
+curl --silent "http://xml.weather.yahoo.com/forecastrss?p=USCA1093&u=f" | grep -A 2 'Forecast:' | sed -e 's/Forecast://' -e 's/<br \/>//' -e 's/<b>//' -e 's/<\/b>//' -e 's/<BR \/>//g' | tail -n 1
