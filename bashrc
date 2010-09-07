@@ -53,11 +53,11 @@ fi
 case $USER in
   ericanderson|eanderson) ;;
   root)
-    ps1_user="$txtred\u"
+    ps1_user="\[$txtred\]\u"
     echo "root will be logged out after 10 minutes without input or job"
     export TMOUT=600
     ;;
-  *) ps1_user="$txtgrn\u" ;;
+  *) ps1_user="\[$txtgrn\]\u" ;;
 esac
 
 ps1_rvm() {
@@ -90,13 +90,13 @@ if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
 fi
 
 if [ "$ps1_user" == "" ] && [ -n "$ps1_host" ]; then
-	ps1_host="$txtgrn$ps1_host$txtrst"
+	ps1_host="\[$txtgrn\]$ps1_host\[$txtrst\]"
 fi
 
 PS1="$ps1_user$ps1_host"
 
 if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 
-PS1="$PS1$txtcyn\w$txtylw$ps1_vcs$txtrst$txtpur$ps1_ruby$txtrst \$ "
+PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_ruby\[$txtrst\] \$ "
 
 # End Setup Prompt
