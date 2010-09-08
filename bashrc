@@ -1,7 +1,7 @@
 alias t='todo.sh'
 alias thingsdb='cd ~/Library/Application\ Support/Cultured\ Code/Things'
 
-alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/main.rb'
+alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/bin/main.rb'
 
 if [ -f /opt/local/etc/bash_completion ]; then
 	. /opt/local/etc/bash_completion
