@@ -11,8 +11,10 @@ export PATH=${PATH}:~/bin
 
 if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-  . `brew --prefix`/etc/bash_completion
+if [ "`which brew`" ]; then 
+	if [ -f `brew --prefix`/etc/bash_completion ]; then
+		. `brew --prefix`/etc/bash_completion
+	fi
 fi
 
 
