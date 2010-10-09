@@ -45,7 +45,7 @@ fi
 case $USER in
   ericanderson|eanderson) ;;
   root)
-    ps1_user="\[$txtred\]\u"
+    ps1_user="\[$txtred\]\u@\h"
     echo "root will be logged out after 10 minutes without input or job"
     export TMOUT=600
     ;;
