@@ -53,21 +53,21 @@ case $USER in
 esac
 
 ps1_rvm() {
+	if [ -f ~/.rvm/bin/rvm-prompt ]; then
+		q=$(~/.rvm/bin/rvm-prompt i)
 	
-	q=$(~/.rvm/bin/rvm-prompt i)
-	
-	if [ "$q" == "jruby" ]; then
-		out=" (jruby)"
-	else
-		q=$(~/.rvm/bin/rvm-prompt v g)
+		if [ "$q" == "jruby" ]; then
+			out=" (jruby)"
+		else
+			q=$(~/.rvm/bin/rvm-prompt v g)
 		
-		if [ "$q" != "" ]; then 
-			out=" ($q)"
+			if [ "$q" != "" ]; then 
+				out=" ($q)"
+			fi
 		fi
+	
+		if [ "$out" != "" ]; then echo "$out"; fi
 	fi
-	
-	if [ "$out" != "" ]; then echo "$out"; fi
-	
 }
 
 GIT_PS1_SHOWDIRTYSTATE=true
