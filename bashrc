@@ -1,14 +1,6 @@
-alias t='todo.sh'
-alias thingsdb='cd ~/Library/Application\ Support/Cultured\ Code/Things'
-
-alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/bin/main.rb'
-
-if [ -f /opt/local/etc/bash_completion ]; then
-	. /opt/local/etc/bash_completion
-fi
+if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
 
 if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
-
 
 # Setup Prompt
 txtblk='\e[0;30m' # Black - Regular
