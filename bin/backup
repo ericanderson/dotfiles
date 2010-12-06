@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DISKIMG=/Volumes/BackupDisk/ealaptop.sparsebundle
+SRC_DIR=/Users/ericanderson/
+
+echo
+echo Mounting Encrypted Backup
+BACKUP_MOUNT=`hdiutil mount -owners on -mountrandom /tmp $DISKIMG -nobrowse | grep Apple_HFS | awk '{print $3}'`
+if [ "$BACKUP_MOUNT" == "" ]; then
+	echo "Unable to mount encryped backup image"
+	exit
+fi
+BACKUP_DIR=$BACKUP_MOUNT/backup
+echo Encrypted backup mounted on at: $BACKUP_MOUNT
+
+echo
+echo Backing up $SRC_DIR
+rsync -Paz -F --delete-after $SRC_DIR $BACKUP_DIR
+echo Backup complete
+
+echo
+echo Unmounting Encrypted Backup
+umount $BACKUP_MOUNT
+
+echo
+echo DONE.
+echo
