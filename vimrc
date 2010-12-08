@@ -20,7 +20,8 @@ set splitbelow
 set splitright
 set laststatus=2
 
-
+" Configure Ruby
+autocmd FileType ruby,eruby,yaml set ai sw=2 sts=2 et
 
 " Auto commands
 au BufRead,BufNewFile {Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
