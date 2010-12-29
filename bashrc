@@ -2,6 +2,8 @@ if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z'
 
 if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
 
+export LSCOLORS=DxFxCxDxBxegedabagacad
+
 # Setup Prompt
 txtblk='\e[0;30m' # Black - Regular
 txtred='\e[0;31m' # Red
@@ -55,17 +57,17 @@ esac
 ps1_rvm() {
 	if [ -f ~/.rvm/bin/rvm-prompt ]; then
 		q=$(~/.rvm/bin/rvm-prompt i)
-	
+
 		if [ "$q" == "jruby" ]; then
 			out=" (jruby)"
 		else
 			q=$(~/.rvm/bin/rvm-prompt v g)
-		
-			if [ "$q" != "" ]; then 
+
+			if [ "$q" != "" ]; then
 				out=" ($q)"
 			fi
 		fi
-	
+
 		if [ "$out" != "" ]; then echo "$out"; fi
 	fi
 }
