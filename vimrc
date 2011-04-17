@@ -30,7 +30,7 @@ set laststatus=2
 autocmd FileType ruby,eruby,yaml set ai sw=2 sts=2 et
 
 " Auto commands
-au BufRead,BufNewFile {Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
+au BufRead,BufNewFile {Vagrantfile,Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
 au BufRead,BufNewFile {*.md,*.mkd,*.markdown}                         set ft=markdown
 au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=gitcommit
 
