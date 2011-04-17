@@ -1,4 +1,6 @@
+" Must come first!
 set nocompatible
+
 set history=256
 set t_Co=256
 set nowritebackup
@@ -6,6 +8,10 @@ set nobackup
 set ignorecase
 set smartcase
 set incsearch
+
+" Make Ctrl-u and Ctlr-w undoable
+inoremap <c-u> <c-g>u<c-u>
+inoremap <c-w> <c-g>u<c-w>
 
 
 set autoindent
