@@ -1,6 +1,9 @@
 " Must come first!
 set nocompatible
 
+runtime bundle/vim-pathogen/autoload/pathogen.vim
+call pathogen#infect()
+
 set history=256
 set t_Co=256
 set nowritebackup
@@ -36,18 +39,9 @@ au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=git
 
 autocmd BufWritePre * :%s/\s\+$//e " Remove trailing whitespace
 
-" Bundle Setup
-
-set rtp+=~/.vim/vundle.git/
-call vundle#rc()
-
-" Color Themes
-Bundle "Color-Sampler-Pack"
 color xoria256
 
 " NERDTree
-
-Bundle "The-NERD-tree"
 function! NERDTreeQuit()
   redir => buffersoutput
   silent buffers
