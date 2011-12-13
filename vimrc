@@ -32,6 +32,9 @@ set laststatus=2
 " Configure Ruby
 autocmd FileType ruby,eruby,yaml set ai sw=2 sts=2 et
 
+" Configure CoffeeScript
+au BufNewFile,BufReadPost *.coffee setl ai sts=2 shiftwidth=2 expandtab
+
 " Auto commands
 au BufRead,BufNewFile {Vagrantfile,Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
 au BufRead,BufNewFile {*.md,*.mkd,*.markdown}                         set ft=markdown
