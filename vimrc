@@ -42,7 +42,7 @@ au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=git
 
 autocmd BufWritePre * :%s/\s\+$//e " Remove trailing whitespace
 
-color xoria256
+color twilight256
 
 " NERDTree
 function! NERDTreeQuit()
