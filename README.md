@@ -1,3 +1,3 @@
-Adopted from [errtheblog]
-
-[errtheblog]: http://errtheblog.com/posts/89-huba-huba
+After fetching/pulling:
+# Run `git submodule update`
+# Followed by `./install.rb`
