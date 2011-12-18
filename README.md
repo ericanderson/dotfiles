@@ -1,3 +1,3 @@
-After fetching/pulling:
-# Run `git submodule update`
-# Followed by `./install.rb`
+# After fetching/pulling:
+1. Run `git submodule update`
+2. Followed by `./install.rb`
