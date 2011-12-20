@@ -76,11 +76,23 @@ ps1_rvm() {
 	fi
 }
 
+function __rbenv_ps1() {
+	if [ -d ~/.rbenv ]; then
+		local rbenv_ps1="$(rbenv version-name)"
+		if [ -n "${rbenv_ps1}" ]; then
+			if [ "system" != "${rbenv_ps1}" ]; then
+				printf " (${1:-%s})" "$rbenv_ps1"
+			fi
+		fi
+	fi
+}
+
 GIT_PS1_SHOWDIRTYSTATE=true
 GIT_PS1_SHOWUNTRACKEDFILES=true
 GIT_PS1_SHOWSTASHSTATE=true
 
-ps1_ruby='$(ps1_rvm)'
+ps1_rvm='$(ps1_rvm)'
+ps1_rbenv='$(__rbenv_ps1)'
 ps1_vcs='$(__git_ps1 "(%s)")'
 
 if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
@@ -95,6 +107,6 @@ PS1="$ps1_user$ps1_host"
 
 if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 
-PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_ruby\[$txtrst\] \$ "
+PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_rvm$ps1_rbenv\[$txtrst\] \$ "
 
 # End Setup Prompt
