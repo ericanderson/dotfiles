@@ -4,7 +4,7 @@ termcapinfo vt100 'hs:ts=\E]0;:fs007:ds=\E]0;'
 termcapinfo xterm-256color 'hs:ts=\E]0;:fs007:ds=\E]0;'
 defbce "on"
 
-term xterm-256color
+#term xterm-256color
 
 activity "%c activity -> %n%f %t"
 autodetach on

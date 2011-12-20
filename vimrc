@@ -1,4 +1,9 @@
+" Must come first!
 set nocompatible
+
+runtime bundle/vim-pathogen/autoload/pathogen.vim
+call pathogen#infect()
+
 set history=256
 set t_Co=256
 set nowritebackup
@@ -6,6 +11,10 @@ set nobackup
 set ignorecase
 set smartcase
 set incsearch
+
+" Make Ctrl-u and Ctlr-w undoable
+inoremap <c-u> <c-g>u<c-u>
+inoremap <c-w> <c-g>u<c-w>
 
 
 set autoindent
@@ -23,25 +32,19 @@ set laststatus=2
 " Configure Ruby
 autocmd FileType ruby,eruby,yaml set ai sw=2 sts=2 et
 
+" Configure CoffeeScript
+au BufNewFile,BufReadPost *.coffee setl ai sts=2 shiftwidth=2 expandtab
+
 " Auto commands
-au BufRead,BufNewFile {Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
+au BufRead,BufNewFile {Vagrantfile,Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
 au BufRead,BufNewFile {*.md,*.mkd,*.markdown}                         set ft=markdown
 au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=gitcommit
 
 autocmd BufWritePre * :%s/\s\+$//e " Remove trailing whitespace
 
-" Bundle Setup
-
-set rtp+=~/.vim/vundle.git/
-call vundle#rc()
-
-" Color Themes
-Bundle "Color-Sampler-Pack"
-color xoria256
+color twilight256
 
 " NERDTree
-
-Bundle "The-NERD-tree"
 function! NERDTreeQuit()
   redir => buffersoutput
   silent buffers

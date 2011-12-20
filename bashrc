@@ -1,3 +1,6 @@
+export UNISONLOCALHOSTNAME=`hostname`
+export PATH=${PATH}:/usr/local/bin
+
 if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
 
 if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
@@ -59,7 +62,8 @@ ps1_rvm() {
 		q=$(~/.rvm/bin/rvm-prompt i)
 
 		if [ "$q" == "jruby" ]; then
-			out=" (jruby)"
+			q=$(~/.rvm/bin/rvm-prompt g)
+			out=" (jruby$q)"
 		else
 			q=$(~/.rvm/bin/rvm-prompt v g)
 

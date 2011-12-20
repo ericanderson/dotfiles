@@ -1,1 +1,2 @@
 export rvm_pretty_print=1
+export rvm_path="/Users/eanderson/.rvm"
