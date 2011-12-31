@@ -1,3 +1,5 @@
+TM_FULLNAME = "Eric Anderson"
+
 # Extra files to include
 #
 myExtraIncludes = ".tm_properties,.htaccess,.gitignore"
@@ -7,13 +9,13 @@ include = "{$include,$myExtraIncludes}"
 # Hide log, vendor and tmp directories from search popups.
 #
 myExtraExcludes = "log,vendor,tmp"
-excludeInFileChooser  = "{$excludeInFileChooser,$myExtraExcludes}" 
-excludeInFolderSearch = "{$excludeInFolderSearch,$myExtraExcludes}" 
+excludeInFileChooser  = "{$excludeInFileChooser,$myExtraExcludes}"
+excludeInFolderSearch = "{$excludeInFolderSearch,$myExtraExcludes}"
 
 # If you also want to hide them from your project manager pane, add
 # the following line to your project's local .tm_properties.
 #
-# excludeInBrowser      = "{$excludeInBrowser,log,vendor,tmp}" 
+# excludeInBrowser      = "{$excludeInBrowser,log,vendor,tmp}"
 
 
 # Configure git and hg
