@@ -3,6 +3,8 @@ alias thingsdb='cd ~/Library/Application\ Support/Cultured\ Code/Things'
 
 alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/bin/main.rb'
 
+export EDITOR="$HOME/bin/mate -w"
+
 
 if [ -f /opt/local/etc/bash_completion ]; then
 	. /opt/local/etc/bash_completion
