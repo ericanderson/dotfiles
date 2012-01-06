@@ -1,5 +1,5 @@
 export UNISONLOCALHOSTNAME=`hostname`
-export PATH=${PATH}:/usr/local/bin
+export PATH=/usr/local/bin:${PATH}
 
 if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
 
