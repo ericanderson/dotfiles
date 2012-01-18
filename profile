@@ -11,7 +11,7 @@ export PATH=${PATH}:~/bin
 
 if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
-if [ "`which brew`" ]; then 
+if type -p brew >/dev/null 2>&1; then
 	if [ -f `brew --prefix`/etc/bash_completion ]; then
 		. `brew --prefix`/etc/bash_completion
 	fi
