@@ -77,7 +77,7 @@ ps1_rvm() {
 }
 
 function __rbenv_ps1() {
-	if [ -d ~/.rbenv ]; then
+	if type -p rbenv >/dev/null 2>&1; then
 		local rbenv_ps1="$(rbenv version-name)"
 		if [ -n "${rbenv_ps1}" ]; then
 			if [ "system" != "${rbenv_ps1}" ]; then
@@ -87,13 +87,14 @@ function __rbenv_ps1() {
 	fi
 }
 
+
 GIT_PS1_SHOWDIRTYSTATE=true
 GIT_PS1_SHOWUNTRACKEDFILES=true
 GIT_PS1_SHOWSTASHSTATE=true
 
 ps1_rvm='$(ps1_rvm)'
 ps1_rbenv='$(__rbenv_ps1)'
-ps1_vcs='$(__git_ps1 "(%s)")'
+ps1_vcs='$(type -p __git_ps1 && __git_ps1 "(%s)")'
 
 if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
 	ps1_user="$ps1_user@"
