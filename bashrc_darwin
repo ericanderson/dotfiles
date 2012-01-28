@@ -6,6 +6,8 @@ alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/bin/main.rb'
 export EDITOR="$HOME/bin/mate -w"
 
 
-if [ -f /opt/local/etc/bash_completion ]; then
-	. /opt/local/etc/bash_completion
+# HomeBrew
+if [ -f /usr/local/etc/bash_completion ]; then
+	. /usr/local/etc/bash_completion
 fi
+
