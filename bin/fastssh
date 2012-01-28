@@ -1,0 +1,25 @@
+#!/bin/bash
+
+SSH_OPTIONS=" -MNf"
+
+export AUTOSSH_GATETIME=0
+export AUTOSSH_PORT=0
+
+function makefast {
+	HOST=$1
+	shift
+	ADDITIONAL_ARGS=$@
+	
+	CMD="autossh -M 0 -f -- $HOST $SSH_OPTIONS $ADDITIONAL_ARGS"
+	`$CMD`
+}
+
+makefast bamboo
+makefast gerrit
+makefast samus
+makefast jira-prod-01
+makefast confluence-prod-01
+makefast hyperic-prod-01
+makefast crowd-prod-01
+makefast ivy
+makefast 100h-ivy-squid-01
