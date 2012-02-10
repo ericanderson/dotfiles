@@ -3,11 +3,16 @@
 
 home = ENV['HOME']
 
+def symlinkable? file
+  return true if File.extname(file).empty?
+  return true if file == 'tmux.conf'
+end
+
 Dir.chdir File.dirname(__FILE__) do
   dotfiles_dir = Dir.pwd.sub(home + '/', '')
-  
+
   Dir['*'].each do |file|
-    next unless File.extname(file).empty?
+    next unless symlinkable? file
     target_name = file == 'bin' ? file : ".#{file}"
     target = File.join(home, target_name)
     unless File.exist? target
