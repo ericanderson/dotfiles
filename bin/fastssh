@@ -10,8 +10,13 @@ function makefast {
 	shift
 	ADDITIONAL_ARGS=$@
 	
-	CMD="autossh -M 0 -f -- $HOST $SSH_OPTIONS $ADDITIONAL_ARGS"
-	`$CMD`
+	if [ -z "`ssh-keygen -F $HOST 2> /dev/null `" ]; then 
+		echo "$HOST: No known_host entry exists. Looking it up."
+		ssh-keyscan $HOST >> ~/.ssh/known_hosts 2> /dev/null
+	fi;
+	
+	echo "$HOST: Initializing connection"
+	autossh -M 0 -f -- $HOST $SSH_OPTIONS $ADDITIONAL_ARGS
 }
 
 makefast bamboo
@@ -21,5 +26,9 @@ makefast jira-prod-01
 makefast confluence-prod-01
 makefast hyperic-prod-01
 makefast crowd-prod-01
-makefast ivy
+makefast pt-ivy-01
 makefast 100h-ivy-squid-01
+
+echo ""
+echo "Done."
+echo ""
