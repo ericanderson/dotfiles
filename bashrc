@@ -5,6 +5,8 @@ if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z'
 
 if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
 
+set -o vi
+
 export LSCOLORS=DxFxCxDxBxegedabagacad
 
 # Setup Prompt
@@ -111,3 +113,4 @@ if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
 PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_rvm$ps1_rbenv\[$txtrst\] \$ "
 
 # End Setup Prompt
+
