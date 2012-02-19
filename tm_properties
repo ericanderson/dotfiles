@@ -21,13 +21,15 @@ excludeInFolderSearch = "{$excludeInFolderSearch,$myExtraExcludes}"
 # Configure git and hg
 #
 #TM_HG  = "/opt/local/bin/hg"
-#TM_GIT = "/opt/local/bin/git"
+TM_GIT = "/usr/local/bin/git"
 
 # Default editing configuration
 #
 softWrap         = false
 softTabs         = false
 tabSize          = 4
+
+windowTitle = "$TM_DISPLAYNAME ${TM_SCM_BRANCH:?($TM_SCM_BRANCH):}"
 
 # File type specific configuration
 #
@@ -54,3 +56,6 @@ fileType         = "text.plain"
 
 [ "TODO" ]
 fileType         = "text.tasks"
+
+[ {Rakefile,Capfile} ]
+fileType         = "text.ruby"
