@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+def is_mac?
+  RUBY_PLATFORM.downcase.include?("darwin")
+end
+
 def symlinkable? file
   return true if File.extname(file).empty?
   return true if file == 'tmux.conf'

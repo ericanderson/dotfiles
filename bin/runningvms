@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Running VMs:"
+VMS=`VBoxManage list runningvms | awk '{print $1 }' | sed 's/"//g'`
+
+
+if [ -z "$VMS" ]; then
+	echo "  No VMs are running"
+else
+	for word in $VMS; do
+		echo "  $word"
+	done
+fi
