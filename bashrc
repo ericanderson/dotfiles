@@ -5,8 +5,6 @@ if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z'
 
 if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
 
-set -o vi
-
 export LSCOLORS=DxFxCxDxBxegedabagacad
 
 # Setup Prompt
