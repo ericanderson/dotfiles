@@ -1,0 +1,12 @@
+[color]
+	ui = true
+[core]
+	whitespace = trailing-space,space-before-tab,indent-with-non-tab
+[alias]
+	st = status
+	co = checkout
+	ci = commit
+	br = branch
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	r  = !git ls-files -z --deleted | xargs -0 git rm
+	unpushed = log @{u}..
