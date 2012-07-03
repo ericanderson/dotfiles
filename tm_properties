@@ -22,6 +22,7 @@ excludeInFolderSearch = "{$excludeInFolderSearch,$myExtraExcludes}"
 #
 #TM_HG  = "/opt/local/bin/hg"
 TM_GIT = "/usr/local/bin/git"
+PATH = "~/.rbenv/shims:~/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:~/bin"
 
 # Default editing configuration
 #
@@ -46,6 +47,11 @@ binary           = true
 [ source.ruby ]
 softTabs         = true
 tabSize          = 2
+
+[ "*.{haml,yml,coffee,feature}" ]
+softTabs = true
+tabSize = 2
+
 
 [ source.python ]
 softTabs         = true
