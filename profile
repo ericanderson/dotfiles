@@ -17,7 +17,4 @@ if type -p brew >/dev/null 2>&1; then
 	fi
 fi
 
-
-# Setup for RVM (SHOULD BE LAST!)
-[[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
-# End Setup for RVM
+[[ `uname | tr 'A-Z' 'a-z'` == "darwin" ]] && export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/
