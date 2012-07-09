@@ -4,6 +4,7 @@ set nocompatible
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
 
+set title
 set history=256
 set t_Co=256
 set nowritebackup
@@ -12,15 +13,68 @@ set ignorecase
 set smartcase
 set incsearch
 
+set encoding=utf-8
+set wildmenu
+set wildmode=list:longest
+
+set smarttab
+
+" Highlight search terms
+set hlsearch
+set incsearch
+
+set ruler
+
+let mapleader=","
+
+nmap <silent> <leader>n :silent :nohlsearch
+
 " Make Ctrl-u and Ctlr-w undoable
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-w> <c-g>u<c-w>
 
+set scrolloff=3 " Makes scrolling off screen show 3 lines
+
+set wildignore=*.swp,*.bak,*.class
+
+set pastetoggle=<F2>
+
+" Lets use hidden buffers
+set hidden
+
+" Use sane regex
+nnoremap / /\v
+vnoremap / /\v
+
+" clear out search
+nnoremap <leader><space> :noh<cr>
+
+" Lets get crazy here and disable my arrow keys :/
+nnoremap <up> <nop>
+nnoremap <down> <nop>
+nnoremap <left> <nop>
+nnoremap <right> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
+nnoremap j gj
+nnoremap k gk
+
+" Store backups in sane place
+set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 
 set autoindent
 "set cindent
 
 set number
+
+" Lets do some cool leader stuff
+nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
+
+" Attempting to use jj to get back to normal mode
+inoremap jj <ESC>
 
 syntax on
 filetype plugin indent on
