@@ -2,6 +2,7 @@
 set nocompatible
 
 runtime bundle/vim-pathogen/autoload/pathogen.vim
+call pathogen#helptags()
 call pathogen#infect()
 
 set title
@@ -19,6 +20,8 @@ set wildmode=list:longest
 
 set smarttab
 
+set backspace=indent,eol,start
+
 " Highlight search terms
 set hlsearch
 set incsearch
@@ -35,7 +38,7 @@ inoremap <c-w> <c-g>u<c-w>
 
 set scrolloff=3 " Makes scrolling off screen show 3 lines
 
-set wildignore=*.swp,*.bak,*.class
+set wildignore+=*.swp,*.bak,*.class,node_modules/**
 
 set pastetoggle=<F2>
 
