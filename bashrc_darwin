@@ -7,7 +7,7 @@ alias do_work="cd ~/Documents/Projects/Work"
 alias do_personal="cd ~/Documents/Projects/Personal"
 alias do_oss="cd ~/Documents/Projects/OSS"
 
-export EDITOR="$HOME/bin/mate -w"
+#export EDITOR="$HOME/bin/mate -w"
 
 
 # HomeBrew

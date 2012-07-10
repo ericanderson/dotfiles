@@ -1,5 +1,5 @@
 #!/bin/bash
-export SVN_EDITOR="vim"
+export EDITOR="vim"
 
 export CLICOLOR=1
 
