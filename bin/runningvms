@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Running VMs:"
-VMS=`VBoxManage list runningvms | awk '{print $1 }' | sed 's/"//g'`
+VMS=`VBoxManage list runningvms | sed 's/\(".*"\) .*/\1/'`
 
 
 if [ -z "$VMS" ]; then

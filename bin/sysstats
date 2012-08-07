@@ -1,0 +1,93 @@
+#!/bin/sh
+myCPU=`top -l 1 | awk '/CPU usage/ {print $3}' | sed s/%//`
+myCPU=`echo "tmp=$myCPU; tmp /= 1; tmp" | bc`
+
+typeset -i b=9
+echo "CPU Usage      \c"
+while [ $b -lt $myCPU ]
+do
+	echo "\033[1;37m▇\033[0m\c"
+	b=`expr $b + 10`
+done
+#echo "\033[1;39m█\033[0m\c"
+while [ $b -lt 99 ]
+do
+	echo "\033[2;30m▇\033[0m\c"
+
+	b=`expr $b + 10`
+done
+echo "	$myCPU%\c"
+
+echo "\r"
+unset myCPU
+unset b
+
+
+myUsedMem=`top -l 1 | awk '/PhysMem/ {print $8}' | sed s/M// `
+myFreeMem=`top -l 1 | awk '/PhysMem/ {print $10}' | sed s/M// `
+myActiveMem=`top -l 1 | awk '/PhysMem/ {print $4}' | sed s/M// `
+if echo $myUsedMem | grep -s -q 'G$'; then
+	myUsedMem=`echo $myUsedMem | sed 's/G//'`
+	myUsedMem=`expr $myUsedMem \* 1024`
+fi
+
+myTotalMem=` expr $myUsedMem + $myFreeMem`
+myUsedPer=`echo |awk '{print f / t * 100}' f=$myActiveMem t=$myTotalMem`
+myUsedPer=`echo "tmp=$myUsedPer; tmp /= 1; tmp" | bc`
+
+typeset -i c=9
+echo "Memory Usage   \c"
+while [ $c -lt $myUsedPer ]
+do
+        echo "\033[1;37m▇\033[0m\c"
+        c=`expr $c + 10`
+done
+
+#echo "\033[1;39m█\033[0m\c"
+while [ $c -lt 99 ]
+do
+        echo "\033[2;30m▇\033[0m\c"
+        c=`expr $c + 10`
+done
+echo "	$myUsedPer%\c"
+
+echo "\r"
+
+unset myUsedMem
+unset myFreeMem
+unset myTotalMem
+unset myUsedPer
+unset c
+
+
+rm /tmp/disks.lst
+#getting disks..due to better handling with awk it creates a file
+df -H | grep -vE '^Filesystem|tmpfs|cdrom|devfs|map|disk2' | awk '{ print $1 " " $5 }' >> /tmp/disks.lst
+#how many disks do we have?
+count=`wc -l /tmp/disks.lst|awk '{print $1}'`
+for ((i=1;i <= $count;i++))
+do
+currname=`awk -v i=$i 'NR==i' /tmp/disks.lst|awk '{print $1}'`
+echo "$currname   \c"
+currp=`awk -v i=$i 'NR==i' /tmp/disks.lst|awk '{print $2}'|cut -d'%' -f1`
+typeset -i a=9
+while [ $a -lt $currp ]
+do
+echo "\033[1;37m▇\033[0m\c"
+a=`expr $a + 10`
+done
+#echo "\033[1;39m█\033[0m\c"
+while [ $a -lt 99 ]
+do
+echo "\033[2;30m▇\033[0m\c"
+a=`expr $a + 10`
+done
+echo "	$currp%\c"
+echo "\r"
+done
+
+unset count
+unset i
+unset currname
+unset currp
+unset a
