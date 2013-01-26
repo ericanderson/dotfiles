@@ -1,7 +1,10 @@
 [color]
 	ui = true
 [core]
-	whitespace = trailing-space,space-before-tab,indent-with-non-tab
+	whitespace = trailing-space,space-before-tab
+[difftool "cloc"]
+	cmd = echo && echo && echo $REMOTE && cloc --diff --quiet --3 $LOCAL $REMOTE
+
 [alias]
 	st = status
 	co = checkout
@@ -10,7 +13,21 @@
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	r  = !git ls-files -z --deleted | xargs -0 git rm
 	unpushed = log @{u}..
+	index-ignore = update-index --assume-unchanged
+	index-unignore = update-index --no-assume-unchanged
+	index-ignored = !git ls-files -v | grep ^[a-z]
+	cloc = difftool -t cloc -y
 [rebase]
 	autosquash = true
 [branch]
 	autosetuprebase = always
+[push]
+	ddefault = simple
+	default = simple
+[merge]
+	log = 50
+	conflictstyle = diff3
+[user]
+	name = Eric Anderson
+[rerere]
+	enabled = 1
