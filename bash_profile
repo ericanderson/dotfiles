@@ -7,3 +7,4 @@ if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
 export PATH=$PATH:/Users/eanderson/Documents/Projects/Work/gitscripts/bin
 
 type -p rbenv > /dev/null && eval "$(rbenv init -)"
+sssh (){ ssh -t "$1" 'tmux attach || tmux new || screen -DR'; }
