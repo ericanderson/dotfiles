@@ -4,6 +4,7 @@
 	whitespace = trailing-space,space-before-tab
 [difftool "cloc"]
 	cmd = echo && echo && echo $REMOTE && cloc --diff --quiet --3 $LOCAL $REMOTE
+ 	excludesfile = /opt/boxen/config/git/gitignore
 
 [alias]
 	st = status
@@ -22,7 +23,6 @@
 [branch]
 	autosetuprebase = always
 [push]
-	ddefault = simple
 	default = simple
 [merge]
 	log = 50
@@ -31,3 +31,11 @@
 	name = Eric Anderson
 [rerere]
 	enabled = 1
+
+[hub]
+	protocol = https
+
+[credential]
+	helper = /opt/boxen/bin/boxen-git-credential
+[diff]
+	algorithm = patience

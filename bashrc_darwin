@@ -1,17 +1,8 @@
-alias t='todo.sh'
-alias thingsdb='cd ~/Library/Application\ Support/Cultured\ Code/Things'
-
-alias buildlib='ruby ~/Workspace/gitrepos/lib/buildlib3/bin/main.rb'
-
 alias do_work="cd ~/Documents/Projects/Work"
 alias do_personal="cd ~/Documents/Projects/Personal"
 alias do_oss="cd ~/Documents/Projects/OSS"
 
-#export EDITOR="$HOME/bin/mate -w"
-
-
-# HomeBrew
-if [ -f /usr/local/etc/bash_completion ]; then
-	. /usr/local/etc/bash_completion
+# Bash completion
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+    . `brew --prefix`/etc/bash_completion
 fi
-
