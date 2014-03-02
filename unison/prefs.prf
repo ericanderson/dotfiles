@@ -1,3 +1,5 @@
+include common
+
 root = /Users/eanderson/
 root = /Users/eanderson/Dropbox/Sync Files
 
