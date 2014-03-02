@@ -39,3 +39,5 @@
 	helper = /opt/boxen/bin/boxen-git-credential
 [diff]
 	algorithm = patience
+[include]
+		path = ~/.gitconfig_local
