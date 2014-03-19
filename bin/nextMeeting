@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Next Meeting:"
+exec /usr/local/bin/icalBuddy -n -f -ea -li 1 -eep 'notes,attendees' -nc -npn -b '' -po 'title,datetime,location' -ps '|\n|' -eed eventsToday+10
