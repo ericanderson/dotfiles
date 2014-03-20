@@ -15,6 +15,8 @@ install tree
 install unison
 install wget
 
+install bash-completion
+
 tap phinze/cask
 install brew-cask
 
