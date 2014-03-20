@@ -1,4 +1,10 @@
 #!/bin/sh
+
+# Configure Boxen
 [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
 
+# Configure homebrew
+export PATH="/usr/local/bin:$PATH"
+
 [[ `uname | tr 'A-Z' 'a-z'` == "darwin" ]] && export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/
+
