@@ -40,4 +40,7 @@ cask install textexpander
 tap caskroom/versions
 cask install sublime-text3
 
+tap Goles/battery
+install battery
+
 doctor
