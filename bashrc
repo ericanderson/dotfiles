@@ -3,108 +3,222 @@ if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
 
 export LSCOLORS=DxFxCxDxBxegedabagacad
 
-# Setup Prompt
-txtblk='\e[0;30m' # Black - Regular
-txtred='\e[0;31m' # Red
-txtgrn='\e[0;32m' # Green
-txtylw='\e[0;33m' # Yellow
-txtblu='\e[0;34m' # Blue
-txtpur='\e[0;35m' # Purple
-txtcyn='\e[0;36m' # Cyan
-txtwht='\e[0;37m' # White
-bldblk='\e[1;30m' # Black - Bold
-bldred='\e[1;31m' # Red
-bldgrn='\e[1;32m' # Green
-bldylw='\e[1;33m' # Yellow
-bldblu='\e[1;34m' # Blue
-bldpur='\e[1;35m' # Purple
-bldcyn='\e[1;36m' # Cyan
-bldwht='\e[1;37m' # White
-unkblk='\e[4;30m' # Black - Underline
-undred='\e[4;31m' # Red
-undgrn='\e[4;32m' # Green
-undylw='\e[4;33m' # Yellow
-undblu='\e[4;34m' # Blue
-undpur='\e[4;35m' # Purple
-undcyn='\e[4;36m' # Cyan
-undwht='\e[4;37m' # White
-bakblk='\e[40m'   # Black - Background
-bakred='\e[41m'   # Red
-badgrn='\e[42m'   # Green
-bakylw='\e[43m'   # Yellow
-bakblu='\e[44m'   # Blue
-bakpur='\e[45m'   # Purple
-bakcyn='\e[46m'   # Cyan
-bakwht='\e[47m'   # White
-txtrst='\e[0m'    # Text Reset
+__setup_prompt() {
 
-if [ -n "$SSH_CLIENT" ]; then
-  # show host only if this is an ssh session
-  ps1_host="\h"
-fi
+	readonly LEFT_SEPARATOR=''
+	readonly LEFT_SEPARATOR_BLACK=''
+	readonly RIGHT_SEPARATOR=''
+	readonly RIGHT_SEPARATOR_BLACK=''
 
-case $USER in
-  ericanderson|eanderson) ;;
-  root)
-    ps1_user="\[$txtred\]\u@\h"
-    echo "root will be logged out after 10 minutes without input or job"
-    export TMOUT=600
-    ;;
-  *) ps1_user="\[$txtgrn\]\u" ;;
-esac
+	readonly PS_SYMBOL_DARWIN=''
+	readonly PS_SYMBOL_LINUX='$'
+	readonly PS_SYMBOL_OTHER='%'
+	readonly GIT_BRANCH_SYMBOL='⑂ '
+	readonly GIT_BRANCH_CHANGED_SYMBOL='+'
+	readonly GIT_NEED_PUSH_SYMBOL='⇡'
+	readonly GIT_NEED_PULL_SYMBOL='⇣'
 
-ps1_rvm() {
-	if [ -f ~/.rvm/bin/rvm-prompt ]; then
-		q=$(~/.rvm/bin/rvm-prompt i)
+	 # Solarized colorscheme
+	readonly FG_BASE03="\[$(tput setaf 8)\]"
+	readonly FG_BASE02="\[$(tput setaf 0)\]"
+	readonly FG_BASE01="\[$(tput setaf 10)\]"
+	readonly FG_BASE00="\[$(tput setaf 11)\]"
+	readonly FG_BASE0="\[$(tput setaf 12)\]"
+	readonly FG_BASE1="\[$(tput setaf 14)\]"
+	readonly FG_BASE2="\[$(tput setaf 7)\]"
+	readonly FG_BASE3="\[$(tput setaf 15)\]"
 
-		if [ "$q" == "jruby" ]; then
-			q=$(~/.rvm/bin/rvm-prompt g)
-			out=" (jruby$q)"
-		else
-			q=$(~/.rvm/bin/rvm-prompt v g)
+	readonly BG_BASE03="\[$(tput setab 8)\]"
+	readonly BG_BASE02="\[$(tput setab 0)\]"
+	readonly BG_BASE01="\[$(tput setab 10)\]"
+	readonly BG_BASE00="\[$(tput setab 11)\]"
+	readonly BG_BASE0="\[$(tput setab 12)\]"
+	readonly BG_BASE1="\[$(tput setab 14)\]"
+	readonly BG_BASE2="\[$(tput setab 7)\]"
+	readonly BG_BASE3="\[$(tput setab 15)\]"
 
-			if [ "$q" != "" ]; then
-				out=" ($q)"
+	readonly FG_YELLOW="\[$(tput setaf 3)\]"
+	readonly FG_ORANGE="\[$(tput setaf 9)\]"
+	readonly FG_RED="\[$(tput setaf 1)\]"
+	readonly FG_MAGENTA="\[$(tput setaf 5)\]"
+	readonly FG_VIOLET="\[$(tput setaf 13)\]"
+	readonly FG_BLUE="\[$(tput setaf 4)\]"
+	readonly FG_CYAN="\[$(tput setaf 6)\]"
+	readonly FG_GREEN="\[$(tput setaf 2)\]"
+
+	readonly BG_YELLOW="\[$(tput setab 3)\]"
+	readonly BG_ORANGE="\[$(tput setab 9)\]"
+	readonly BG_RED="\[$(tput setab 1)\]"
+	readonly BG_MAGENTA="\[$(tput setab 5)\]"
+	readonly BG_VIOLET="\[$(tput setab 13)\]"
+	readonly BG_BLUE="\[$(tput setab 4)\]"
+	readonly BG_CYAN="\[$(tput setab 6)\]"
+	readonly BG_GREEN="\[$(tput setab 2)\]"
+
+	readonly DIM="\[$(tput dim)\]"
+	readonly REVERSE="\[$(tput rev)\]"
+	readonly RESET="\[$(tput sgr0)\]"
+	readonly BOLD="\[$(tput bold)\]"
+
+
+
+	# Setup Prompt
+	txtblk='\e[0;30m' # Black - Regular
+	txtred='\e[0;31m' # Red
+	txtgrn='\e[0;32m' # Green
+	txtylw='\e[0;33m' # Yellow
+	txtblu='\e[0;34m' # Blue
+	txtpur='\e[0;35m' # Purple
+	txtcyn='\e[0;36m' # Cyan
+	txtwht='\e[0;37m' # White
+	bldblk='\e[1;30m' # Black - Bold
+	bldred='\e[1;31m' # Red
+	bldgrn='\e[1;32m' # Green
+	bldylw='\e[1;33m' # Yellow
+	bldblu='\e[1;34m' # Blue
+	bldpur='\e[1;35m' # Purple
+	bldcyn='\e[1;36m' # Cyan
+	bldwht='\e[1;37m' # White
+	unkblk='\e[4;30m' # Black - Underline
+	undred='\e[4;31m' # Red
+	undgrn='\e[4;32m' # Green
+	undylw='\e[4;33m' # Yellow
+	undblu='\e[4;34m' # Blue
+	undpur='\e[4;35m' # Purple
+	undcyn='\e[4;36m' # Cyan
+	undwht='\e[4;37m' # White
+	bakblk='\e[40m'   # Black - Background
+	bakred='\e[41m'   # Red
+	badgrn='\e[42m'   # Green
+	bakylw='\e[43m'   # Yellow
+	bakblu='\e[44m'   # Blue
+	bakpur='\e[45m'   # Purple
+	bakcyn='\e[46m'   # Cyan
+	bakwht='\e[47m'   # White
+	txtrst='\e[0m'    # Text Reset
+
+	if [ -n "$SSH_CLIENT" ]; then
+	  # show host only if this is an ssh session
+	  ps1_host="\h"
+	fi
+
+	case $USER in
+	  ericanderson|eanderson) ;;
+	  root)
+	    ps1_user="\[$txtred\]\u@\h"
+	    echo "root will be logged out after 10 minutes without input or job"
+	    export TMOUT=600
+	    ;;
+	  *) ps1_user="\[$txtgrn\]\u" ;;
+	esac
+
+	ps1_rvm() {
+		if [ -f ~/.rvm/bin/rvm-prompt ]; then
+			q=$(~/.rvm/bin/rvm-prompt i)
+
+			if [ "$q" == "jruby" ]; then
+				q=$(~/.rvm/bin/rvm-prompt g)
+				out=" (jruby$q)"
+			else
+				q=$(~/.rvm/bin/rvm-prompt v g)
+
+				if [ "$q" != "" ]; then
+					out=" ($q)"
+				fi
+			fi
+
+			if [ "$out" != "" ]; then echo "$out"; fi
+		fi
+	}
+
+	function __rbenv_ps1() {
+		if type -p rbenv >/dev/null 2>&1; then
+			local rbenv_ps1="$(rbenv version-name)"
+			if [ -n "${rbenv_ps1}" ]; then
+				if [ "system" != "${rbenv_ps1}" ]; then
+					printf " (${1:-%s})" "$rbenv_ps1"
+				fi
 			fi
 		fi
+	}
 
-		if [ "$out" != "" ]; then echo "$out"; fi
+	function __git_info() {
+		[ -x "$(which git)" ] || return    # git not found
+
+	    # get current branch name or short SHA1 hash for detached head
+	    local branch="$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --always 2>/dev/null)"
+	    [ -n "$branch" ] || return  # git branch not found
+
+	    local marks
+
+	    # branch is modified?
+	    [ -n "$(git status --porcelain)" ] && marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+
+	    # how many commits local branch is ahead/behind of remote?
+	    local stat="$(git status --porcelain --branch | grep '^##' | grep -o '\[.\+\]$')"
+	    local aheadN="$(echo $stat | grep -o 'ahead \d\+' | grep -o '\d\+')"
+	    local behindN="$(echo $stat | grep -o 'behind \d\+' | grep -o '\d\+')"
+	    [ -n "$aheadN" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
+	    [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
+
+	    # print the git branch segment without a trailing newline
+	    printf " $GIT_BRANCH_SYMBOL$branch$marks "
+	}
+
+
+	GIT_PS1_SHOWDIRTYSTATE=true
+	GIT_PS1_SHOWUNTRACKEDFILES=true
+	GIT_PS1_SHOWSTASHSTATE=true
+
+	ps1_rvm='$(ps1_rvm)'
+	ps1_rbenv='$(__rbenv_ps1)'
+	ps1_vcs='$(__git_info)'
+
+	if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
+		ps1_user="$ps1_user@"
 	fi
+
+	if [ "$ps1_user" == "" ] && [ -n "$ps1_host" ]; then
+		ps1_host="\[$txtgrn\]$ps1_host\[$txtrst\]"
+	fi
+
+	case "$(uname)" in
+	    Darwin)
+	        readonly PS_SYMBOL=$PS_SYMBOL_DARWIN
+	        ;;
+	    Linux)
+	        readonly PS_SYMBOL=$PS_SYMBOL_LINUX
+	        ;;
+	    *)
+	        readonly PS_SYMBOL=$PS_SYMBOL_OTHER
+	esac
+
+	myps1() {
+		# MUST GO FIRST!
+		if [ $? -eq 0 ]; then
+			local FG_EXIT="$FG_GREEN"
+	        local BG_EXIT="$BG_GREEN"
+	    else
+	    	local FG_EXIT="$FG_RED"
+	        local BG_EXIT="$BG_RED"
+	    fi
+
+		PS1="$ps1_user$ps1_host"
+
+		if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
+		#PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_rvm$ps1_rbenv\[$txtrst\] \$ "
+		PS1="$BG_BASE1$FG_BASE3 \w $RESET"
+        PS1+="$BG_BLUE$FG_BASE3$(__git_info)$RESET"
+
+
+	    PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $RESET "
+	}
+
+	PROMPT_COMMAND=myps1
+
+
+	# End Setup Prompt
 }
 
-function __rbenv_ps1() {
-	if type -p rbenv >/dev/null 2>&1; then
-		local rbenv_ps1="$(rbenv version-name)"
-		if [ -n "${rbenv_ps1}" ]; then
-			if [ "system" != "${rbenv_ps1}" ]; then
-				printf " (${1:-%s})" "$rbenv_ps1"
-			fi
-		fi
-	fi
-}
-
-
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-GIT_PS1_SHOWSTASHSTATE=true
-
-ps1_rvm='$(ps1_rvm)'
-ps1_rbenv='$(__rbenv_ps1)'
-ps1_vcs='$(type -p __git_ps1 && __git_ps1 "(%s)")'
-
-if [ -n "$ps1_user" ] && [ -n "$ps1_host" ]; then
-	ps1_user="$ps1_user@"
-fi
-
-if [ "$ps1_user" == "" ] && [ -n "$ps1_host" ]; then
-	ps1_host="\[$txtgrn\]$ps1_host\[$txtrst\]"
-fi
-
-PS1="$ps1_user$ps1_host"
-
-if [ "$PS1" != "" ]; then PS1="$PS1:"; fi
-
-PS1="$PS1\[$txtcyn\]\w\[$txtylw\]$ps1_vcs\[$txtrst$txtpur\]$ps1_rvm$ps1_rbenv\[$txtrst\] \$ "
-
-# End Setup Prompt
-
+__setup_prompt
+unset __setup_prompt
