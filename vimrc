@@ -128,4 +128,6 @@ function! NERDTreeQuit()
 endfunction
 autocmd WinEnter * call NERDTreeQuit()
 
-
+" Settings for ansible-vim
+let g:ansible_name_highlight = 'd'
+let g:ansible_extra_keywords_highlight = 1
