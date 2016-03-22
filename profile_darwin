@@ -5,6 +5,7 @@
 
 # Configure homebrew
 export PATH="/usr/local/bin:$PATH"
+export PATH="/usr/local/sbin:$PATH"
 
 if [ -d "$HOME/.nodenv" ]; then
 	export PATH="$HOME/.nodenv/bin:$PATH"
