@@ -53,14 +53,16 @@ vnoremap / /\v
 nnoremap <leader><space> :noh<cr>
 
 " Lets get crazy here and disable my arrow keys :/
-nnoremap <up> <nop>
-nnoremap <down> <nop>
-nnoremap <left> <nop>
-nnoremap <right> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
+"nnoremap <up> <nop>
+"nnoremap <down> <nop>
+"nnoremap <left> <nop>
+"nnoremap <right> <nop>
+"inoremap <up> <nop>
+"inoremap <down> <nop>
+"inoremap <left> <nop>
+"inoremap <right> <nop>
+
+" Make j and k do the right thing
 nnoremap j gj
 nnoremap k gk
 
@@ -126,4 +128,6 @@ function! NERDTreeQuit()
 endfunction
 autocmd WinEnter * call NERDTreeQuit()
 
-
+" Settings for ansible-vim
+let g:ansible_name_highlight = 'd'
+let g:ansible_extra_keywords_highlight = 1

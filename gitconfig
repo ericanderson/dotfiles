@@ -35,8 +35,6 @@
 [hub]
 	protocol = https
 
-[credential]
-	helper = /opt/boxen/bin/boxen-git-credential
 [diff]
 	algorithm = patience
 [include]
