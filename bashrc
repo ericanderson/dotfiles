@@ -3,6 +3,18 @@ if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
 
 export LSCOLORS=DxFxCxDxBxegedabagacad
 
+man() {
+    env \
+        LESS_TERMCAP_md=$(printf "\e[1;36m") \
+        LESS_TERMCAP_me=$(printf "\e[0m") \
+        LESS_TERMCAP_se=$(printf "\e[0m") \
+        LESS_TERMCAP_so=$(printf "\e[1;40;92m") \
+        LESS_TERMCAP_ue=$(printf "\e[0m") \
+        LESS_TERMCAP_us=$(printf "\e[1;32m") \
+            man "$@"
+}
+
+
 __setup_prompt() {
 
 	readonly LEFT_SEPARATOR=''
