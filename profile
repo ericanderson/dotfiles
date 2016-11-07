@@ -24,3 +24,4 @@ if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 if [ -f ~/.profile_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.profile_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
+export PATH=${PATH}:./node_modules/.bin
