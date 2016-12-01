@@ -29,6 +29,7 @@
 	conflictstyle = diff3
 [user]
 	name = Eric Anderson
+	email = eanderson@palantir.com
 [rerere]
 	enabled = 1
 
@@ -39,3 +40,8 @@
 	algorithm = patience
 [include]
 		path = ~/.gitconfig_local
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

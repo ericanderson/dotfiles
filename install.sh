@@ -15,7 +15,7 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 git submodule update --init
 ruby install.rb
-brew bundle Brewfile
+#brew bundle Brewfile
 bash ./osx
 
 if [[ $OSTYPE == darwin* ]]; then
