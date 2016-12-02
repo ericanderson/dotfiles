@@ -1,0 +1,148 @@
+---
+- hosts: localhost
+  connection: local
+  
+  tasks:
+    - name: Install git & co
+      homebrew: name="{{item}}" state=present
+      with_items:
+        - git
+        - git-extras
+        - git-lfs
+        - hub
+        - tree
+        - wget
+        - curl
+        - go
+
+    - name: Install node
+      homebrew: name="{{item}}" state=present
+      with_items:
+        - node
+    
+    - name: Install node command line tools
+      npm: name={{item}} global=yes
+      with_items:
+        - fsevents
+    
+    - name: Install my standard apps
+      homebrew_cask: name={{item}}
+      with_items:
+        - caffeine
+        - visual-studio-code
+        - google-chrome
+
+    - name: "MacOS: Set sidebar icon size to medium"
+      osx_defaults: domain=NSGlobalDomain key=NSTableViewDefaultSizeMode type=int value=2
+
+    - name: "MacOS: Expand save panel by default"
+      osx_defaults: domain=NSGlobalDomain key=NSNavPanelExpandedStateForSaveMode type=bool value=true
+
+    - name: "MacOS: Expand print panel by default"
+      osx_defaults: domain=NSGlobalDomain key=PMPrintingExpandedStateForPrint type=bool value=true
+
+    - name: "MacOS: Check for software updates daily, not just once per week"
+      osx_defaults: domain=com.apple.SoftwareUpdate key=ScheduleFrequency type=int value=1
+
+    - name: "MacOS: Disable smart quotes as they’re annoying when typing code"
+      osx_defaults: domain=NSGlobalDomain key=NSAutomaticQuoteSubstitutionEnabled type=bool value=false
+
+    - name: "MacOS: Disable smart dashes as they’re annoying when typing code"
+      osx_defaults: domain=NSGlobalDomain key=NSAutomaticDashSubstitutionEnabled type=bool value=false
+
+    - name: "MacOS: Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)"
+      osx_defaults: domain=NSGlobalDomain key=AppleKeyboardUIMode type=int value=3
+
+    - name: "MacOS: Disable press-and-hold for keys in favor of key repeat"
+      osx_defaults: domain=NSGlobalDomain key=ApplePressAndHoldEnabled type=bool value=false
+
+    - name: "MacOS: Require password immediately after sleep or screen saver begins"
+      osx_defaults: domain=com.apple.screensaver key=askForPassword type=int value=1
+
+    - name: "MacOS: Require password immediately after sleep or screen saver begins (cont)"
+      osx_defaults: domain=com.apple.screensaver key=askForPasswordDelay type=int value=0
+
+    - name: "MacOS: Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)"
+      osx_defaults: domain=com.apple.screencapture key=type type=string value="png"
+
+    - name: "MacOS: Finder: show all filename extensions"
+      osx_defaults: domain=NSGlobalDomain key=AppleShowAllExtensions type=bool value=true
+
+    - name: "MacOS: Finder: allow text selection in Quick Look"
+      osx_defaults: domain=com.apple.finder key=QLEnableTextSelection type=bool value=true
+
+    - name: "MacOS: Disable the warning when changing a file extension"
+      osx_defaults: domain=com.apple.finder key=FXEnableExtensionChangeWarning type=bool value=false
+
+    - name: "MacOS: Avoid creating .DS_Store files on network volumes"
+      osx_defaults: domain=com.apple.desktopservices key=DSDontWriteNetworkStores type=bool value=true
+
+    - name: "MacOS: Enable AirDrop over Ethernet and on unsupported Macs running Lion"
+      osx_defaults: domain=com.apple.NetworkBrowser key=BrowseAllInterfaces type=bool value=true
+
+    - name: "MacOS: Set the icon size of Dock items to 24 pixels"
+      osx_defaults: domain=com.apple.dock key=tilesize type=float value=24
+
+    - name: "MacOS: Speed up Mission Control animations"
+      osx_defaults: domain=com.apple.dock key=expose-animation-duration type=float value=0.1
+
+    - name: "MacOS: Disable Dashboard"
+      osx_defaults: domain=com.apple.dashboard key=mcx-disabled type=bool value=true
+
+    - name: "MacOS: Don’t show Dashboard as a Space"
+      osx_defaults: domain=com.apple.dock key=dashboard-in-overlay type=bool value=true
+
+    - name: "MacOS: Don’t automatically rearrange Spaces based on most recent use"
+      osx_defaults: domain=com.apple.dock key=mru-spaces type=bool value=false
+
+    - name: "MacOS: Automatically hide and show the Dock"
+      osx_defaults: domain=com.apple.dock key=autohide type=bool value=true
+
+    - name: "MacOS: Make Dock icons of hidden applications translucent"
+      osx_defaults: domain=com.apple.dock key=showhidden type=bool value=true
+
+    - name: "MacOS: Bottom left screen corner → Start screen saver"
+      osx_defaults: domain=com.apple.dock key=wvous-bl-corner type=int value=5
+
+    - name: "MacOS: Bottom left screen corner → Start screen saver (cont)"
+      osx_defaults: domain=com.apple.dock key=wvous-bl-modifier type=int value=0
+
+    - name: "MacOS: Prevent Safari from opening ‘safe’ files automatically after downloading"
+      osx_defaults: domain=com.apple.Safari key=AutoOpenSafeDownloads type=bool value=false
+
+    - name: "MacOS: Enable Safari’s debug menu"
+      osx_defaults: domain=com.apple.Safari key=IncludeInternalDebugMenu type=bool value=true
+
+    - name: "MacOS: Enable the Develop menu and the Web Inspector in Safari"
+      osx_defaults: domain=com.apple.Safari key=IncludeDevelopMenu type=bool value=true
+
+    - name: "MacOS: Enable the Develop menu and the Web Inspector in Safari (cont 1)"
+      osx_defaults: domain=com.apple.Safari key=WebKitDeveloperExtrasEnabledPreferenceKey type=bool value=true
+
+    - name: "MacOS: Enable the Develop menu and the Web Inspector in Safari (cont 2)"
+      osx_defaults: domain=com.apple.Safari key=com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled type=bool value=true
+
+    - name: "MacOS: Add a context menu item for showing the Web Inspector in web views"
+      osx_defaults: domain=NSGlobalDomain key=WebKitDeveloperExtras type=bool value=true
+
+    - name: "MacOS: Copy email addresses as `foo@example.com` instead of `Foo Bar <foo@example.com>` in Mail.app"
+      osx_defaults: domain=com.apple.mail key=AddressesIncludeNameOnPasteboard type=bool value=false
+
+    # - name: "MacOS: Add the keyboard shortcut Cmd + Enter to send an email in Mail.app"
+    #   osx_defaults: domain=com.apple.mail key=NSUserKeyEquivalents array_add=true key="Send" type=string value="@\\U21a9"
+
+    # - name: "MacOS: Only use UTF-8 in Terminal.app"
+    #   osx_defaults: 
+    #     domain: com.apple.terminal 
+    #     key: StringEncodings
+    #     type: array 
+    #     value: [4]
+
+    - name: "MacOS: Terminal default window to Solarized Dark"
+      osx_defaults: domain=com.apple.terminal key="Default Window Settings" type=string value="Solarized Dark"
+
+    - name: "MacOS: Terminal start up window to Solarized Dark"
+      osx_defaults: domain=com.apple.terminal key="Startup Window Settings" type=string value="Solarized Dark"
+
+    - name: "MacOS: Disable signing emails by default"
+      osx_defaults: domain=~/Library/Preferences/org.gpgtools.gpgmail key=SignNewEmailsByDefault type=bool value=false
