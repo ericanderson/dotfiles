@@ -21,6 +21,8 @@ fi
 
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
+if which yarn > /dev/null; then export PATH="$PATH:`yarn global bin`"; fi
+
 if [ -f ~/.profile_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.profile_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
