@@ -17,6 +17,5 @@ git submodule update --init
 ruby install.rb
 
 if [[ $OSTYPE == darwin* ]]; then
-  sh ~/.install/nodenv.sh
   sh ~/.install/custom_keyboard_shortcuts.sh
 fi

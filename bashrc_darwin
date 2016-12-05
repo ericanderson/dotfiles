@@ -1,7 +1,3 @@
-alias do_work="cd ~/Documents/Projects/Work"
-alias do_personal="cd ~/Documents/Projects/Personal"
-alias do_oss="cd ~/Documents/Projects/OSS"
-
 # Bash completion
 if [ -f `brew --prefix`/etc/bash_completion ]; then
     . `brew --prefix`/etc/bash_completion

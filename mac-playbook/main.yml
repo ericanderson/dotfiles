@@ -3,7 +3,7 @@
   connection: local
   
   tasks:
-    - name: Install git & co
+    - name: Install tools
       homebrew: name="{{item}}" state=present
       with_items:
         - git
@@ -14,11 +14,12 @@
         - wget
         - curl
         - go
-
-    - name: Install node
-      homebrew: name="{{item}}" state=present
-      with_items:
+        - reattach-to-user-namespace
+        - tmux
+        - bash-completion
+        - yarn
         - node
+
     
     - name: Install node command line tools
       npm: name={{item}} global=yes

@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Configure Boxen
-[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
-
 # Configure homebrew
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
@@ -17,8 +14,6 @@ function set_java_home {
 }
 
 if [[ `uname | tr 'A-Z' 'a-z'` == "darwin" ]]; then
-	set_java_home "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/"
-	set_java_home "/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home"
 	[ -f /usr/libexec/java_home ] && export JAVA_HOME=`/usr/libexec/java_home`
 fi
 
