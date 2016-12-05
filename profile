@@ -10,8 +10,8 @@ export CLICOLOR=1
 
 # Path for my own execs
 export PATH="$HOME/.rbenv/bin:$PATH"
-export PATH=${PATH}:~/bin:~/go/bin
-export GOPATH=~/go
+export PATH=${PATH}:~/bin:~/src/go/bin
+export GOPATH=~/src/go
 
 export GO15VENDOREXPERIMENT=1
 if [ -e ~/.gnupg/S.gpg-agent.ssh ]; then
