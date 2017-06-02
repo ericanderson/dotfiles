@@ -1,7 +1,7 @@
 update
 
 install tmux
-install gpg2
+# install gpg2
 install git
 install git-extras
 install reattach-to-user-namespace

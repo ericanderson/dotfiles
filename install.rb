@@ -5,6 +5,7 @@ def is_mac?
 end
 
 def symlinkable? file
+  return false if file == "node_modules"
   return true if File.extname(file).empty?
   return true if file == 'tmux.conf'
   return true if file == 'bin'

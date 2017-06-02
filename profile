@@ -1,9 +1,5 @@
-#!/bin/bash
 
-# .profile
-#
 # Always loaded, should set stuff like path and editor and what not
-
 export EDITOR="vim"
 
 export CLICOLOR=1
@@ -14,10 +10,13 @@ export PATH=${PATH}:~/bin:~/src/go/bin
 export GOPATH=~/src/go
 
 export GO15VENDOREXPERIMENT=1
-if [ -e ~/.gnupg/S.gpg-agent.ssh ]; then
-	echo "Setting gpg as ssh agent"
-	export SSH_AUTH_SOCK=~/.gnupg/S.gpg-agent.ssh
+
+if [ -f "${HOME}/.gpg-agent-info" ]; then
+	. "${HOME}/.gpg-agent-info"
+	export GPG_AGENT_INFO
+	export SSH_AUTH_SOCK
 fi
+export GPG_TTY=$(tty)
 
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
