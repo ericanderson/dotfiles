@@ -1,7 +1,9 @@
 [color]
 	ui = true
+
 [core]
 	whitespace = trailing-space,space-before-tab
+
 [difftool "cloc"]
 	cmd = echo && echo && echo $REMOTE && cloc --diff --quiet --3 $LOCAL $REMOTE
  	excludesfile = /opt/boxen/config/git/gitignore
@@ -18,18 +20,25 @@
 	index-unignore = update-index --no-assume-unchanged
 	index-ignored = !git ls-files -v | grep ^[a-z]
 	cloc = difftool -t cloc -y
+
 [rebase]
 	autosquash = true
+
 [branch]
 	autosetuprebase = always
+
 [push]
 	default = simple
+
 [merge]
 	log = 50
 	conflictstyle = diff3
+	tool = diffmerge
+
 [user]
 	name = Eric Anderson
 	email = eanderson@palantir.com
+
 [rerere]
 	enabled = 1
 
@@ -38,10 +47,19 @@
 
 [diff]
 	algorithm = patience
+
 [include]
 		path = ~/.gitconfig_local
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
+[log]
+	follow = true
+
+[mergetool "diffmerge"]
+	trustExitCode = true
+	cmd = /usr/local/bin/diffmerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
