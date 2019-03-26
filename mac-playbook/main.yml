@@ -1,6 +1,17 @@
 ---
 - hosts: localhost
   connection: local
+  vars:
+    mas_installed_apps:
+      - { id: 413857545, name: "Divvy"}
+      - { id: 863486266, name: "SketchBook" }
+      - { id: 425955336, name: "Skitch" }
+      - { id: 407963104, name: "Pixelmator" }
+      - { id: 443987910, name: "1Password" }
+      - { id: 497799835, name: "Xcode" }
+
+  roles:
+     - geerlingguy.mas
   
   tasks:
     - name: Install tools
@@ -28,6 +39,7 @@
     
     - name: Install my standard apps
       homebrew_cask: name={{item}}
+      ignore_errors: yes
       with_items:
         - caffeine
         - visual-studio-code
@@ -62,6 +74,7 @@
 
     - name: "MacOS: Require password immediately after sleep or screen saver begins (cont)"
       osx_defaults: domain=com.apple.screensaver key=askForPasswordDelay type=int value=0
+      ignore_errors: true
 
     - name: "MacOS: Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)"
       osx_defaults: domain=com.apple.screencapture key=type type=string value="png"
