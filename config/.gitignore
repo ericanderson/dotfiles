@@ -1,0 +1,10 @@
+# Exclude everything by default
+/*
+
+# Keep these things
+!/nvim
+!/.gitignore
+!/.gitkeep
+
+# But then ignore these
+/nvim/plugged

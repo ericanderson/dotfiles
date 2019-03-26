@@ -1,7 +1,7 @@
 " Must come first!
 set nocompatible
 
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 Plug 'mileszs/ack.vim'
 Plug 'tomasiser/vim-code-dark'
 Plug 'pearofducks/ansible-vim'
