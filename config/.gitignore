@@ -1,10 +1,11 @@
 # Exclude everything by default
 /*
 
-# Keep these things
-!/nvim
+# But we want these git things
 !/.gitignore
 !/.gitkeep
 
-# But then ignore these
+# We want nvim
+!/nvim
+# But not the plugins, we can just install those each time
 /nvim/plugged

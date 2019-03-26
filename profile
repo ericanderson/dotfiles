@@ -1,3 +1,6 @@
+if type nvim > /dev/null 2>&1; then
+  alias vim='nvim'
+fi
 
 # Always loaded, should set stuff like path and editor and what not
 export EDITOR="vim"
