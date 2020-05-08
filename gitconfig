@@ -6,7 +6,6 @@
 
 [difftool "cloc"]
 	cmd = echo && echo && echo $REMOTE && cloc --diff --quiet --3 $LOCAL $REMOTE
- 	excludesfile = /opt/boxen/config/git/gitignore
 
 [alias]
 	st = status
@@ -37,7 +36,7 @@
 
 [user]
 	name = Eric Anderson
-	email = eanderson@palantir.com
+	email = e@ericlanderson.com
 
 [rerere]
 	enabled = 1
