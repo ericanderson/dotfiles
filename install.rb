@@ -8,6 +8,7 @@ def symlinkable? file
   return false if file == "node_modules"
   return true if File.extname(file).empty?
   return true if file == 'tmux.conf'
+  return true if file == 'p10k.zsh'
   return true if file == 'bin'
   return true if file == 'vim'
   return false
