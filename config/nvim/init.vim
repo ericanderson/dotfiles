@@ -19,6 +19,13 @@ Plug 'junegunn/seoul256.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
+" Plug 'Quramy/tsuquyomi'
+Plug 'jason0x43/vim-js-indent'
+
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
@@ -124,6 +131,12 @@ filetype plugin indent on
 
 set splitbelow
 set splitright
+
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
 set laststatus=2
 
 " Configure Ruby
@@ -135,12 +148,10 @@ au BufNewFile,BufReadPost *.coffee setl ai sts=2 shiftwidth=2 expandtab
 " Auto commands
 au BufRead,BufNewFile {Vagrantfile,Gemfile,Rakefile,Capfile,*.rake,config.ru}     set ft=ruby
 au BufRead,BufNewFile {*.md,*.mkd,*.markdown}                         set ft=markdown
-au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=gitcommit
+au BufRead,BufNewFile {COMMIT_EDITMSG}                                set ft=gitcommits
 
 autocmd BufWritePre * :%s/\s\+$//e " Remove trailing whitespace
 
-
-"color twilight256
 
 " NERDTree
 function! NERDTreeQuit()
@@ -170,3 +181,23 @@ autocmd WinEnter * call NERDTreeQuit()
 " Settings for ansible-vim
 let g:ansible_name_highlight = 'd'
 let g:ansible_extra_keywords_highlight = 1
+
+
+
+autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()<CR>
+
+
+augroup typescript
+    autocmd!
+    " setting typescript things.
+    let g:nvim_typescript#type_info_on_hold = 1
+    let g:nvim_typescript#signature_complete = 1
+
+    autocmd BufNewFile,BufRead *.ts set filetype=typescript
+    autocmd BufNewFile,BufRead *.tsx set filetype=typescript.jsx
+    autocmd FileType typescript set tabstop=2 shiftwidth=2 expandtab
+    nnoremap <leader>i :TSImport<CR>
+    nnoremap <leader>d :TSDefPreview<CR>
+    nnoremap <leader>t :TSType<CR>
+    nnoremap <leader>f :TSGetCodeFix<CR> " this is called on insert leave
+augroup END
