@@ -1,4 +1,0 @@
-ignore = Name .FBCIndex
-ignore = Name .FBCLockFolder
-ignore = Name {Cache*,.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
-ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding} 

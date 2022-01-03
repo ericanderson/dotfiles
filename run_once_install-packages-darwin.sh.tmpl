@@ -1,0 +1,19 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/bin/bash
+
+brew bundle --no-lock --file=/dev/stdin <<EOF
+brew "tmux"
+brew "git"
+brew "git-extras"
+brew "reattach-to-user-namespace"
+
+brew "findutils"
+brew "curl"
+brew "hub"
+brew "tree"
+brew "wget"
+
+brew "bash-completion"
+brew "yarn"
+EOF
+{{ end -}}

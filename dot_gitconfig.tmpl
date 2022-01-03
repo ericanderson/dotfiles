@@ -1,0 +1,78 @@
+[color]
+	ui = true
+
+[core]
+	whitespace = trailing-space,space-before-tab
+
+[difftool "cloc"]
+	cmd = echo && echo && echo $REMOTE && cloc --diff --quiet --3 $LOCAL $REMOTE
+
+[alias]
+	st = status
+	co = checkout
+	ci = commit
+	br = branch
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	r  = !git ls-files -z --deleted | xargs -0 git rm
+	unpushed = log @{u}..
+	index-ignore = update-index --assume-unchanged
+	index-unignore = update-index --no-assume-unchanged
+	index-ignored = !git ls-files -v | grep ^[a-z]
+	cloc = difftool -t cloc -y
+
+[rebase]
+	autosquash = true
+
+[branch]
+	autosetuprebase = always
+
+[push]
+	default = simple
+
+[merge]
+	log = 50
+	conflictstyle = diff3
+	tool = diffmerge
+
+[user]
+	name = Eric Anderson
+{{- if eq .chezmoi.hostname "eanderson36-mac" }}
+	email = eanderson@palantir.com
+	signingkey = 46EDF99FD5F14CB78DB18E15516983A908B450EE
+{{- else}}
+	email = e@ericlanderson.com
+{{- end }}
+
+[rerere]
+	enabled = 1
+
+[hub]
+	protocol = https
+
+[diff]
+	algorithm = patience
+
+[include]
+		path = ~/.gitconfig_local
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[log]
+	follow = true
+
+[mergetool "diffmerge"]
+	trustExitCode = true
+	cmd = /usr/local/bin/diffmerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
+
+{{- if eq .chezmoi.hostname "eanderson36-mac" }}
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgsign = true
+	forceSignAnnotated = true
+{{- end}}
