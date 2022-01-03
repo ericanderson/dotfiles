@@ -9,3 +9,21 @@ install.sh
 oh-my-zsh
 vim
 zsh_custom
+
+# Hide these from unmanaged
+.DS_Store
+.Trash
+.CFUserTextEncoding
+.cocoapods
+.cisco
+.cache
+Applications
+Desktop
+Documents
+Downloads
+Library
+Movies
+Music
+Parallels
+Pictures
+Public
