@@ -36,11 +36,9 @@
 
 [user]
 	name = Eric Anderson
+	email = {{ .email }}
 {{- if eq .chezmoi.hostname "eanderson36-mac" }}
-	email = eanderson@palantir.com
 	signingkey = 46EDF99FD5F14CB78DB18E15516983A908B450EE
-{{- else}}
-	email = e@ericlanderson.com
 {{- end }}
 
 [rerere]
@@ -75,4 +73,7 @@
 [tag]
 	gpgsign = true
 	forceSignAnnotated = true
+
+[init]
+	defaultBranch = main
 {{- end}}
