@@ -1,4 +1,5 @@
 #!/bin/bash
 
+# vimrc hash: {{ include "dot_vimrc" | sha256sum }}
 echo "Installing VIM Plugins"
 vim +'PlugUpdate --sync' +qa
