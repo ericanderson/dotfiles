@@ -14,8 +14,8 @@ export GOPATH=~/src/go
 
 export GO15VENDOREXPERIMENT=1
 
-SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-export SSH_AUTH_SOCK
+#SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+#export SSH_AUTH_SOCK
 
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
