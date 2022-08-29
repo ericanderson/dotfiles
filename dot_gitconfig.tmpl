@@ -37,8 +37,8 @@
 [user]
 	name = Eric Anderson
 	email = {{ .email }}
-{{- if eq .chezmoi.hostname "eanderson36-mac" }}
-	signingkey = 46EDF99FD5F14CB78DB18E15516983A908B450EE
+{{- if hasKey . "signingkey" }}
+	signingkey = {{ .signingkey }}
 {{- end }}
 
 [rerere]
@@ -66,14 +66,17 @@
 	trustExitCode = true
 	cmd = /usr/local/bin/diffmerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
 
-{{- if eq .chezmoi.hostname "eanderson36-mac" }}
+[init]
+	defaultBranch = main
+
+{{- if hasKey . "forcegitsigning" }}
+{{- if eq .forcegitsigning "true" }}
+
 [commit]
 	gpgsign = true
 
 [tag]
 	gpgsign = true
 	forceSignAnnotated = true
-
-[init]
-	defaultBranch = main
+{{- end}}
 {{- end}}
