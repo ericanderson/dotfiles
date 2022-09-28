@@ -1,9 +1,32 @@
+{{- $data := dict }}
+
 {{- $email := "" -}}
 {{- if (hasKey . "email") -}}
+    {{- $_ := set $data "email" .email }}
 {{-   $email = .email -}}
 {{- else -}}
 {{-   $email = promptString "email" -}}
 {{- end -}}
 
+
+
+
+{{- if (hasKey . "signingkey") }}
+    {{- $_ := set $data "signingKey" .signingkey }}
+{{- end }}
+
+{{- if (hasKey . "forcegitsigning") }}
+    {{- $_ := set $data "forceGitSigning" .forcegitsigning }}
+{{- end }}
+
 [data]
     email = {{ $email | quote }}
+
+{{- if (hasKey . "signingkey") }}
+    signingKey = "{{ .signingkey }}"
+{{- end }}
+{{- if (hasKey . "forcegitsigning") }}
+    forceGitSigning = "{{ .forcegitsigning }}"
+{{- end }}
+
+{{ dict "data2" $data | toToml }}

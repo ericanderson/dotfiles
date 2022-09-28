@@ -2,6 +2,10 @@
 Brewfile
 {{ end }}
 
+# Zsh Caches
+.oh-my-zsh/cache
+**/*.zwc
+
 README.md
 bin
 hyper_plugins
