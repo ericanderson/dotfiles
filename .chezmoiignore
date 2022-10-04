@@ -3,6 +3,7 @@ Brewfile
 {{ end }}
 
 # Zsh Caches
+!.oh-my-zsh/cache/.gitkeep
 .oh-my-zsh/cache
 **/*.zwc
 
