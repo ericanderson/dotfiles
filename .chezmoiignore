@@ -20,7 +20,7 @@ Brewfile.work
 # Old Stuff
 #######################################
 README.md
-bin
+binold
 hyper_plugins
 install
 hyper.js

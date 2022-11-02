@@ -1,3 +1,7 @@
 tap "cdr/coder"
+brew "pango"
+brew "graphviz"
 brew "nginx"
 brew "cdr/coder/coder-cli"
+cask "zulu11"
+cask "zulu17"
