@@ -1,12 +1,24 @@
+#######################################
+# Homebrew
+#######################################
 {{- if ne .chezmoi.os "darwin" }}
 Brewfile
 {{ end }}
 
+# The common/work entries are part of a template, dont copy to home
+Brewfile.common
+Brewfile.work
+
+#######################################
 # Zsh Caches
+#######################################
 !.oh-my-zsh/cache/.gitkeep
 .oh-my-zsh/cache
 **/*.zwc
 
+#######################################
+# Old Stuff
+#######################################
 README.md
 bin
 hyper_plugins

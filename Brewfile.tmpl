@@ -1,0 +1,4 @@
+{{   include "Brewfile.common" }}
+{{- if contains "palantir" .email }}
+{{   include "Brewfile.work" }}
+{{- end }}

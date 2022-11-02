@@ -31,7 +31,7 @@ HIST_STAMPS="yyyy-mm-dd"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git git-prompt sane-history)
+plugins=(git git-prompt sane-history direnv)
 
 # I hate the way this works
 if type brew &>/dev/null; then

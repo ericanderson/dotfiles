@@ -37,8 +37,8 @@
 [user]
 	name = Eric Anderson
 	email = {{ .email }}
-{{- if hasKey . "signingkey" }}
-	signingkey = {{ .signingkey }}
+{{- if hasKey . "signingKey" }}
+	signingkey = {{ .signingKey }}
 {{- end }}
 
 [rerere]
@@ -69,8 +69,8 @@
 [init]
 	defaultBranch = main
 
-{{- if hasKey . "forcegitsigning" }}
-{{- if eq .forcegitsigning "true" }}
+{{- if hasKey . "forceGitSigning" }}
+{{- if eq .forceGitSigning "true" }}
 
 [commit]
 	gpgsign = true

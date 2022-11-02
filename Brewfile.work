@@ -1,0 +1,3 @@
+tap "cdr/coder"
+brew "nginx"
+brew "cdr/coder/coder-cli"
