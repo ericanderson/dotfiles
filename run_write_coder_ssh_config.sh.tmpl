@@ -1,0 +1,5 @@
+{{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
+#!/bin/bash
+
+coder config-ssh --filepath "~/.ssh/coder_config" -o ControlPath=none
+{{ end -}}
