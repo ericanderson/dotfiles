@@ -18,13 +18,11 @@ export GO15VENDOREXPERIMENT=1
 #export SSH_AUTH_SOCK
 
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
-
 if which yarn > /dev/null; then export PATH="$PATH:`yarn global bin`"; fi
+if which nodenv > /dev/null; then eval "$(nodenv init -)"; fi
 
 if [ -f ~/.profile_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.profile_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
 
 export PATH=${PATH}:./node_modules/.bin
 export PATH="/opt/homebrew/opt/python/libexec/bin/:${PATH}"
-
-eval "$(nodenv init -)"
