@@ -16,5 +16,7 @@ path=(
 #  export SSH_AUTH_SOCK
 #fi
 
+export DIRENV_LOG_FORMAT=""
+
 if [ -f ~/.zshenv`uname | tr 'A-Z' 'a-z'` ]; then . ~/.zshenv_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ~/.zshenv_local ]; then . ~/.zshenv_local; fi
