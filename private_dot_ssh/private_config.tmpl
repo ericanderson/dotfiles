@@ -1,6 +1,17 @@
 {{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
 Include ~/.ssh/coder_config
 
+Host localhost
+    HostName localhost
+    Port 2222
+    User eanderson
+
 Host coder.*
   RemoteForward /run/user/1000/gnupg/S.gpg-agent {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
+
 {{ end -}}
+
+# Ensure rsa is enabled on machines that are being 'helpful' fips.
+Host *
+  PubkeyAcceptedKeyTypes=+ssh-rsa
+  HostKeyAlgorithms=+ssh-rsa
