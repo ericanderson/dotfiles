@@ -4,11 +4,11 @@
 {{- if (hasKey . "email") -}}
     {{- $_ := set $data "email" .email }}
 {{-   $email = .email -}}
+{{- else if (env "CODESPACES") -}}
+{{- /* No need to set email in code spaces */ -}}
 {{- else -}}
 {{-   $email = promptString "email" -}}
 {{- end -}}
-
-
 
 
 {{- if (hasKey . "signingkey") }}

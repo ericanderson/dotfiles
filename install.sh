@@ -1,35 +1,35 @@
 #!/bin/bash
 
-set -e
+# -e: exit on error
+# -u: exit on unset variables
+set -eu
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [ ! -d "$HOME/.ssh" ]; then
-	ssh-keygen -t rsa -b 4096
-	echo woot
-fi
-
-
-if [[ $OSTYPE == darwin* ]]; then
-  # Install Homebrew
-  if [ ! -d "/usr/local/Cellar" ]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  fi
-
-  # Run the ansible playbook for the machine
-  if which ansible-playbook > /dev/null; then
-    echo Ansible is installed
+if ! chezmoi="$(command -v chezmoi)"; then
+  bin_dir="${HOME}/.local/bin"
+  chezmoi="${bin_dir}/chezmoi"
+  echo "Installing chezmoi to '${chezmoi}'" >&2
+  if command -v curl >/dev/null; then
+    chezmoi_install_script="$(curl -fsSL https://chezmoi.io/get)"
+  elif command -v wget >/dev/null; then
+    chezmoi_install_script="$(wget -qO- https://chezmoi.io/get)"
   else
-    brew install ansible
+    echo "To install chezmoi, you must have curl or wget installed." >&2
+    exit 1
   fi
-
-  (cd "$DIR" && cd mac-playbook && ansible-playbook main.yml)
-
+  sh -c "${chezmoi_install_script}" -- -b "${bin_dir}"
+  unset chezmoi_install_script bin_dir
 fi
 
-git submodule update --init
-ruby install.rb
+# POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
+script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 
-if [[ $OSTYPE == darwin* ]]; then
-  sh ~/.install/custom_keyboard_shortcuts.sh
+if [ x"${CODESPACES}" == "xtrue" ]; then
+    echo "Linking dotfiles for chezmoi"
+    ln -s "$script_dir" "$HOME/.local/share/chezmoi"
 fi
+
+set -- init --apply --source="${script_dir}"
+
+echo "Running 'chezmoi $*'" >&2
+# exec: replace current process with chezmoi
+exec "$chezmoi" "$@"

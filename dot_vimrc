@@ -30,7 +30,7 @@ Plug 'junegunn/limelight.vim'
 call plug#end()
 
 let g:seoul256_background = 235
-colo seoul256
+silent! colo seoul256
 
 
 " lightline makes showmode unnecessary
