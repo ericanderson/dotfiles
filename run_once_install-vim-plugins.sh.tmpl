@@ -1,5 +1,10 @@
 #!/bin/bash
 
 # vimrc hash: {{ include "dot_vimrc" | sha256sum }}
-echo "Installing VIM Plugins"
-vim +'PlugUpdate --sync' +qa
+
+if ! type "vim" > /dev/null; then
+    echo "No vim installed. Skipping plugin install"
+else
+    echo "Installing VIM Plugins"
+    vim +'PlugUpdate --sync' +qa  
+fi

@@ -6,6 +6,8 @@
 {{-   $email = .email -}}
 {{- else if (env "CODESPACES") -}}
 {{- /* No need to set email in code spaces */ -}}
+{{- else if (env "DOTFILES_EMAIL") -}}
+{{-     $email = env "DOTFILES_EMAIL" -}}
 {{- else -}}
 {{-   $email = promptString "email" -}}
 {{- end -}}

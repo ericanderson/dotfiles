@@ -20,6 +20,19 @@ if ! chezmoi="$(command -v chezmoi)"; then
   unset chezmoi_install_script bin_dir
 fi
 
+# Setup chezmoi variables if we can
+if type "git" > /dev/null; then
+    email="$(git config --global user.email || echo "")"
+    
+    if [ -z ${email} ]; then
+        echo "Couldn't find an email. Skipping seeding chezmoi"
+    else
+        echo "Preseeding email to ${email}"
+        export DOTFILES_EMAIL="${email}"
+    fi
+fi
+
+
 # POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
 script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 

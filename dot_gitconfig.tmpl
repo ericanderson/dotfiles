@@ -36,14 +36,15 @@
 
 {{- if (env "CODESPACES") -}}
 # no user config for codespaces as its already set up
-{{- else -}}
+{{- else }}
+
 [user]
 	name = Eric Anderson
 	email = {{ .email }}
 {{- if hasKey . "signingKey" }}
 	signingkey = {{ .signingKey }}
 {{- end }}
-{{- end -}}
+{{- end }}
 
 [rerere]
 	enabled = 1
