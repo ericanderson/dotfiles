@@ -25,7 +25,8 @@ if type "git" > /dev/null; then
     email="$(git config --global user.email || echo "")"
     
     if [ -z ${email} ]; then
-        echo "Couldn't find an email. Skipping seeding chezmoi"
+        echo "Couldn't find an email. Using default"
+        export DOTFILES_EMAIL="$(echo ZUBlcmljbGFuZGVyc29uLmNvbQo= | base64 -d)"
     else
         echo "Preseeding email to ${email}"
         export DOTFILES_EMAIL="${email}"
