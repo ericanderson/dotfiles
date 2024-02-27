@@ -23,7 +23,9 @@ fi
 # POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
 script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 
-if [ x"${CODESPACES}" == "xtrue" ]; then
+if [ -z ${var+x} ]; then
+    echo "Not in a codespaces"
+else
     echo "Linking dotfiles for chezmoi"
     ln -s "$script_dir" "$HOME/.local/share/chezmoi"
 fi
