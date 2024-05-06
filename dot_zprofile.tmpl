@@ -1,8 +1,6 @@
 # fix annoying node-gyp issues
 export PATH="/opt/homebrew/opt/python/libexec/bin/:${PATH}"
 
-if which rbenv > /dev/null; then eval "$(rbenv init - zsh)"; fi
-if which yarn > /dev/null; then path+=`yarn global bin`; fi
 if which nodenv > /dev/null; then eval "$(nodenv init -)"; fi
 
 export PATH="/usr/local/sbin:$PATH"
@@ -13,6 +11,8 @@ export PNPM_HOME="$HOME/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 {{ end -}}
 # pnpm end
+
+export PATH="/Users/eanderson/.bun/bin:$PATH"
 
 
 if [ -f ~/.zprofile`uname | tr 'A-Z' 'a-z'` ]; then . ~/.zprofile_`uname | tr 'A-Z' 'a-z'`; fi

@@ -25,19 +25,19 @@
 
 [branch]
 	autosetuprebase = always
+	autoSetupMerge = simple
 
 [push]
 	default = simple
+	autoSetupRemote = true
 
 [merge]
 	log = 50
 	conflictstyle = diff3
 	tool = diffmerge
-
-{{- if (env "CODESPACES") -}}
+{{ if (env "CODESPACES") }}
 # no user config for codespaces as its already set up
-{{- else }}
-
+{{ else }}
 [user]
 	name = Eric Anderson
 	email = {{ .email }}
