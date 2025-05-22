@@ -234,3 +234,5 @@ __setup_prompt() {
 
 __setup_prompt
 unset __setup_prompt
+
+eval "$(direnv hook bash)"

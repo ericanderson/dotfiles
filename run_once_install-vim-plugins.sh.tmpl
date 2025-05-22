@@ -2,9 +2,9 @@
 
 # vimrc hash: {{ include "dot_vimrc" | sha256sum }}
 
-if ! type "vim" > /dev/null; then
-    echo "No vim installed. Skipping plugin install"
-else
+if command -v pip3 &> /dev/null; then
     echo "Installing VIM Plugins"
     vim +'PlugUpdate --sync' +qa  
+else    
+    echo "No vim installed. Skipping plugin install"
 fi
