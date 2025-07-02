@@ -7,7 +7,7 @@ Host localhost
     User eanderson
 
 Host coder.*
-  RemoteForward /run/user/1000/gnupg/S.gpg-agent {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
+  RemoteForward /home/coder/.gnupg/S.gpg-agent {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
 
 {{ end -}}
 
@@ -15,3 +15,4 @@ Host coder.*
 Host *
   PubkeyAcceptedKeyTypes=+ssh-rsa
   HostKeyAlgorithms=+ssh-rsa
+
