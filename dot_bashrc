@@ -1,7 +1,10 @@
-if [ -f ~/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
-if [ -f ~/.bashrc_local ]; then . ~/.bashrc_local; fi
+# ~/.bashrc - Loaded by bash for interactive non-login shells
+# Note: On macOS Terminal, this is NOT loaded by default (login shells load .bash_profile)
+# To ensure .bashrc loads on macOS, .bash_profile should source it
+# Not loaded by sh or when bash is invoked as sh
 
-export LSCOLORS=DxFxCxDxBxegedabagacad
+if [ -f ${HOME}/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ${HOME}/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
+if [ -f ${HOME}/.bashrc_local ]; then . ${HOME}/.bashrc_local; fi
 
 man() {
     env \
@@ -125,14 +128,14 @@ __setup_prompt() {
 	esac
 
 	ps1_rvm() {
-		if [ -f ~/.rvm/bin/rvm-prompt ]; then
-			q=$(~/.rvm/bin/rvm-prompt i)
+		if [ -f ${HOME}/.rvm/bin/rvm-prompt ]; then
+			q=$(${HOME}/.rvm/bin/rvm-prompt i)
 
 			if [ "$q" == "jruby" ]; then
-				q=$(~/.rvm/bin/rvm-prompt g)
+				q=$(${HOME}/.rvm/bin/rvm-prompt g)
 				out=" (jruby$q)"
 			else
-				q=$(~/.rvm/bin/rvm-prompt v g)
+				q=$(${HOME}/.rvm/bin/rvm-prompt v g)
 
 				if [ "$q" != "" ]; then
 					out=" ($q)"

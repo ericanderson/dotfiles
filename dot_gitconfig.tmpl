@@ -56,7 +56,7 @@
 	algorithm = patience
 
 [include]
-		path = ~/.gitconfig_local
+		path = {{ .chezmoi.homeDir }}/.gitconfig_local
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f

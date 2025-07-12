@@ -1,3 +1,11 @@
+# ~/.zprofile - Loaded by zsh for login shells only
+# Runs AFTER .zshenv but BEFORE .zshrc
+# Use this for:
+#   - Commands that should only run once at login
+#   - Setting up the environment for login sessions
+#   - PATH modifications for graphical sessions
+# Note: Terminal.app on macOS runs login shells by default
+
 # fix annoying node-gyp issues
 export PATH="/opt/homebrew/opt/python/libexec/bin/:${PATH}"
 
@@ -12,11 +20,11 @@ export PATH="$PNPM_HOME:$PATH"
 {{ end -}}
 # pnpm end
 
-export PATH="/Users/eanderson/.bun/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
 
 
-if [ -f ~/.zprofile`uname | tr 'A-Z' 'a-z'` ]; then . ~/.zprofile_`uname | tr 'A-Z' 'a-z'`; fi
-if [ -f ~/.zprofile_local ]; then . ~/.zprofile_local; fi
+if [ -f ${HOME}/.zprofile_`uname | tr 'A-Z' 'a-z'` ]; then . ${HOME}/.zprofile_`uname | tr 'A-Z' 'a-z'`; fi
+if [ -f ${HOME}/.zprofile_local ]; then . ${HOME}/.zprofile_local; fi
 
 # Created by `pipx` on 2025-03-18 15:59:10
-export PATH="$PATH:/Users/eanderson/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"

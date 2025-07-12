@@ -1,7 +1,7 @@
 " Must come first!
 set nocompatible
 
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin('$HOME/.config/nvim/plugged')
 Plug 'mileszs/ack.vim'
 Plug 'tomasiser/vim-code-dark'
 Plug 'pearofducks/ansible-vim'
@@ -112,8 +112,8 @@ nnoremap j gj
 nnoremap k gk
 
 " Store backups in sane place
-set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
-set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set backupdir=$HOME/.vim-tmp,$HOME/.tmp,$HOME/tmp,/var/tmp,/tmp
+set directory=$HOME/.vim-tmp,$HOME/.tmp,$HOME/tmp,/var/tmp,/tmp
 
 set autoindent
 "set cindent

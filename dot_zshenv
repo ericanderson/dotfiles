@@ -1,23 +1,27 @@
+# ~/.zshenv - ALWAYS loaded for ANY zsh instance (login, interactive, scripts, everything)
+# This is the FIRST file zsh reads
+# Loading order for zsh:
+#   1. ~/.zshenv (this file) - for ALL zsh instances
+#   2. ~/.zprofile - for login shells
+#   3. ~/.zshrc - for interactive shells
+#   4. ~/.zlogin - for login shells (after zshrc)
+# Keep this file minimal - only essentials that ALL zsh instances need
+
 # shellcheck disable=all
 # Always loaded, should set stuff like path and editor and what not
-export EDITOR="vim"
-export CLICOLOR=1
+
+# Source common environment variables
+if [ -f ${HOME}/.env_common ]; then . ${HOME}/.env_common; fi
 
 export LSCOLORS=DxFxCxDxBxegedabagacad
 
 # Path for my own execs
 path=(
   $path
-  '~/bin',
+  "${HOME}/bin"
   './node_modules/.bin'
 )
 
-#if type gpgconf &>/dev/null; then
-#  SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-#  export SSH_AUTH_SOCK
-#fi
 
-export DIRENV_LOG_FORMAT=""
-
-if [ -f ~/.zshenv$(uname | tr 'A-Z' 'a-z') ]; then . ~/.zshenv_$(uname | tr 'A-Z' 'a-z'); fi
-if [ -f ~/.zshenv_local ]; then . ~/.zshenv_local; fi
+if [ -f ${HOME}/.zshenv_$(uname | tr 'A-Z' 'a-z') ]; then . ${HOME}/.zshenv_$(uname | tr 'A-Z' 'a-z'); fi
+if [ -f ${HOME}/.zshenv_local ]; then . ${HOME}/.zshenv_local; fi

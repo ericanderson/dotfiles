@@ -1,28 +1,24 @@
+# ~/.profile - Loaded by bash login shells (if .bash_profile doesn't exist)
+# Also loaded by sh and other POSIX shells
+# Note: On macOS, Terminal runs login shells by default
+# Loading order: .bash_profile → .bash_login → .profile (first found wins)
+# Zsh does NOT read this file automatically
+
+# Source common environment variables
+if [ -f ${HOME}/.env_common ]; then . ${HOME}/.env_common; fi
+
 if type nvim > /dev/null 2>&1; then
   alias vim='nvim'
 fi
 
-# Always loaded, should set stuff like path and editor and what not
-export EDITOR="vim"
-
-export CLICOLOR=1
-
 # Path for my own execs
 export PATH="$HOME/.rbenv/bin:$PATH"
-export PATH=${PATH}:~/bin:~/src/go/bin
-export GOPATH=~/src/go
-
-export GO15VENDOREXPERIMENT=1
-
-#SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-#export SSH_AUTH_SOCK
+export PATH=${PATH}:${HOME}/bin:${HOME}/src/go/bin
 
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 if which yarn > /dev/null; then export PATH="$PATH:`yarn global bin`"; fi
-if which nodenv > /dev/null; then eval "$(nodenv init -)"; fi
 
-if [ -f ~/.profile_`uname | tr 'A-Z' 'a-z'` ]; then . ~/.profile_`uname | tr 'A-Z' 'a-z'`; fi
-if [ -f ~/.profile_local ]; then . ~/.profile_local; fi
+if [ -f ${HOME}/.profile_`uname | tr 'A-Z' 'a-z'` ]; then . ${HOME}/.profile_`uname | tr 'A-Z' 'a-z'`; fi
+if [ -f ${HOME}/.profile_local ]; then . ${HOME}/.profile_local; fi
 
 export PATH=${PATH}:./node_modules/.bin
-export PATH="/opt/homebrew/opt/python/libexec/bin/:${PATH}"

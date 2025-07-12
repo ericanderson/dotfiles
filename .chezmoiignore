@@ -55,5 +55,5 @@ Pictures
 Public
 
 # Files for the git repo
-CHANGES*.md
+CHANGES/**/*
 CLAUDE.md

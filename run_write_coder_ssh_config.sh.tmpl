@@ -1,7 +1,7 @@
 {{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
 #!/bin/bash
 
-which coder > /dev/null && coder config-ssh --ssh-config-file "~/.ssh/coder_config" -o ControlPath=none --no-version-warning
+which coder > /dev/null && coder config-ssh --ssh-config-file "${HOME}/.ssh/coder_config" -o ControlPath=none --no-version-warning
 
 exit 0
 {{ end -}}

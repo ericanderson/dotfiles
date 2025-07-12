@@ -159,4 +159,4 @@
       osx_defaults: domain=com.apple.terminal key="Startup Window Settings" type=string value="Solarized Dark"
 
     - name: "MacOS: Disable signing emails by default"
-      osx_defaults: domain=~/Library/Preferences/org.gpgtools.gpgmail key=SignNewEmailsByDefault type=bool value=false
+      osx_defaults: domain={{ ansible_env.HOME }}/Library/Preferences/org.gpgtools.gpgmail key=SignNewEmailsByDefault type=bool value=false

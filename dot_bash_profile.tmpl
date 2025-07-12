@@ -1,5 +1,14 @@
-if [ -f ~/.profile ]; then . ~/.profile; fi
-if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
+# ~/.bash_profile - Loaded by bash for login shells
+# On macOS Terminal, this is the default (Terminal runs login shells)
+# Loading order for bash login shells:
+#   1. /etc/profile (system-wide)
+#   2. ~/.bash_profile (this file) - if exists, others are ignored
+#   3. ~/.bash_login - only if .bash_profile doesn't exist
+#   4. ~/.profile - only if neither .bash_profile nor .bash_login exist
+# Best practice: Source both .profile and .bashrc from here
+
+if [ -f ${HOME}/.profile ]; then . ${HOME}/.profile; fi
+if [ -f ${HOME}/.bashrc ]; then . ${HOME}/.bashrc; fi
 
 export PATH=$PATH
 

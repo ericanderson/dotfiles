@@ -1,0 +1,15 @@
+# Common environment variables for both bash and zsh
+# This file should use POSIX-compatible syntax
+# shellcheck shell=sh
+
+# Editor configuration
+export EDITOR="vim"
+
+# Enable color output for various commands
+export CLICOLOR=1
+
+# Go development
+export GOPATH="${HOME}/src/go"
+
+# Direnv - suppress verbose logging
+export DIRENV_LOG_FORMAT=""
