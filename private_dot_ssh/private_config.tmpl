@@ -1,3 +1,6 @@
+# Include machine-specific SSH configurations
+Include ~/.ssh/local_config
+
 {{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
 Include ~/.ssh/coder_config
 

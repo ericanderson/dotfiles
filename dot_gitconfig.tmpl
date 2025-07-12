@@ -74,6 +74,11 @@
 [init]
 	defaultBranch = main
 
+{{- if not (and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname)) }}
+[gpg]
+	format = ssh
+{{- end }}
+
 {{- if hasKey . "forceGitSigning" }}
 {{- if eq .forceGitSigning "true" }}
 

@@ -10,6 +10,12 @@ Brewfile.common
 Brewfile.work
 
 #######################################
+# Claude Config
+#######################################
+.claude/**
+!.claude/CLAUDE.md
+
+#######################################
 # Zsh Caches
 #######################################
 !.oh-my-zsh/cache/.gitkeep
@@ -47,3 +53,7 @@ Music
 Parallels
 Pictures
 Public
+
+# Files for the git repo
+CHANGES*.md
+CLAUDE.md

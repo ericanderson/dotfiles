@@ -1,3 +1,4 @@
+# shellcheck disable=all
 # Always loaded, should set stuff like path and editor and what not
 export EDITOR="vim"
 export CLICOLOR=1
@@ -18,5 +19,5 @@ path=(
 
 export DIRENV_LOG_FORMAT=""
 
-if [ -f ~/.zshenv`uname | tr 'A-Z' 'a-z'` ]; then . ~/.zshenv_`uname | tr 'A-Z' 'a-z'`; fi
+if [ -f ~/.zshenv$(uname | tr 'A-Z' 'a-z') ]; then . ~/.zshenv_$(uname | tr 'A-Z' 'a-z'); fi
 if [ -f ~/.zshenv_local ]; then . ~/.zshenv_local; fi
