@@ -9,11 +9,31 @@ Brewfile
 Brewfile.common
 Brewfile.work
 
+
 #######################################
-# Claude Config
+# Claude
 #######################################
-.claude/**
-!.claude/CLAUDE.md
+/.claude
+# /.claude/ide
+# /.claude/local/node_modules
+# /.claude/projects
+# /.claude/settings.json
+# /.claude/shell-snapshots
+# /.claude/todo
+!/.claude/commands
+!/.claude/local
+/.claude/local/node_modules
+/.claude.json
+/.claude.json.backup
+/CLAUDE.md
+
+
+#######################################
+# SSH Files
+#######################################
+/.ssh
+!/.ssh/config
+
 
 #######################################
 # Zsh Caches
@@ -21,6 +41,7 @@ Brewfile.work
 !.oh-my-zsh/cache/.gitkeep
 .oh-my-zsh/cache
 **/*.zwc
+
 
 #######################################
 # Old Stuff
@@ -36,24 +57,153 @@ oh-my-zsh
 vim
 zsh_custom
 
-# Hide these from unmanaged
+
+#########################################
+# System & Mac-specific Files
+#########################################
 .DS_Store
 .Trash
 .CFUserTextEncoding
+/Applications
+/Desktop
+/Documents
+/Downloads
+/Library
+/Movies
+/Music
+/Parallels
+/Pictures
+/Public
+ca-bundle.crt
+/retention_folder
+
+
+#########################################
+# Repository Management
+#########################################
+CHANGES/**/*
+
+
+#########################################
+# Development Tools & Build Artifacts
+#########################################
+/.android
+/.ansible
+/.aspnet
+/.babel.json
+/.codemod
+/.cache
+
+
+#########################################
+# Third-party Services & Applications
+#########################################
 .cocoapods
 .cisco
-.cache
-Applications
-Desktop
-Documents
-Downloads
-Library
-Movies
-Music
-Parallels
-Pictures
-Public
+/.cups
 
-# Files for the git repo
-CHANGES/**/*
-CLAUDE.md
+
+#######################################
+# Config directories
+#######################################
+# Exclude all .config directories by default
+/.config/**/*
+# Except specifically included ones
+!/.config/.gitignore
+!/.config/nvim
+!/.config/nvim/**/*
+
+
+#######################################
+# Docker, Infrastructure & Cloud
+#######################################
+/.docker
+/.expo
+/.gk
+/.gsutil
+/.lima
+/.terraform.d
+/.colima
+
+
+#######################################
+# Package Management & Language Environments
+#######################################
+/.dotnet
+/.dts
+/.gradle
+/.m2
+/.nodenv
+/.npm
+/.npmrc
+/.nuget
+/.pnpm-state
+/.rustup
+/.swiftpm
+/.templateengine
+/.yarn
+/.yarnrc
+/.bun
+/.cargo
+/.conda
+
+#######################################
+# Code Checkouts
+#######################################
+/src
+
+
+#######################################
+# Python & Data Science Tools
+#######################################
+/.ipython
+/.jupyter
+/.matplotlib
+/.python_history
+
+
+#######################################
+# Shell & Terminal History/Configuration
+#######################################
+/.lesshst
+/.node_repl_history
+/.wget-hsts
+/.zcompdump-eanderson23-mac-5.9
+/.zsh_custom/completions
+/.zsh_custom/pure
+/.zsh_custom/themes/powerlevel10k
+/.zsh_sessions
+/.bash_history
+/.bash_sessions
+/.zprofile_local
+/.zsh_history
+
+
+#######################################
+# Security & Credentials
+#######################################
+/.gnupg
+/.netrc
+/.redhat
+
+
+#######################################
+# Editor & IDE Data
+#######################################
+/.vim/plugged
+/.viminfo
+/.vscode-server
+/.rest-client
+/.vscode
+/.vscode/argv.json
+
+
+#######################################
+# Temporary & Generated Files
+#######################################
+/.hawtjni
+/.jsdoc-api
+/.vpython-root
+/.vpython_cipd_cache
+/.palantir
+/.local

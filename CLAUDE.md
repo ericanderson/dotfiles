@@ -131,3 +131,34 @@ When recording changes, create date-based files following the existing pattern a
 ## Claude Code Workflow Guidelines
 
 - When you record changes, look for files in the @CHANGES/ directory and follow the pattern you see there
+- The `.chezmoiignore` file follows these formatting rules:
+  - Uses boxed headers (e.g., `#######################################`) to categorize groups of ignored files
+  - Always have 2 blank lines before each header section (except the first header)
+  - No blank lines immediately after the header lines
+  - Entries are listed immediately following their section headers
+
+## Ignored File Categories
+
+The repository ignores several categories of files that are typically user-specific or regenerated:
+
+1. **Config directories** - Excludes all ~/.config by default, with explicit inclusions for specific directories (nvim)
+2. **Docker, Infrastructure & Cloud** - Container and cloud service configs
+3. **Package Management & Language Environments** - Language-specific package managers and caches
+4. **Python & Data Science Tools** - Python-related configuration
+5. **Shell & Terminal History/Configuration** - Shell history and terminal settings
+6. **Security & Credentials** - Keys, credentials, and security-related configurations
+7. **Editor & IDE Data** - Editor plugins, state, and configuration files
+8. **Temporary & Generated Files** - Cache directories and generated artifacts
+9. **System & Mac-specific Files** - macOS system directories and files
+10. **Development Tools & Build Artifacts** - Development environment configurations
+11. **Third-party Services & Applications** - Configuration for external services
+12. **Repository Management** - Version control related files
+
+### Remaining Unmanaged Files
+
+Some files are intentionally left unmanaged by chezmoi and not included in .chezmoiignore:
+
+1. **Executable & CLI Tools** - Binaries and command-line tools (e.g., `bin/apollo-cli`, `go`)
+2. **Certificates & Keys** - Security certificates (e.g., `ca-bundle.crt`, `pubkey.gpg`)
+3. **Project Directories** - Temporary project directories and source code (e.g., `src`, `osdk-ts`)
+4. **Temporary & Log Files** - Temporary files and logs (e.g., `java_error_in_idea.hprof`, `report.html`)
