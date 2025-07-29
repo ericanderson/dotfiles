@@ -54,3 +54,8 @@ unset __conda_setup
 export PATH="$PATH:$HOME/.local/bin"
 
 alias claude="$HOME/.claude/local/claude"
+
+# Source 1Password plugins if available
+if [ -f $HOME/.config/op/plugins.sh ]; then
+    source $HOME/.config/op/plugins.sh
+fi

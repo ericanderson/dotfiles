@@ -239,3 +239,8 @@ __setup_prompt
 unset __setup_prompt
 
 eval "$(direnv hook bash)"
+
+# Source 1Password plugins if available
+if [ -f ~/.config/op/plugins.sh ]; then
+    source ~/.config/op/plugins.sh
+fi
