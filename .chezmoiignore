@@ -13,16 +13,9 @@ Brewfile.work
 #######################################
 # Claude
 #######################################
-/.claude
-# /.claude/ide
-# /.claude/local/node_modules
-# /.claude/projects
-# /.claude/settings.json
-# /.claude/shell-snapshots
-# /.claude/todo
+/.claude/**/*
 !/.claude/commands
-!/.claude/local
-/.claude/local/node_modules
+!/.claude/commands/**
 /.claude.json
 /.claude.json.backup
 /CLAUDE.md
