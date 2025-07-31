@@ -10,6 +10,9 @@
 # shellcheck disable=all
 # Always loaded, should set stuff like path and editor and what not
 
+# Make path arrays unique to prevent duplicates
+typeset -U path PATH
+
 # Source common environment variables
 if [ -f ${HOME}/.env_common ]; then . ${HOME}/.env_common; fi
 

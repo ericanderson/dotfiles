@@ -42,7 +42,7 @@ else
     if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
         . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
     else
-        export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
+        path+=("/opt/homebrew/Caskroom/miniconda/base/bin")
     fi
 fi
 unset __conda_setup
@@ -50,8 +50,6 @@ unset __conda_setup
 {{ end }}
 
 
-# Created by `pipx` on 2025-03-18 15:59:10
-export PATH="$PATH:$HOME/.local/bin"
 
 alias claude="$HOME/.claude/local/claude"
 

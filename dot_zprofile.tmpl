@@ -7,24 +7,24 @@
 # Note: Terminal.app on macOS runs login shells by default
 
 # fix annoying node-gyp issues
-export PATH="/opt/homebrew/opt/python/libexec/bin/:${PATH}"
+path=("/opt/homebrew/opt/python/libexec/bin" $path)
 
 if which nodenv > /dev/null; then eval "$(nodenv init -)"; fi
 
-export PATH="/usr/local/sbin:$PATH"
+path=("/usr/local/sbin" $path)
 
 # pnpm
 {{- if eq .chezmoi.os "darwin" }}
 export PNPM_HOME="$HOME/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
+path=("$PNPM_HOME" $path)
 {{ end -}}
 # pnpm end
 
-export PATH="$HOME/.bun/bin:$PATH"
+path=("$HOME/.bun/bin" $path)
 
 
 if [ -f ${HOME}/.zprofile_`uname | tr 'A-Z' 'a-z'` ]; then . ${HOME}/.zprofile_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ${HOME}/.zprofile_local ]; then . ${HOME}/.zprofile_local; fi
 
 # Created by `pipx` on 2025-03-18 15:59:10
-export PATH="$PATH:$HOME/.local/bin"
+path+=("$HOME/.local/bin")
