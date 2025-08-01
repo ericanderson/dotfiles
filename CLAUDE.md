@@ -103,6 +103,10 @@ When modifying configurations:
 3. Apply with `chezmoi apply`
 4. Commit changes to git with descriptive conventional commit messages
 
+### Best Practices
+
+- Always run a diff before an apply
+
 For template files, test variable substitution with:
 
 ```bash
