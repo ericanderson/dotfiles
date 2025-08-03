@@ -14,9 +14,6 @@ export GOPATH="${HOME}/src/go"
 # Direnv - suppress verbose logging
 export DIRENV_LOG_FORMAT=""
 
-# alias claude="$HOME/.claude/local/claude"
-export PATH="$HOME/.claude/local:$PATH"
-
 # Only set tailscale alias if the binary exists
 if [ -x "/Applications/Tailscale.app/Contents/MacOS/Tailscale" ]; then
     alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
@@ -28,6 +25,9 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
+
+# alias claude="$HOME/.claude/local/claude"
+export PATH="$HOME/.claude/local:$PATH"
 
 # 1Password CLI alias for WSL
 if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
