@@ -118,6 +118,8 @@ CHANGES/**/*
 /.lima
 /.terraform.d
 /.colima
+/.aws
+/.kube
 
 
 #######################################
