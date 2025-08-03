@@ -2,3 +2,4 @@
 bin/mate
 vim/.netrwhist
 vim/plugged
+.chezmoi-backups/

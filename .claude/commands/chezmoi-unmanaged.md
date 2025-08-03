@@ -1,9 +1,27 @@
+---
+description: Safely review and process unmanaged chezmoi files
+allowed-tools: Bash(chezmoi:*), Read, Edit, LS, Glob
+argument-hint: [batch-size] (optional, default 10)
+---
+
 # /chezmoi-unmanaged
+
+## Safety Check
+- Auto-backup suggestion: ENABLED
+- Backup location: ~/.chezmoi-backups/
+
+## Current Status
+- Unmanaged files count: !`chezmoi unmanaged | wc -l`
+- Last backup: !`ls -la ~/.chezmoi-backups/latest 2>/dev/null | awk '{print $11}' || echo "No backups yet"`
+- Chezmoi source: ~/.local/share/chezmoi
+
+## Files to Process (batch of ${ARGUMENTS:-10})
+!`chezmoi unmanaged | head -${ARGUMENTS:-10}`
 
 <task>
 You are a chezmoi dotfiles assistant helping the user efficiently process unmanaged files.
 Your job is to help the user review files that aren't yet tracked by chezmoi and
-decide what to do with each one.
+decide what to do with each one. Always prioritize safety and user control.
 </task>
 
 <context>
@@ -16,26 +34,27 @@ and processing them one by one to either:
 
 Reference:
 - Chezmoi documentation: https://www.chezmoi.io/
-- Existing .chezmoiignore: .chezmoiignore
+- Existing .chezmoiignore: @.chezmoiignore
 </context>
 
 <workflow>
-1. Get list of unmanaged files using `chezmoi unmanaged`
+1. Get list of unmanaged files using embedded command above
 2. For each file:
    - Present the file name/path
    - Offer options to add, ignore, or skip
-   - DO NOT try to read the file.
-   - If the file is a directory you may inspect the names of the child files but not their contents.
-   - Provide recommendations based ONLY on file type, location, and content
+   - DO NOT try to read file contents unless necessary for categorization
+   - If the file is a directory, you may inspect child file names but not their contents
+   - Provide recommendations based on file type, location, and patterns
 3. Execute the chosen action for each file
-4. Summarize actions taken at the end
+4. Suggest creating a backup before applying changes
+5. Summarize actions taken at the end
 </workflow>
 
 <options>
 When processing each file, offer these options:
 
 [A] Add to chezmoi (tracked)
-[T] Add as a template (for files with dynamic content)
+[T] Add as template (for files with dynamic content)
 [I] Add to .chezmoiignore
 [S] Skip for now
 [Q] Quit processing
@@ -49,11 +68,10 @@ For directories, also offer:
 Provide smart recommendations based on:
 
 - File location (e.g., config directories likely should be tracked)
-- File content (is it user-specific or contains secrets?)
 - File type (cache files, history files typically ignored)
 - Common patterns:
   - Add: .zshrc, .bashrc, .vimrc, .gitconfig, .config/* (selective)
-  - Ignore: .*_history, cache directories, large binary files
+  - Ignore: .*_history, cache directories, large binary files, .local/
   - Template: Files with hostname, username, or environment-specific content
 </recommendations>
 
@@ -92,7 +110,7 @@ For [T] Template:
 For [I] Ignore:
 - Read current .chezmoiignore
 - Add entry following existing patterns
-- Write updated .chezmoiignore
+- Update .chezmoiignore
 - Confirm success
 
 For [R] Add recursively:
@@ -115,15 +133,16 @@ Summary of Actions:
   - [list entries]
 - Skipped: [count] files
   - [list files]
+
+Recommendation: Run `/chezmoi-status` to see overall status
 ```
 </summary_report>
 
-<best_practices>
-- Process files in batches (10-20 at a time) to avoid overwhelming the user
-- Prioritize config files over cache/temp files
-- Group similar files together in the processing order
-- Suggest adding parent directories when appropriate
-- For .chezmoiignore, follow existing patterns in the file
+<safety_reminders>
+- Never auto-apply changes without user confirmation
+- Suggest backups before significant changes
+- Group similar files for batch operations
 - Use absolute paths in .chezmoiignore when adding specific files
-- Use patterns with ** for directories with many files to ignore
-</best_practices>
+- Follow existing .chezmoiignore patterns
+- Consider using `/chezmoi-backup` before applying changes
+</safety_reminders>

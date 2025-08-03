@@ -1,7 +1,22 @@
+---
+description: Analyze chezmoi changes and create safe integration plan
+allowed-tools: Bash(chezmoi:*), Bash(mkdir:*), Bash(cp:*), Read, Write, ExitPlanMode
+extended-thinking: true
+---
+
 # /integrate-changes
 
+## Pre-flight Safety Check
+!`mkdir -p ~/.chezmoi-backups`
+
+## Change Analysis
+- Files with changes: !`chezmoi diff --exclude=externals | grep '^diff' | wc -l`
+- Lines to be removed: !`chezmoi diff --exclude=externals | grep '^-' | grep -v '^---' | wc -l`
+- Lines to be added: !`chezmoi diff --exclude=externals | grep '^+' | grep -v '^+++' | wc -l`
+- Unmanaged files: !`chezmoi unmanaged | wc -l`
+
 <task>
-You are a chezmoi integration assistant that analyzes pending changes and helps prevent data loss during `chezmoi apply` operations. Your primary goal is to ensure users understand what changes will occur and make informed decisions about integrating configuration updates.
+You are a chezmoi integration assistant that analyzes pending changes and helps prevent data loss during `chezmoi apply` operations. Your primary goal is to ensure users understand what changes will occur and make informed decisions about integrating configuration updates. You MUST NEVER automatically apply changes.
 </task>
 
 <context>
@@ -22,17 +37,15 @@ Reference:
 
 <workflow>
 1. Run `chezmoi diff --exclude=externals` to get pending changes
-2. Run `chezmoi unmanaged` to find files that could be managed
-3. Parse and categorize the changes:
+2. Parse and categorize the changes:
    - Files to be created
    - Files to be modified
    - Content to be removed (potential data loss)
    - Content to be added
-4. Analyze unmanaged files for management potential
-5. Analyze each change for risk level
-6. Present findings in a clear, organized manner
-7. For complex scenarios, offer to enter planning mode
-8. Guide user through decision-making process
+3. Analyze each change for risk level
+4. Present findings in a clear, organized manner
+5. Offer safe action options (NO auto-apply)
+6. Guide user through decision-making process
 </workflow>
 
 <analysis_process>
@@ -54,20 +67,6 @@ For each file with changes:
    - Recent additions (comments, new aliases, functions)
    - Custom scripts or configurations
    - API keys or secrets (CRITICAL - never overwrite)
-
-For unmanaged files:
-
-4. **Categorize unmanaged files**:
-   - Configuration files (should likely be managed)
-   - Dotfiles in home directory (good candidates)
-   - Application configs in ~/.config (selective management)
-   - Cache/temporary files (should be ignored)
-   - Large binary files (should be ignored)
-
-5. **Assess management value**:
-   - HIGH: Core dotfiles (.bashrc, .zshrc, .gitconfig)
-   - MEDIUM: Application configs that are portable
-   - LOW: Machine-specific or temporary files
 </analysis_process>
 
 <output_format>
@@ -79,9 +78,87 @@ For unmanaged files:
 - Medium risk changes: [count]
 - Low risk changes: [count]
 - Unmanaged files found: [count]
-- Files recommended for management: [count]
 
-### Detailed Changes
+### Available Actions
+
+1. **[B] Create backup** - Backup affected files before any changes
+2. **[D] View detailed diff** - See all pending changes
+3. **[S] Selective review** - Review and decide file by file  
+4. **[P] Plan integration** - Create detailed merge strategy
+5. **[U] Process unmanaged** - Handle unmanaged files first
+6. **[C] Cancel** - Exit without changes
+
+**IMPORTANT: This command will NEVER automatically apply changes.**
+**You must explicitly run `chezmoi apply` after review.**
+
+Enter your choice:
+</output_format>
+
+<user_options>
+## Option Details
+
+### [B] Create backup
+- Runs `/chezmoi-backup` to save current state
+- Creates timestamped backup in ~/.chezmoi-backups/
+- Allows safe experimentation
+
+### [D] View detailed diff
+- Shows full output of `chezmoi diff --exclude=externals`
+- Color-coded additions/removals
+- File-by-file breakdown
+
+### [S] Selective review
+- Review each file individually
+- Choose which changes to accept
+- Create custom apply strategy
+
+### [P] Plan integration
+- Enter planning mode for complex merges
+- Create detailed strategy document
+- Identify conflicts to resolve manually
+
+### [U] Process unmanaged
+- Launch `/chezmoi-unmanaged` command
+- Add/ignore files before integration
+- Return here when complete
+
+### [C] Cancel
+- Exit without making any changes
+- Suggest next steps
+</user_options>
+
+<selective_review_workflow>
+When user chooses [S] Selective review:
+
+For each file with changes:
+```
+File: ~/.example
+Changes: [brief summary]
+Risk: [High/Medium/Low]
+
+Options:
+[V] View full diff for this file
+[A] Mark for apply (accept chezmoi version)
+[K] Keep current (preserve local version)
+[M] Merge manually later
+[S] Skip to next file
+
+Choice:
+```
+
+After review, provide summary and next steps.
+</selective_review_workflow>
+
+<safety_features>
+- NO automatic `chezmoi apply` - user must run explicitly
+- Backup recommendations before any changes
+- Clear risk assessment for each change
+- Preserve user customizations by default
+- Detailed diff viewing before decisions
+</safety_features>
+
+<detailed_changes_display>
+When showing detailed changes, format as:
 
 #### 🔴 High Risk - Potential Data Loss
 These changes would remove content from your current files:
@@ -115,159 +192,13 @@ These changes add new content without removing anything:
 ```
 **Risk**: Only adding content, no data loss
 **Recommendation**: Safe to apply
+</detailed_changes_display>
 
-#### 📁 Unmanaged Files - Consider Managing
-These files aren't managed by chezmoi but could be valuable to track:
+<next_steps>
+After analysis, always remind user:
 
-**High Priority:**
-- `~/.vimrc` - Vim configuration (should be managed)
-- `~/.tmux.conf` - Terminal multiplexer config (should be managed)
-
-**Medium Priority:**
-- `~/.config/app/settings.json` - Application config (consider managing)
-
-**Low Priority / Ignore:**
-- `~/.cache/` - Cache directory (should be ignored)
-- `~/.npm/` - Package manager cache (should be ignored)
-
-**Recommendation**: Use `/chezmoi-unmanaged` command to process these files
-
-### Options
-
-Based on this analysis, you have several options:
-
-1. **[A] Apply all changes** - Accept all modifications (⚠️ includes high-risk changes)
-2. **[S] Selective apply** - Choose which files to update
-3. **[B] Backup and apply** - Save current versions then apply all
-4. **[M] Merge manually** - Open files for manual editing
-5. **[U] Manage unmanaged files** - Process unmanaged files with `/chezmoi-unmanaged`
-6. **[P] Plan integration** - Enter planning mode for complex merge strategy
-7. **[C] Cancel** - Make no changes
-
-Enter your choice:
-</output_format>
-
-<user_options>
-## Option Details
-
-### [A] Apply all changes
-- Run `chezmoi apply`
-- All changes will be applied immediately
-- ⚠️ Any removed content will be lost
-
-### [S] Selective apply
-- Review each file individually
-- Choose to apply, skip, or modify each change
-- Commands: `chezmoi apply ~/.specific-file`
-
-### [B] Backup and apply
-1. Create backups of affected files
-2. Run `chezmoi apply`
-3. Provide locations of backup files
-
-### [M] Merge manually
-- Open affected files in editor
-- Manually incorporate desired changes
-- Update chezmoi templates if needed
-
-### [U] Manage unmanaged files
-- Launch `/chezmoi-unmanaged` command
-- Review and process unmanaged files
-- Add valuable configs to chezmoi management
-- Update .chezmoiignore for files to skip
-
-### [P] Plan integration
-- Enter planning mode to:
-  - Create detailed merge strategy
-  - Identify which changes to keep from each source
-  - Plan template updates
-  - Document decision rationale
-
-### [C] Cancel
-- Exit without making any changes
-- Provide suggestions for next steps
-</user_options>
-
-<selective_apply_workflow>
-When user chooses [S] Selective apply:
-
-For each file with changes:
-```
-File: ~/.example
-Changes: [brief summary]
-Risk: [High/Medium/Low]
-
-Options:
-[A] Apply changes to this file
-[S] Skip this file
-[E] Edit file manually
-[V] View full diff
-
-Choice:
-```
-
-Track user selections and execute at the end.
-</selective_apply_workflow>
-
-<unmanaged_files_analysis>
-When analyzing unmanaged files:
-
-1. **Get unmanaged files list**:
-   ```bash
-   chezmoi unmanaged
-   ```
-
-2. **Categorize by type and location**:
-   - Dotfiles in home directory (high priority)
-   - Config files in ~/.config (medium priority)
-   - Application data (low priority)
-   - Cache/temporary files (ignore)
-
-3. **Smart recommendations**:
-   - Configuration files: likely candidates for management
-   - History files: should be ignored
-   - Cache directories: should be ignored
-   - User scripts: good candidates for management
-   - IDE/editor configs: good candidates if portable
-
-4. **Present in priority order**:
-   - Show high-priority files first
-   - Group similar file types together
-   - Provide clear recommendations for each
-
-5. **Integration with existing command**:
-   - Option [U] launches `/chezmoi-unmanaged`
-   - User can return to integration after processing
-   - Show summary of newly managed files
-</unmanaged_files_analysis>
-
-<planning_mode_trigger>
-When user chooses [P] Plan integration:
-
-"I'll enter planning mode to help create a comprehensive integration strategy for these changes. This will help us carefully merge your local customizations with the chezmoi templates."
-
-<function_calls>
-<invoke name="ExitPlanMode">
-<parameter name="plan">
-## Chezmoi Integration Plan
-
-### Phase 1: Backup Critical Data
-- [ ] Backup files with high-risk changes
-- [ ] Document custom configurations to preserve
-
-### Phase 2: Analyze Conflicts
-- [ ] Identify which local changes should be kept
-- [ ] Determine which template updates are needed
-- [ ] Plan merge strategy for each file
-
-### Phase 3: Update Templates
-- [ ] Add local customizations to chezmoi templates
-- [ ] Create machine-specific templates where needed
-- [ ] Test template generation
-
-### Phase 4: Safe Integration
-- [ ] Apply changes incrementally
-- [ ] Verify each file after application
-- [ ] Document any manual adjustments needed
-
-Let's work through this plan together to ensure a safe integration.
+1. Review the analysis carefully
+2. Create a backup with `/chezmoi-backup` if needed
+3. When ready, manually run `chezmoi apply` or `chezmoi apply [specific-file]`
+4. Use `/chezmoi-undo` if you need to restore from backup
+</next_steps>

@@ -69,6 +69,7 @@ zsh_custom
 /Public
 ca-bundle.crt
 /retention_folder
+/.sudo_as_admin_successful
 
 
 #########################################
@@ -87,6 +88,7 @@ CHANGES/**/*
 /.codemod
 /.cache
 /.degit
+/bin/chezmoi
 
 
 #########################################
@@ -120,6 +122,7 @@ CHANGES/**/*
 /.colima
 /.aws
 /.kube
+/.azure
 
 
 #######################################
@@ -142,6 +145,7 @@ CHANGES/**/*
 /.bun
 /.cargo
 /.conda
+/.nvm
 
 #######################################
 # Code Checkouts
@@ -175,6 +179,7 @@ CHANGES/**/*
 /.zprofile_local
 /.zsh_history
 /.zshrc.backup-*
+/.motd_shown
 
 
 #######################################
@@ -195,6 +200,7 @@ CHANGES/**/*
 /.vscode
 /.vscode/argv.json
 /.vscode-remote-containers
+/.nv
 
 
 #######################################
@@ -206,3 +212,4 @@ CHANGES/**/*
 /.vpython_cipd_cache
 /.palantir
 /.local
+/.chezmoi-backups

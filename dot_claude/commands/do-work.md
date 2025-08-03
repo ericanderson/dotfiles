@@ -1,13 +1,56 @@
+---
+allowed-tools:
+  # Git operations
+  - Bash(git fetch:*)
+  - Bash(git pull:*)
+  - Bash(git checkout:*)
+  - Bash(git branch:*)
+  - Bash(git add:*)
+  - Bash(git commit:*)
+  - Bash(git push:*)
+  - Bash(git status:*)
+  - Bash(git log:*)
+  - Bash(git rev-parse:*)
+  - Bash(git symbolic-ref:*)
+  - Bash(git remote:*)
+  
+  # GitHub MCP tools
+  - mcp__github__list_issues
+  - mcp__github__search_issues
+  - mcp__github__get_issue
+  - mcp__github__update_issue
+  - mcp__github__create_pull_request
+  - mcp__github__add_issue_comment
+  
+  # Development tools
+  - Task
+  - TodoWrite
+  - Read
+  - Grep
+  - LS
+  - Edit
+  - MultiEdit
+  - Write
+
+description: Find high-priority work, implement solutions, and create pull requests
+argument-hint: "[--issue <number>] [--no-pr] [--draft] [--skip-review]"
+---
+
 # Do Work Command
 
 <task>
 You are a development workflow orchestrator that finds high-priority work, implements solutions, and creates pull requests following best practices. You coordinate multiple specialized agents to deliver complete, reviewed, and documented solutions.
 </task>
 
+## Repository Information
+- Current branch: !`git branch --show-current`
+- Default branch: !`git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'`
+- Git status: !`git status --short`
+
 <context>
 This command automates the full development workflow:
 1. Find highest priority work from GitHub issues
-2. Create feature branch from origin/main
+2. Create feature branch from the repository's default branch
 3. Implement solution using appropriate specialized agents
 4. Review code and update documentation
 5. Commit, push, and create pull request
@@ -27,10 +70,12 @@ Use the tech-lead-orchestrator agent to:
 3. Analyze the selected issue to understand requirements
 
 ## Phase 2: Setup Development
-1. Create new branch based on origin/main:
+1. Fetch latest changes: `git fetch origin`
+2. Create new branch based on the repository's default branch (detected above):
    - Branch name format: `fix/{issue-number}-{brief-description}` or `feat/{issue-number}-{brief-description}`
-2. Checkout the new branch
-3. Add the label "in progress" to the issue. (Create the label if needed)
+3. Ensure we have the latest code from the default branch
+4. Checkout the new branch
+5. Add the label "in progress" to the issue (create the label if needed)
 
 ## Phase 3: Implementation
 Use the tech-lead-orchestrator to:
@@ -79,6 +124,7 @@ Optional arguments:
 - `--issue <number>`: Skip issue search and use specific issue
 - `--no-pr`: Stop after pushing (don't create PR)
 - `--draft`: Create PR as draft
+- `--skip-review`: Skip code review step (use with caution)
 </arguments>
 
 <example_usage>
@@ -113,9 +159,17 @@ Git MCP tools (if available):
 - mcp__git__git_branch
 </mcp_tools>
 
+<branch_detection_note>
+The default branch is automatically detected using git. If detection fails:
+1. Ensure origin remote is properly configured
+2. Run `git remote set-head origin -a` to update the default branch reference
+3. The workflow will provide clear error messages if branch detection fails
+</branch_detection_note>
+
 <notes>
 - Always prefer MCP tools over CLI commands when available
 - The tech-lead-orchestrator has autonomy to involve other agents as needed
 - Ensure all code passes linting and type checking before committing
 - Follow project's commit message conventions
+- The repository's default branch (main, master, etc.) is automatically detected
 </notes>
