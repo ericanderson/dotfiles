@@ -3,6 +3,9 @@
 # To ensure .bashrc loads on macOS, .bash_profile should source it
 # Not loaded by sh or when bash is invoked as sh
 
+# Source common environment variables
+if [ -f ${HOME}/.env_common ]; then . ${HOME}/.env_common; fi
+
 if [ -f ${HOME}/.bashrc_`uname | tr 'A-Z' 'a-z'` ]; then . ${HOME}/.bashrc_`uname | tr 'A-Z' 'a-z'`; fi
 if [ -f ${HOME}/.bashrc_local ]; then . ${HOME}/.bashrc_local; fi
 

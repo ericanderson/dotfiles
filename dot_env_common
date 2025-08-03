@@ -21,3 +21,15 @@ export PATH="$HOME/.claude/local:$PATH"
 if [ -x "/Applications/Tailscale.app/Contents/MacOS/Tailscale" ]; then
     alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 fi
+
+# pnpm
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# 1Password CLI alias for WSL
+if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
+    alias op="/mnt/c/Users/e/AppData/Local/Microsoft/WinGet/Packages/AgileBits.1Password.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe/op.exe"
+fi
