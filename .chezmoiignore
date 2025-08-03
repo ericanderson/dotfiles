@@ -1,3 +1,19 @@
+# .chezmoiignore - Patterns for files that chezmoi should not manage
+#
+# FORMATTING RULES:
+# - Use boxed headers (#######################################) to categorize groups
+# - Always have 2 blank lines before each header section (except this first one)
+# - No blank lines immediately after header lines
+# - Entries are listed immediately following their section headers
+# - Use descriptive category names in headers
+#
+# PATTERN SYNTAX:
+# - Paths starting with / are relative to home directory
+# - Use ** for recursive matching
+# - Use ! to negate/include specific paths
+# - Supports Go template conditionals (see Homebrew section example)
+
+
 #######################################
 # Homebrew
 #######################################

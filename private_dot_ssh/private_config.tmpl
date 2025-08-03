@@ -1,3 +1,12 @@
+# SSH Configuration Management
+#
+# This config uses an Include directive to support machine-specific configurations:
+# - This file: Base SSH configuration managed by chezmoi
+# - ~/.ssh/local_config: Machine-specific host configurations (not managed by chezmoi)
+# 
+# To add machine-specific SSH hosts, edit ~/.ssh/local_config directly.
+# This allows different SSH hosts on each machine while sharing common settings.
+
 # Include machine-specific SSH configurations
 Include {{ .chezmoi.homeDir }}/.ssh/local_config
 
