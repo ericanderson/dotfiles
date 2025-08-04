@@ -17,3 +17,8 @@
     type = "file"
     url = "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     refreshPeriod = "168h"
+
+["src/github.com/vijaythecoder/awesome-claude-agents"]
+    type = "git-repo"
+    url = "https://github.com/vijaythecoder/awesome-claude-agents"
+    refreshPeriod = "168h"
