@@ -32,6 +32,7 @@ Brewfile.work
 /.claude/**/*
 !/.claude/commands
 !/.claude/commands/**
+!/.claude/agents/**
 /.claude.json
 /.claude.json.backup
 /CLAUDE.md

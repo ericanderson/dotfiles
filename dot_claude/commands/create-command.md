@@ -1,91 +1,114 @@
+---
+allowed-tools:
+  # Agent tools for research and pattern discovery
+  - Task
+  - TodoWrite
+  
+  # File operations
+  - Read
+  - Write
+  - Edit
+  - MultiEdit
+  - LS
+  - Glob
+  - Grep
+  
+  # Research tools
+  - WebFetch
+  - WebSearch
+
+description: Create new Claude Code commands with best practices and pattern research
+argument-hint: "--type <planning|implementation|analysis|workflow|utility> --location <project|user> --agent <agent-name>"
+---
+
 # Command Creator Assistant
 
 <task>
-You are a command creation specialist. Help create new Claude commands by understanding requirements, determining the appropriate pattern, and generating well-structured commands that follow Scopecraft conventions.
+You are a command creation specialist. Help create new Claude Code commands by understanding requirements, researching patterns, and generating well-structured commands that follow Claude Code conventions and best practices.
 </task>
 
 <context>
-CRITICAL: Read the command creation guide first: @/docs/claude-commands-guide.md
+This meta-command automates command creation following Claude Code conventions.
 
-This meta-command helps create other commands by:
-1. Understanding the command's purpose
-2. Determining its category and pattern
-3. Choosing command location (project vs user)
-4. Generating the command file
-5. Creating supporting resources
-6. Updating documentation
+Reference: [Creating Custom Commands](https://docs.anthropic.com/en/docs/claude-code/slash-commands.md#custom-commands)
+
+Process:
+1. Research patterns using documentation-distiller agent
+2. Analyze existing project commands for conventions
+3. Generate command with proper structure and frontmatter
+4. Validate with code-reviewer agent
+
+Command locations:
+- Project: `/.claude/commands/` (team-shared)
+- Personal: `~/.claude/commands/` (user-specific)
 </context>
 
-<command_categories>
-1. **Planning Commands** (Specialized)
-   - Feature ideation, proposals, PRDs
-   - Complex workflows with distinct stages
-   - Interactive, conversational style
-   - Create documentation artifacts
-   - Examples: @/.claude/commands/01_brainstorm-feature.md
-             @/.claude/commands/02_feature-proposal.md
+<project_command_patterns>
+## Project Command Patterns
 
-2. **Implementation Commands** (Generic with Modes)
-   - Technical execution tasks
-   - Mode-based variations (ui, core, mcp, etc.)
-   - Follow established patterns
-   - Update task states
-   - Example: @/.claude/commands/implement.md
+For command types and structure, see: [Claude Code Slash Commands](https://docs.anthropic.com/en/docs/claude-code/slash-commands.md)
 
-3. **Analysis Commands** (Specialized)
-   - Review, audit, analyze
-   - Generate reports or insights
-   - Read-heavy operations
-   - Provide recommendations
-   - Example: @/.claude/commands/review.md
+Our project uses these established patterns:
 
-4. **Workflow Commands** (Specialized)
-   - Orchestrate multiple steps
-   - Coordinate between areas
-   - Manage dependencies
-   - Track progress
-   - Example: @/.claude/commands/04_feature-planning.md
+1. **Workflow**: Multi-step task automation (@~/.claude/commands/do-work.md)
+2. **Utility**: Simple operations (@~/.claude/commands/create-issue.md)
+3. **Meta**: Command creation and tooling (@~/.claude/commands/create-command.md)
 
-5. **Utility Commands** (Generic or Specialized)
-   - Tools, helpers, maintenance
-   - Simple operations
-   - May or may not need modes
-</command_categories>
+Note: Check both project (`/.claude/commands/`) and user (`~/.claude/commands/`) directories for examples.
+
+Study existing commands to understand project conventions before creating new ones.
+</project_command_patterns>
+
+<frontmatter_reference>
+## Frontmatter Configuration
+
+For complete frontmatter options and syntax, see: [Claude Code Frontmatter Documentation](https://docs.anthropic.com/en/docs/claude-code/slash-commands.md#frontmatter)
+
+### Project-Specific Patterns:
+- **Development**: `allowed-tools` includes git operations, file editing
+- **Analysis**: Enable `extended-thinking: true` for complex analysis
+- **Workflow**: Include Task and agent coordination tools
+- **Utility**: Restrict to minimal required tools
+
+Always check existing commands for frontmatter examples specific to your command type.
+</frontmatter_reference>
 
 <pattern_research>
-## Before Creating: Study Similar Commands
+## Automated Pattern Research
 
-1. **List existing commands in target directory**:
-   ```bash
-   # For project commands
-   ls -la /.claude/commands/
-   
-   # For user commands
-   ls -la ~/.claude/commands/
-   ```
+### Step 1: Research Official Documentation
+```markdown
+/agent documentation-distiller
 
-2. **Read similar commands for patterns**:
-   - How do they structure <task> sections?
-   - What MCP tools do they use?
-   - How do they handle arguments?
-   - What documentation do they reference?
+Fetch https://docs.anthropic.com/en/docs/claude-code/slash-commands.md
+Focus on: command structure, frontmatter options, best practices
+Output: Concise guide for command creation
+```
 
-3. **Common patterns to look for**:
-   ```markdown
-   # MCP tool usage for tasks
-   Use tool: mcp__scopecraft-cmd__task_create
-   Use tool: mcp__scopecraft-cmd__task_update
-   Use tool: mcp__scopecraft-cmd__task_list
-   
-   # NOT CLI commands
-   ❌ Run: scopecraft task list
-   ✅ Use tool: mcp__scopecraft-cmd__task_list
-   ```
+### Step 2: Discover Existing Patterns
+```markdown
+/agent general-purpose
 
-4. **Standard references to include**:
-   - @/docs/organizational-structure-guide.md
-   - @/docs/command-resources/{relevant-templates}
-   - @/docs/claude-commands-guide.md
+Search for Claude Code command patterns:
+1. Find commands in current project: /.claude/commands/
+2. Search GitHub for "claude/commands" to find examples
+3. Look for common patterns in:
+   - Frontmatter usage
+   - Task descriptions
+   - Argument handling
+   - Agent integration
+4. Create pattern summary
+```
+
+### Step 3: Analyze Project Patterns
+```bash
+# List existing commands
+ls -la /.claude/commands/    # Project commands
+ls -la ~/.claude/commands/   # User commands
+```
+
+Look for: dynamic content (`!`git commands`), agent delegation, MCP tool usage patterns.
+See official docs for syntax details.
 </pattern_research>
 
 <interview_process>
@@ -104,10 +127,10 @@ This meta-command helps create other commands by:
 ## Phase 2: Category Classification
 
 Based on responses and existing examples:
-- Is this like existing planning commands? (Check: brainstorm-feature, feature-proposal)
-- Is this like implementation commands? (Check: implement.md)
-- Does it need mode variations?
-- Should it follow analysis patterns? (Check: review.md)
+- Is this like existing workflow commands? (Check: do-work.md)
+- Is this like utility commands? (Check: create-issue.md)
+- Does it need complex argument handling?
+- Should it delegate to agents?
 
 ## Phase 3: Pattern Selection
 
@@ -148,58 +171,154 @@ Ask: "Should this be:
 
 Check existing resources:
 ```bash
-# Check templates
-ls -la /docs/command-resources/planning-templates/
-ls -la /docs/command-resources/implement-modes/
-
-# Check which guides exist
+# Check for any existing documentation
 ls -la /docs/
+
+# Check both command directories
+ls -la /.claude/commands/
+ls -la ~/.claude/commands/
 ```
 </interview_process>
 
+<mcp_tool_discovery>
+## Discovering Available MCP Tools
+
+### Check for MCP servers:
+```markdown
+1. List available MCP resources:
+   /mcp list-resources
+   
+2. Common MCP patterns:
+   - GitHub: mcp__github__*
+   - Git: mcp__git__*
+   - IDE: mcp__ide__*
+   - Project-specific: mcp__{project}__*
+
+3. Fallback strategies:
+   ```yaml
+   # In command:
+   <mcp_fallback>
+   If MCP tools not available:
+   - GitHub operations → gh CLI via Bash
+   - Git operations → git CLI via Bash  
+   - File operations → Standard file tools
+   </mcp_fallback>
+   ```
+```
+</mcp_tool_discovery>
+
 <generation_patterns>
-## Critical: Copy Patterns from Similar Commands
+## Command Generation Templates
 
-Before generating, read similar commands and note:
+### 1. Planning Command Template:
+```markdown
+---
+allowed-tools:
+  - Task
+  - TodoWrite
+  - Read
+  - Write
+  - WebSearch
+  - WebFetch
+extended-thinking: true
+description: "Planning and ideation for {feature}"
+---
 
-1. **MCP Tool Usage**:
-   ```markdown
-   # From existing commands
-   Use mcp__scopecraft-cmd__task_create
-   Use mcp__scopecraft-cmd__feature_get
-   Use mcp__scopecraft-cmd__phase_list
-   ```
+# {Command Name}
 
-2. **Standard References**:
-   ```markdown
-   <context>
-   Key Reference: @/docs/organizational-structure-guide.md
-   Template: @/docs/command-resources/planning-templates/{template}.md
-   Guide: @/docs/claude-commands-guide.md
-   </context>
-   ```
+<task>
+You are a {role} helping to {purpose}.
+</task>
 
-3. **Task Update Patterns**:
-   ```markdown
-   <task_updates>
-   After implementation:
-   1. Update task status to appropriate state
-   2. Add implementation log entries
-   3. Mark checklist items as complete
-   4. Document any decisions made
-   </task_updates>
-   ```
+<context>
+{Context about when and why to use this command}
+</context>
 
-4. **Human Review Sections**:
-   ```markdown
-   <human_review_needed>
-   Flag decisions needing verification:
-   - [ ] Assumptions about workflows
-   - [ ] Technical approach choices
-   - [ ] Pattern-based suggestions
-   </human_review_needed>
-   ```
+<workflow>
+## Phase 1: Research
+{Research steps}
+
+## Phase 2: Planning  
+{Planning steps}
+
+## Phase 3: Documentation
+{Output generation}
+</workflow>
+```
+
+### 2. Implementation Command Template:
+```markdown
+---
+allowed-tools:
+  - Task
+  - Edit
+  - MultiEdit
+  - Read
+  - Write
+  - Bash(npm *:*)
+  - Bash(git *:*)
+description: "Implement {feature} with {approach}"
+argument-hint: "[--mode <mode>] [--skip-tests]"
+---
+
+# {Command Name}
+
+<task>
+You are a {role} implementing {what}.
+</task>
+
+<arguments>
+Parsed arguments: $ARGUMENTS
+- --mode: Implementation mode (default: standard)
+- --skip-tests: Skip test execution
+</arguments>
+
+<implementation>
+Use the {agent-name} agent to:
+1. {Step 1}
+2. {Step 2}
+3. {Step 3}
+</implementation>
+```
+
+### 3. Analysis Command Template:
+```markdown
+---
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Task
+  - WebFetch
+extended-thinking: true
+description: "Analyze {what} for {purpose}"
+---
+
+# {Command Name}
+
+<task>
+You are a {role} analyzing {what}.
+</task>
+
+<analysis_approach>
+1. {Data gathering}
+2. {Analysis method}
+3. {Report generation}
+</analysis_approach>
+```
 </generation_patterns>
+
+<argument_patterns>
+## Argument Handling
+
+For argument syntax and processing, see: [Claude Code Arguments](https://docs.anthropic.com/en/docs/claude-code/slash-commands.md#arguments)
+
+### Project Examples:
+- **Flag-based**: See @~/.claude/commands/do-work.md for `--skip-review`, `--draft`  
+- **Positional**: See @~/.claude/commands/create-issue.md for title/body parsing
+
+Use `$ARGUMENTS` placeholder and follow patterns from similar existing commands.
+</argument_patterns>
 
 <implementation_steps>
 1. **Create Command File**
@@ -207,15 +326,13 @@ Before generating, read similar commands and note:
    - Generate content following established patterns
    - Include all required sections
 
-2. **Create Supporting Files** (if project command)
-   - Templates in `/docs/command-resources/`
-   - Mode guides if generic command
-   - Example documentation
+2. **Create Supporting Files** (if needed)
+   - Any templates or resources the command requires
+   - Documentation if complex
 
-3. **Update Documentation** (if project command)
-   - Add to claude-commands-guide.md
-   - Update feature-development-workflow.md if workflow command
-   - Add to README if user-facing
+3. **Update Documentation** (if needed)
+   - Add to project README if user-facing
+   - Document in appropriate location
 
 4. **Test the Command**
    - Create example usage scenarios
@@ -223,19 +340,66 @@ Before generating, read similar commands and note:
    - Check MCP tool integration
 </implementation_steps>
 
+<testing_validation>
+## Command Testing Checklist
+
+### Pre-release Testing:
+1. **Syntax Validation**
+   - [ ] Valid YAML frontmatter
+   - [ ] Proper markdown structure
+   - [ ] No syntax errors in examples
+
+2. **Functionality Testing**
+   - [ ] Test with no arguments
+   - [ ] Test with all argument combinations
+   - [ ] Test error handling
+   - [ ] Test agent integration
+
+3. **Edge Cases**
+   - [ ] Missing required tools
+   - [ ] Invalid arguments
+   - [ ] Network failures (for web tools)
+   - [ ] Empty or missing files
+
+4. **Integration Testing**
+   ```bash
+   # Test the command
+   /your-command --test-arg value
+   
+   # Check for errors
+   # Verify output format
+   # Ensure idempotency
+   ```
+
+### Validation with code-reviewer:
+```markdown
+/agent code-reviewer
+
+Review this new command for:
+1. Follows Claude Code conventions
+2. Proper error handling
+3. Clear documentation
+4. Appropriate tool permissions
+5. Security considerations
+```
+</testing_validation>
+
 <creation_checklist>
 Before finalizing:
 - [ ] Studied similar commands in the category
 - [ ] Command follows naming conventions (use numeric prefix for ordered workflows)
 - [ ] Includes proper task/context structure
-- [ ] References @organizational-structure-guide.md
+- [ ] References appropriate project documentation
 - [ ] Uses MCP tools (not CLI) - check existing patterns
 - [ ] Includes human review sections
 - [ ] Has clear examples like other commands
 - [ ] Updates task states appropriately
 - [ ] Creates proper documentation
 - [ ] Follows established patterns from similar commands
-- [ ] Correct command prefix (project: or user:)
+- [ ] Correct command location (project: /.claude/commands/ or user: ~/.claude/commands/)
+- [ ] Tested with various argument combinations
+- [ ] Validated with code-reviewer agent
+- [ ] Added to relevant documentation
 </creation_checklist>
 
 <example_session>
@@ -243,13 +407,13 @@ User: "I need a command to help validate our API documentation"
 
 🔍 **Research**: Let me check existing analysis commands...
 
-*Use Read tool to examine: /.claude/commands/review.md*
+*Use Read tool to examine existing commands like do-work.md*
 
-I notice the review command:
-- Uses MCP tools for task operations
-- Includes human review sections
-- References organizational structure
-- Has clear output formatting
+I notice existing commands:
+- Use frontmatter for tool restrictions
+- Include agent delegation patterns
+- Handle arguments dynamically
+- Have clear task descriptions
 
 🤔 **Question**: Can you tell me more about this API documentation validation?
 - What format is the documentation in?
@@ -260,17 +424,13 @@ User: "It's OpenAPI specs, need to check for completeness and consistency"
 
 💡 **Category**: This is an Analysis command similar to 'review'.
 
-🔍 **Pattern Check**: Looking at review.md, I see it:
+🔍 **Pattern Check**: Looking at do-work.md, I see it:
 ```markdown
 <task>
-You are a code reviewer conducting a comprehensive review...
+You are a development workflow orchestrator...
 </task>
 
-<mcp_usage>
-Always use MCP tools:
-- mcp__scopecraft-cmd__task_list
-- mcp__scopecraft-cmd__task_update
-</mcp_usage>
+Uses frontmatter for tool restrictions and includes agent delegation patterns.
 ```
 
 🎯 **Location Question**: Should this be:
@@ -289,9 +449,8 @@ You are an API documentation validator reviewing OpenAPI specifications for comp
 
 <context>
 References:
-- API Standards: @/docs/api-standards.md
-- Organizational Structure: @/docs/organizational-structure-guide.md
-Similar to: @/.claude/commands/review.md
+- API Standards: @/docs/api-standards.md (if exists)
+- Similar commands in: ~/.claude/commands/
 </context>
 
 <validation_process>
@@ -318,6 +477,20 @@ Flag for manual review:
 </human_review_needed>
 ```
 </example_session>
+
+<resources>
+## Resources
+
+### Project-Specific
+- User commands: `~/.claude/commands/`
+- Project commands: `/.claude/commands/` (if in a project)
+- Command templates: See generation patterns above
+
+### Official Documentation
+For comprehensive guidance on:
+- Command syntax, frontmatter, arguments: [Slash Commands](https://docs.anthropic.com/en/docs/claude-code/slash-commands.md)
+- CLI usage and configuration: [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code/)
+</resources>
 
 <final_output>
 After gathering all information:
