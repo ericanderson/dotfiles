@@ -1,4 +1,5 @@
 ---
+name: chezmoi-specialist
 tools:
   - Read
   - Edit

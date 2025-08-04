@@ -1,4 +1,5 @@
 ---
+name: package-manager-expert
 tools:
   - Read
   - Edit

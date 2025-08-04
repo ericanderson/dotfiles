@@ -1,4 +1,5 @@
 ---
+name: shell-config-specialist
 tools:
   - Read
   - Edit

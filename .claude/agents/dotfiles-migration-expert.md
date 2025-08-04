@@ -1,4 +1,5 @@
 ---
+name: dotfiles-migration-expert
 tools:
   - Read
   - Write

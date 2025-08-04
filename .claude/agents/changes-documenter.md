@@ -1,4 +1,5 @@
 ---
+name: changes-documenter
 tools:
   - Read
   - Write
