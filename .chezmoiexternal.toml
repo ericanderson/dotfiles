@@ -22,3 +22,8 @@
     type = "git-repo"
     url = "https://github.com/vijaythecoder/awesome-claude-agents"
     refreshPeriod = "168h"
+
+["src/github.com/wshobson/agents"]
+    type = "git-repo"
+    url = "https://github.com/wshobson/agents.git"
+    refreshPeriod = "168h"
