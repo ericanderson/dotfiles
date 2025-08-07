@@ -1,7 +1,6 @@
 ---
 description: Safely review and process unmanaged chezmoi files
-allowed-tools: Bash(chezmoi:*), Read, Edit, LS, Glob
-argument-hint: [batch-size] (optional, default 10)
+allowed-tools: Bash(chezmoi:*), Bash(ls:*), Bash(awk:*), Bash(echo:*) Read, Edit, LS, Glob
 ---
 
 # /chezmoi-unmanaged
@@ -12,11 +11,11 @@ argument-hint: [batch-size] (optional, default 10)
 
 ## Current Status
 - Unmanaged files count: !`chezmoi unmanaged | wc -l`
-- Last backup: !`ls -la ~/.chezmoi-backups/latest 2>/dev/null | awk '{print $11}' || echo "No backups yet"`
+- Last backup: `ls -la ~/.chezmoi-backups/latest 2>/dev/null | awk '{print $11}' || echo "No backups yet"`
 - Chezmoi source: ~/.local/share/chezmoi
 
-## Files to Process (batch of ${ARGUMENTS:-10})
-!`chezmoi unmanaged | head -${ARGUMENTS:-10}`
+## Files to Process
+!`chezmoi unmanaged | head -10`
 
 <task>
 You are a chezmoi dotfiles assistant helping the user efficiently process unmanaged files.
