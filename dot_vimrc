@@ -116,6 +116,10 @@ set number
 " Lets do some cool leader stuff
 nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
 
+" Key timeout settings for mappings
+set timeoutlen=300
+set ttimeoutlen=50
+
 " Attempting to use jj to get back to normal mode
 inoremap jj <ESC>
 

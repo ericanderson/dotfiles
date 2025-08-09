@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# gitleaks - Docker wrapper for gitleaks security scanner
+# Usage: gitleaks [COMMAND] [OPTIONS] [SOURCE_PATH]
+# 
+# This script wraps the gitleaks Docker container to scan for secrets.
+# The current directory is mounted as /path in the container.
+
+# Pull the latest gitleaks image if not present
+if ! docker images zricethezav/gitleaks:latest --format "table {{.Repository}}:{{.Tag}}" | grep -q "zricethezav/gitleaks:latest"; then
+    echo "Pulling gitleaks Docker image..."
+    docker pull zricethezav/gitleaks:latest
+fi
+
+# Run gitleaks with the current directory mounted
+# Mount current working directory to /path in container
+docker run --rm -v "$(pwd)":/path zricethezav/gitleaks:latest "$@"
