@@ -51,7 +51,7 @@ if chezmoi update --dry-run > /tmp/chezmoi-update-preview 2>&1; then
         update_status "UPDATING" "Applying changes..."
         
         if chezmoi update >> "$LOG_FILE" 2>&1; then
-            local changes=$(wc -l < /tmp/chezmoi-update-preview)
+            changes=$(wc -l < /tmp/chezmoi-update-preview)
             echo "$(date): Chezmoi update completed successfully" >> "$LOG_FILE"
             update_status "SUCCESS" "Updated $changes file(s)"
         else
