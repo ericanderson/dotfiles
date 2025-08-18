@@ -33,3 +33,6 @@ export PATH="$HOME/.claude/local:$PATH"
 if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
     alias op="/mnt/c/Users/e/AppData/Local/Microsoft/WinGet/Packages/AgileBits.1Password.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe/op.exe"
 fi
+
+# AppleScript documentation generator default path
+export GENERATE_APPLESCRIPT_DOCS_PATH="$HOME/Documents/PersonalVault/Documentation/Generated/AppleScriptDocs"

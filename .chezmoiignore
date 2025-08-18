@@ -33,6 +33,7 @@ Brewfile.work
 !/.claude/commands
 !/.claude/commands/**
 !/.claude/agents/**
+!/.claude/settings.json
 /.claude.json
 /.claude.json.backup
 /CLAUDE.md
@@ -125,6 +126,8 @@ CHANGES/**/*
 !/.config/.gitignore
 !/.config/nvim
 !/.config/nvim/**/*
+!/.config/ccstatusline
+!/.config/ccstatusline/**/*
 
 
 #######################################

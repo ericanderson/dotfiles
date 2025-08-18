@@ -9,3 +9,7 @@
 !/nvim
 # But not the plugins, we can just install those each time
 /nvim/plugged
+
+# We want ccstatusline settings
+!/private_ccstatusline
+!/private_ccstatusline/** 

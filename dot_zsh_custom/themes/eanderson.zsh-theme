@@ -246,5 +246,5 @@ PROMPT=$'
 %K{236} $OS_ICON %244F\UE0B1 %F{39} %~ $(git_prompt_info)%{$reset_color%}%F{236}\uE0B0%{$reset_color%}
 %(?.%F{70}❯%f.%F{160}❯%f) %f'
 
-RPROMPT=$'%F{236}$(print_icon 'RIGHT_SEGMENT_SEPARATOR')%K{236} %F{66}%*  %{$reset_color%}'
+# RPROMPT=$'%F{236}$(print_icon 'RIGHT_SEGMENT_SEPARATOR')%K{236} %F{66}%*  %{$reset_color%}'
 
