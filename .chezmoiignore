@@ -79,7 +79,9 @@ zsh_custom
 /Desktop
 /Documents
 /Downloads
-/Library
+/Library/**/*
+!/Library/LaunchAgents
+!/Library/LaunchAgents/com.user.chezmoi.update.plist
 /Movies
 /Music
 /Parallels
@@ -93,7 +95,7 @@ ca-bundle.crt
 #########################################
 # Repository Management
 #########################################
-CHANGES/**/*
+CHANGES
 
 
 #########################################
