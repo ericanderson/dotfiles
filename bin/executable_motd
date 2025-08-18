@@ -23,8 +23,13 @@ show_motd() {
     # Chezmoi status
     echo "📁 Chezmoi Status:"
     if [[ -f "$log_file" ]]; then
+        # Get today's abbreviated weekday name (e.g., Mon)
+        local today_day=$(date '+%a')
+        # Get yesterday's abbreviated weekday name
+        local yesterday_day=$(date -v-1d '+%a')
+        
         # Get the last few relevant log entries
-        local last_run=$(grep -E "$(date '+%Y-%m-%d')|$(date -v-1d '+%Y-%m-%d')" "$log_file" | tail -1)
+        local last_run=$(grep -E "${today_day}|${yesterday_day}" "$log_file" | tail -1)
         local last_success=$(grep "completed successfully" "$log_file" | tail -1)
         local last_error=$(grep -E "failed|error|Error" "$log_file" | tail -1)
         
