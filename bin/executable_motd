@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Message of the Day (MOTD) script for displaying system and chezmoi status
+# Displays recent update info and pending changes
+
+show_motd() {
+    local log_file="$HOME/Library/Logs/chezmoi-update.log"
+    local status_file="$HOME/.config/chezmoi-status"
+    
+    # Header
+    echo ""
+    echo "┌─────────────────────────────────────────────────────┐"
+    echo "│ Welcome back! Here's your system status:           │"
+    echo "└─────────────────────────────────────────────────────┘"
+    echo ""
+    
+    # System info
+    echo "🖥️  System: $(sw_vers -productName) $(sw_vers -productVersion)"
+    echo "📅 Date: $(date '+%A, %B %d, %Y at %I:%M %p')"
+    echo "⚡ Uptime: $(uptime | awk '{print $3,$4}' | sed 's/,//')"
+    echo ""
+    
+    # Chezmoi status
+    echo "📁 Chezmoi Status:"
+    if [[ -f "$log_file" ]]; then
+        # Get the last few relevant log entries
+        local last_run=$(grep -E "$(date '+%Y-%m-%d')|$(date -v-1d '+%Y-%m-%d')" "$log_file" | tail -1)
+        local last_success=$(grep "completed successfully" "$log_file" | tail -1)
+        local last_error=$(grep -E "failed|error|Error" "$log_file" | tail -1)
+        
+        if [[ -n "$last_run" ]]; then
+            local run_date=$(echo "$last_run" | cut -d':' -f1-3)
+            echo "   Last run: $run_date"
+            
+            if echo "$last_run" | grep -q "completed successfully"; then
+                echo "   Status: ✅ Success"
+            elif echo "$last_run" | grep -q "No changes to apply"; then
+                echo "   Status: ✨ Up to date"
+            elif echo "$last_run" | grep -q "skipping update"; then
+                echo "   Status: ⏸️  Skipped (safe conditions not met)"
+            elif echo "$last_run" | grep -q "failed"; then
+                echo "   Status: ❌ Failed"
+            else
+                echo "   Status: ℹ️  In progress or unknown"
+            fi
+        else
+            echo "   Status: 🆕 No recent runs found"
+        fi
+        
+        # Show if there are any pending changes
+        if command -v chezmoi &> /dev/null; then
+            local changes=$(chezmoi status 2>/dev/null | wc -l)
+            if [[ $changes -gt 0 ]]; then
+                echo "   Pending: ⚠️  $changes file(s) have changes"
+            fi
+        fi
+    else
+        echo "   Status: ⚠️ Log file not found"
+    fi
+    
+    # Quick actions
+    echo ""
+    echo "🔧 Quick commands:"
+    echo "   • chezmoi status    - Check for changes"
+    echo "   • chezmoi diff      - See what's different"
+    echo "   • tail -f $log_file"
+    echo "                      - Watch update log"
+    echo ""
+}
+
+# If this script is executed directly, show the MOTD
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    show_motd
+fi
