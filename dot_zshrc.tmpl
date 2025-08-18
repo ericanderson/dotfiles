@@ -70,7 +70,7 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Auto-attach to tmux session on SSH login
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -n "$SSH_CONNECTION" ] && [ -z "$VSCODE_IPC_HOOK_CLI" ]; then
   # Try to attach to existing session, or create new one
   tmux attach-session -t default || tmux new-session -s default
 fi
