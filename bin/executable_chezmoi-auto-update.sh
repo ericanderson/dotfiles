@@ -6,6 +6,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 # Source common utilities
+# shellcheck source-path=SCRIPTDIR
 source "$SCRIPT_DIR/lib-common.sh"
 
 # Set app name for generic functions

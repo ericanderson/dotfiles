@@ -7,13 +7,16 @@
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 # Source common utilities
+# shellcheck source-path=SCRIPTDIR
 source "$SCRIPT_DIR/lib-common.sh"
 
 show_motd() {
     # Get paths using common library
     local app_name="chezmoi-auto-update"
-    local chezmoi_update_log_file="$(get_app_log_file "$app_name")"
-    local chezmoi_update_status_file="$(get_app_status_file "$app_name")"
+    local chezmoi_update_log_file
+    local chezmoi_update_status_file
+    chezmoi_update_log_file="$(get_app_log_file "$app_name")"
+    chezmoi_update_status_file="$(get_app_status_file "$app_name")"
     
     # Header
     echo ""
@@ -28,6 +31,7 @@ show_motd() {
         echo "🖥️  System: $(sw_vers -productName) $(sw_vers -productVersion)"
     elif [[ -f /etc/os-release ]]; then
         # Linux
+        # shellcheck source=/etc/os-release
         . /etc/os-release
         echo "🖥️  System: $NAME $VERSION_ID"
     else
@@ -41,27 +45,32 @@ show_motd() {
     echo "📁 Chezmoi Auto-Update Status:"
     if [[ -f "$chezmoi_update_log_file" ]]; then
         # Get today's abbreviated weekday name (e.g., Mon)
-        local today_day=$(date '+%a')
+        local today_day
+        today_day=$(date '+%a')
         # Get yesterday's abbreviated weekday name - cross-platform
+        local yesterday_day
         if date -v-1d '+%a' &> /dev/null 2>&1; then
             # macOS
-            local yesterday_day=$(date -v-1d '+%a')
+            yesterday_day=$(date -v-1d '+%a')
         else
             # Linux
-            local yesterday_day=$(date -d 'yesterday' '+%a')
+            yesterday_day=$(date -d 'yesterday' '+%a')
         fi
         
         # Get the last few relevant log entries
-        local last_run=$(grep -E "${today_day}|${yesterday_day}" "$chezmoi_update_log_file" | tail -1)
-        local last_success=$(grep "completed successfully" "$chezmoi_update_log_file" | tail -1)
-        local last_error=$(grep -E "failed|error|Error" "$chezmoi_update_log_file" | tail -1)
+        local last_run
+        last_run=$(grep -E "${today_day}|${yesterday_day}" "$chezmoi_update_log_file" | tail -1)
         
         # Check for status file first (more reliable)
         if [[ -f "$chezmoi_update_status_file" ]]; then
-            local status_line=$(cat "$chezmoi_update_status_file")
-            local status_date=$(echo "$status_line" | cut -d'|' -f1)
-            local status_state=$(echo "$status_line" | cut -d'|' -f2)
-            local status_message=$(echo "$status_line" | cut -d'|' -f3)
+            local status_line
+            local status_date
+            local status_state
+            local status_message
+            status_line=$(cat "$chezmoi_update_status_file")
+            status_date=$(echo "$status_line" | cut -d'|' -f1)
+            status_state=$(echo "$status_line" | cut -d'|' -f2)
+            status_message=$(echo "$status_line" | cut -d'|' -f3)
             
             echo "   Last run: $status_date"
             case "$status_state" in
@@ -74,7 +83,8 @@ show_motd() {
             esac
         elif [[ -n "$last_run" ]]; then
             # Fallback to log parsing
-            local run_date=$(echo "$last_run" | cut -d':' -f1-3)
+            local run_date
+            run_date=$(echo "$last_run" | cut -d':' -f1-3)
             echo "   Last run: $run_date"
             
             if echo "$last_run" | grep -q "completed successfully"; then
@@ -94,7 +104,8 @@ show_motd() {
         
         # Show if there are any pending changes
         if command -v chezmoi &> /dev/null; then
-            local changes=$(chezmoi status 2>/dev/null | wc -l)
+            local changes
+            changes=$(chezmoi status 2>/dev/null | wc -l)
             if [[ $changes -gt 0 ]]; then
                 echo "   Pending: ⚠️  $changes file(s) have changes"
             fi

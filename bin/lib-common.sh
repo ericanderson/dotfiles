@@ -157,14 +157,18 @@ get_execution_context() {
 log_message() {
     local level="$1"
     local message="$2"
-    local log_file="${3:-$(get_app_log_file)}"
-    
-    if [[ $? -ne 0 ]]; then
-        echo "Error: Cannot determine log file - init_common() not called?" >&2
-        return 1
+    local log_file
+    if [[ -n "$3" ]]; then
+        log_file="$3"
+    else
+        if ! log_file="$(get_app_log_file)"; then
+            echo "Error: Cannot determine log file - init_common() not called?" >&2
+            return 1
+        fi
     fi
     
-    local timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    local timestamp
+    timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
     
     if is_running_under_daemon; then
         # When running under daemon, log to file and also echo for daemon capture
@@ -208,7 +212,8 @@ check_internet_connectivity() {
 setup_homebrew_path() {
     if command -v brew &> /dev/null; then
         # Use brew --prefix to get the correct path
-        local brew_prefix=$(brew --prefix)
+        local brew_prefix
+        brew_prefix=$(brew --prefix)
         export PATH="$brew_prefix/bin:$PATH"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Try common macOS Homebrew locations
@@ -231,9 +236,12 @@ ensure_directories() {
         return 1
     fi
     
-    local state_dir="$(get_app_state_dir "$app_name")"
-    local log_dir="$(get_app_log_dir "$app_name")"
-    local cache_dir="$(get_app_cache_dir "$app_name")"
+    local state_dir
+    local log_dir
+    local cache_dir
+    state_dir="$(get_app_state_dir "$app_name")"
+    log_dir="$(get_app_log_dir "$app_name")"
+    cache_dir="$(get_app_cache_dir "$app_name")"
     
     mkdir -p "$state_dir" "$log_dir" "$cache_dir"
     
@@ -259,7 +267,8 @@ update_app_status() {
         return 1
     fi
     
-    local status_file="$(get_app_status_file "$app_name")"
+    local status_file
+    status_file="$(get_app_status_file "$app_name")"
     echo "$(date '+%Y-%m-%d %H:%M:%S')|$status_value|$message" > "$status_file"
 }
 
