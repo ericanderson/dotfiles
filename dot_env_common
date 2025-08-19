@@ -38,7 +38,7 @@ fi
 export GENERATE_APPLESCRIPT_DOCS_PATH="$HOME/Documents/PersonalVault/Documentation/Generated/AppleScriptDocs"
 
 # Set SSL certificate paths if corporate bundle exists
-if [ -f "$HOME/eanderson/ca-bundle.crt" ]; then
-    export NODE_EXTRA_CA_CERTS="$HOME/eanderson/ca-bundle.crt"
-    export SSL_CERT_FILE="$HOME/eanderson/ca-bundle.crt"
+if [ -f "$HOME/ca-bundle.crt" ]; then
+    export NODE_EXTRA_CA_CERTS="$HOME/ca-bundle.crt"
+    export SSL_CERT_FILE="$HOME/ca-bundle.crt"
 fi
