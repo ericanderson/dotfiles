@@ -12,4 +12,8 @@
 
 # We want ccstatusline settings
 !/private_ccstatusline
-!/private_ccstatusline/** 
+!/private_ccstatusline/**
+
+# We want nerdfonts config and data
+!/nerdfonts
+!/nerdfonts/**
