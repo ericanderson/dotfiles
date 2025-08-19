@@ -17,7 +17,10 @@ fi
 echo "Setting up chezmoi auto-update systemd timer..."
 
 # Reload user systemd daemon to pick up new units
-systemctl --user daemon-reload
+if ! systemctl --user daemon-reload; then
+    echo "Error: Failed to reload systemd daemon"
+    exit 1
+fi
 
 # Enable and start the timer
 if systemctl --user enable chezmoi-update.timer; then
