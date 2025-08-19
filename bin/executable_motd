@@ -1,11 +1,19 @@
 #!/bin/bash
 
-# Message of the Day (MOTD) script for displaying system and chezmoi status
-# Displays recent update info and pending changes
+# Message of the Day (MOTD) script for displaying system status
+# Shows chezmoi-auto-update status and other system information
+
+# Get the directory where this script is located (resolves symlinks)
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+
+# Source common utilities
+source "$SCRIPT_DIR/lib-common.sh"
 
 show_motd() {
-    local log_file="$HOME/Library/Logs/chezmoi-update.log"
-    local status_file="$HOME/.config/chezmoi-status"
+    # Get paths using common library
+    local app_name="chezmoi-auto-update"
+    local chezmoi_update_log_file="$(get_app_log_file "$app_name")"
+    local chezmoi_update_status_file="$(get_app_status_file "$app_name")"
     
     # Header
     echo ""
@@ -14,26 +22,58 @@ show_motd() {
     echo "└─────────────────────────────────────────────────────┘"
     echo ""
     
-    # System info
-    echo "🖥️  System: $(sw_vers -productName) $(sw_vers -productVersion)"
+    # System info - cross-platform
+    if command -v sw_vers &> /dev/null; then
+        # macOS
+        echo "🖥️  System: $(sw_vers -productName) $(sw_vers -productVersion)"
+    elif [[ -f /etc/os-release ]]; then
+        # Linux
+        . /etc/os-release
+        echo "🖥️  System: $NAME $VERSION_ID"
+    else
+        echo "🖥️  System: $(uname -s) $(uname -r)"
+    fi
     echo "📅 Date: $(date '+%A, %B %d, %Y at %I:%M %p')"
     echo "⚡ Uptime: $(uptime | awk '{print $3,$4}' | sed 's/,//')"
     echo ""
     
-    # Chezmoi status
-    echo "📁 Chezmoi Status:"
-    if [[ -f "$log_file" ]]; then
+    # Chezmoi Auto-Update Status
+    echo "📁 Chezmoi Auto-Update Status:"
+    if [[ -f "$chezmoi_update_log_file" ]]; then
         # Get today's abbreviated weekday name (e.g., Mon)
         local today_day=$(date '+%a')
-        # Get yesterday's abbreviated weekday name
-        local yesterday_day=$(date -v-1d '+%a')
+        # Get yesterday's abbreviated weekday name - cross-platform
+        if date -v-1d '+%a' &> /dev/null 2>&1; then
+            # macOS
+            local yesterday_day=$(date -v-1d '+%a')
+        else
+            # Linux
+            local yesterday_day=$(date -d 'yesterday' '+%a')
+        fi
         
         # Get the last few relevant log entries
-        local last_run=$(grep -E "${today_day}|${yesterday_day}" "$log_file" | tail -1)
-        local last_success=$(grep "completed successfully" "$log_file" | tail -1)
-        local last_error=$(grep -E "failed|error|Error" "$log_file" | tail -1)
+        local last_run=$(grep -E "${today_day}|${yesterday_day}" "$chezmoi_update_log_file" | tail -1)
+        local last_success=$(grep "completed successfully" "$chezmoi_update_log_file" | tail -1)
+        local last_error=$(grep -E "failed|error|Error" "$chezmoi_update_log_file" | tail -1)
         
-        if [[ -n "$last_run" ]]; then
+        # Check for status file first (more reliable)
+        if [[ -f "$chezmoi_update_status_file" ]]; then
+            local status_line=$(cat "$chezmoi_update_status_file")
+            local status_date=$(echo "$status_line" | cut -d'|' -f1)
+            local status_state=$(echo "$status_line" | cut -d'|' -f2)
+            local status_message=$(echo "$status_line" | cut -d'|' -f3)
+            
+            echo "   Last run: $status_date"
+            case "$status_state" in
+                "SUCCESS") echo "   Status: ✅ Success - $status_message" ;;
+                "RUNNING") echo "   Status: 🔄 Running - $status_message" ;;
+                "UPDATING") echo "   Status: ⬇️  Updating - $status_message" ;;
+                "SKIPPED") echo "   Status: ⏸️  Skipped - $status_message" ;;
+                "ERROR") echo "   Status: ❌ Failed - $status_message" ;;
+                *) echo "   Status: ℹ️  Unknown - $status_message" ;;
+            esac
+        elif [[ -n "$last_run" ]]; then
+            # Fallback to log parsing
             local run_date=$(echo "$last_run" | cut -d':' -f1-3)
             echo "   Last run: $run_date"
             
@@ -68,8 +108,8 @@ show_motd() {
     echo "🔧 Quick commands:"
     echo "   • chezmoi status    - Check for changes"
     echo "   • chezmoi diff      - See what's different"
-    echo "   • tail -f $log_file"
-    echo "                      - Watch update log"
+    echo "   • tail -f $chezmoi_update_log_file"
+    echo "                      - Watch auto-update log"
     echo ""
 }
 

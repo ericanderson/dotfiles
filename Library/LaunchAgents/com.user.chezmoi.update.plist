@@ -22,7 +22,10 @@
     </dict>
     
     <key>StandardOutPath</key>
-    <string>/Users/eanderson/Library/Logs/chezmoi-update.log</string>
+    <string>$HOME/Library/Logs/chezmoi-auto-update.out.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>$HOME/Library/Logs/chezmoi-auto-update.out.log</string>
     
     <key>RunAtLoad</key>
     <false/>
