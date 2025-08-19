@@ -239,12 +239,14 @@ ZSH_THEME_GIT_PROMPT_CLEAN=""
 ZSH_THEME_GIT_COMMITS_AHEAD_PREFIX="%F{76}⇡"
 ZSH_THEME_GIT_COMMITS_AHEAD_SUFFIX="%f"
 
+ZSH_THEME_GIT_COMMITS_BEHIND_PREFIX="%F{76}⇣"
+ZSH_THEME_GIT_COMMITS_BEHIND_SUFFIX="%f"
+
 ZSH_THEME_GIT_PROMPT_PREFIX='%F{244}\UE0B1 %76F \uF126 '
-# Use %{ %} to ensure proper character counting for prompt length
-ZSH_THEME_GIT_PROMPT_SUFFIX=" %{\$(git_commits_ahead)%} %f"
+ZSH_THEME_GIT_PROMPT_SUFFIX=" %f"
 
 PROMPT=$'
-%K{236} $OS_ICON %244F\UE0B1 %F{39} %~ $(git_prompt_info)%{$reset_color%}%F{236}\uE0B0%{$reset_color%}
+%K{236} $OS_ICON %244F\UE0B1 %F{39} %~ $(git_prompt_info)$(git_commits_ahead)$(git_commits_behind)%{$reset_color%}%F{236}\uE0B0%{$reset_color%}
 %(?.%F{70}❯%f.%F{160}❯%f) %f'
 
 # RPROMPT=$'%F{236}$(print_icon 'RIGHT_SEGMENT_SEPARATOR')%K{236} %F{66}%*  %{$reset_color%}'
