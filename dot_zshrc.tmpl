@@ -98,6 +98,10 @@ fi
 
 # Periodic git status refresh in prompt
 # This will automatically refresh the git status in your prompt without requiring a new command
+
+# Make sure we have the required zsh functions
+autoload -Uz add-zsh-hook
+
 function refresh_git_prompt() {
   # Only run if we're in a git repo
   if git rev-parse --is-inside-work-tree &>/dev/null; then
