@@ -79,9 +79,13 @@ zsh_custom
 /Desktop
 /Documents
 /Downloads
+{{- if eq .chezmoi.os "darwin" }}
 /Library/**/*
 !/Library/LaunchAgents
 !/Library/LaunchAgents/com.user.chezmoi.update.plist
+{{- else }}
+/Library
+{{- end }}
 /Movies
 /Music
 /Parallels
@@ -130,6 +134,8 @@ CHANGES
 !/.config/nvim/**/*
 !/.config/ccstatusline
 !/.config/ccstatusline/**/*
+!/.config/systemd
+!/.config/systemd/**/*
 
 
 #######################################

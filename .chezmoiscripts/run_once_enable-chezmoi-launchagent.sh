@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # Enable chezmoi auto-update LaunchAgent
+
+# Only run on macOS
+if [[ "$(uname)" != "Darwin" ]]; then
+    echo "Skipping LaunchAgent setup (not on macOS)"
+    exit 0
+fi
 PLIST_PATH="$HOME/Library/LaunchAgents/com.user.chezmoi.update.plist"
 SERVICE_NAME="gui/$(id -u)/com.user.chezmoi.update"
 

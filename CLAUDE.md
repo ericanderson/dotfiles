@@ -121,3 +121,4 @@ Dedicated agent for maintaining CHANGES/ documentation. Use for:
 ## Ignored Files
 
 See `.chezmoiignore` for the complete list of ignored file patterns, organized by category with descriptive headers.
+- If you expect something in chezmoi diff and its not there, always check the .chezmoiignore file
