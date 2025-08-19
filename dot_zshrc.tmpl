@@ -102,6 +102,7 @@ fi
 # Make sure we have the required zsh functions
 autoload -Uz add-zsh-hook
 
+# Function to refresh git status in prompt
 function refresh_git_prompt() {
   # Only run if we're in a git repo
   if git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -113,19 +114,20 @@ function refresh_git_prompt() {
 # Create a widget from our function
 zle -N refresh_git_prompt
 
-# Set up a periodic refresh (every 10 seconds)
-PERIODIC_REFRESH_INTERVAL=10 # seconds
+# Manual refresh with Ctrl+G (this will always work)
+bindkey '^g' refresh_git_prompt
+
+# Set up a built-in periodic refresh using TMOUT
 if [[ -z "$VSCODE_IPC_HOOK_CLI" ]]; then  # Don't run in VSCode terminal
-  function periodic_refresh() {
-    (( PERIODIC_REFRESH_COUNT++ ))
-    if (( PERIODIC_REFRESH_COUNT >= PERIODIC_REFRESH_INTERVAL )); then
-      PERIODIC_REFRESH_COUNT=0
-      zle refresh_git_prompt
+  # Set the timeout period in seconds
+  TMOUT=10
+  
+  # Define what happens when TMOUT is reached
+  function TRAPALRM() {
+    # Only refresh if we're in a git repository
+    if git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
+      # Redraw the prompt without using zle
+      zle reset-prompt
     fi
   }
-  PERIODIC_REFRESH_COUNT=0
-  add-zsh-hook precmd periodic_refresh
 fi
-
-# Manual refresh with Ctrl+G
-bindkey '^g' refresh_git_prompt
