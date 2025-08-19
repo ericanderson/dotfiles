@@ -240,7 +240,8 @@ ZSH_THEME_GIT_COMMITS_AHEAD_PREFIX="%F{76}⇡"
 ZSH_THEME_GIT_COMMITS_AHEAD_SUFFIX="%f"
 
 ZSH_THEME_GIT_PROMPT_PREFIX='%F{244}\UE0B1 %76F \uF126 '
-ZSH_THEME_GIT_PROMPT_SUFFIX=" $(git_commits_ahead) %f"
+# Use %{ %} to ensure proper character counting for prompt length
+ZSH_THEME_GIT_PROMPT_SUFFIX=" %{\$(git_commits_ahead)%} %f"
 
 PROMPT=$'
 %K{236} $OS_ICON %244F\UE0B1 %F{39} %~ $(git_prompt_info)%{$reset_color%}%F{236}\uE0B0%{$reset_color%}
