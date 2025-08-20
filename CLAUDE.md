@@ -13,6 +13,27 @@ For detailed chezmoi command usage, use `/agent chezmoi-specialist`. Common comm
 - `chezmoi apply` - Apply configurations to system
 - `chezmoi add [--template] <file>` - Add files to management
 
+## ⚠️ CRITICAL CHEZMOI SAFETY RULES
+
+**NEVER use `chezmoi apply --force` without explicit user permission!**
+
+When encountering chezmoi conflicts:
+1. **STOP** - Do not automatically resolve conflicts
+2. **INVESTIGATE** - Check what the conflict is about using `chezmoi diff`
+3. **EXPLAIN** - Tell the user exactly what would be overwritten
+4. **ASK** - Get explicit permission before using `--force`
+5. **BACKUP** - Suggest creating backups before destructive operations
+
+Common conflict scenarios:
+- **Symlink vs Directory**: If chezmoi wants to create a symlink where a directory exists (or vice versa), this will DELETE the existing content
+- **Modified files**: Local changes that differ from chezmoi templates
+- **Permission changes**: Files with different permissions than expected
+
+Safe conflict resolution:
+- Use `chezmoi apply --dry-run` to preview without changes
+- Use `chezmoi apply --verbose` to see detailed operations
+- ONLY use `--force` after explicit user consent and understanding of data loss
+
 ## Architecture and Structure
 
 ### Chezmoi Conventions
