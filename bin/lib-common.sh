@@ -395,8 +395,14 @@ release_lock() {
 
 # Store diff for later viewing
 store_diff() {
-    local app_name="${1:-$_COMMON_APP_NAME}"
-    local diff_content="$2"
+    # Check if first parameter is diff content (no app name provided)
+    if [[ $# -eq 1 ]] && [[ -n "$_COMMON_APP_NAME" ]]; then
+        local app_name="$_COMMON_APP_NAME"
+        local diff_content="$1"
+    else
+        local app_name="${1:-$_COMMON_APP_NAME}"
+        local diff_content="$2"
+    fi
     
     if [[ -z "$app_name" ]]; then
         echo "Error: App name not provided and init_common() not called" >&2

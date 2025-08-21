@@ -156,18 +156,17 @@ if [[ ! -s "$DIFF_FILE" ]]; then
 fi
 
 # Count the number of files that would change
-local change_count
 change_count=$(grep -c "^diff --git" "$DIFF_FILE" 2>/dev/null || echo "0")
 log_info "Found changes in $change_count file(s)"
 
-# Store the diff for manual review
-local stored_diff_path
-stored_diff_path=$(store_diff "$(cat "$DIFF_FILE")")
+# Store the diff for manual review  
+diff_content=$(cat "$DIFF_FILE")
+stored_diff_path=$(store_diff "$diff_content")
 log_info "Diff stored at: $stored_diff_path"
 
 # Try to generate Claude summary
-local claude_summary=""
-local summary_status="Generated AI summary"
+claude_summary=""
+summary_status="Generated AI summary"
 
 log_info "Attempting to generate AI summary of changes..."
 if claude_summary=$(generate_change_summary "$DIFF_FILE"); then
