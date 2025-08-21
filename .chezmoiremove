@@ -1,0 +1,9 @@
+# Files to remove as part of chezmoi-auto-update to chezmoi-update-check migration
+# This file can be removed after all machines have been updated
+
+# Old script files
+bin/chezmoi-auto-update.sh
+bin/chezmoi-auto-update.sh.backup
+
+# Old state directory
+.local/state/chezmoi-auto-update/

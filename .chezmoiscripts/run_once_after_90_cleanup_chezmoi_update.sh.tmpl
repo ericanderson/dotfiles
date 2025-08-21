@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Cleanup and migration script for chezmoi-auto-update to chezmoi-update-check transition
+# This script runs once after file operations complete
+
+echo "Migrating chezmoi update services from auto-update to update-check..."
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: Reload the LaunchAgent to pick up the new script reference
+PLIST_FILE="$HOME/Library/LaunchAgents/com.user.chezmoi.update.plist"
+
+if [[ -f "$PLIST_FILE" ]]; then
+    echo "Reloading LaunchAgent to use new script..."
+    
+    # Unload the old version
+    launchctl unload "$PLIST_FILE" 2>/dev/null || true
+    
+    # Small delay to ensure clean unload
+    sleep 1
+    
+    # Load the updated version
+    launchctl load "$PLIST_FILE" 2>/dev/null || true
+    
+    echo "LaunchAgent reloaded successfully"
+else
+    echo "LaunchAgent plist not found, skipping reload"
+fi
+
+{{- else if eq .chezmoi.os "linux" }}
+# Linux: Handle systemd service migration
+if command -v systemctl &> /dev/null; then
+    echo "Checking for old systemd services to migrate..."
+    
+    # Stop and disable any old services that might exist
+    OLD_SERVICES=("chezmoi-update.timer" "chezmoi-update.service" "chezmoi-auto-update.timer" "chezmoi-auto-update.service")
+    
+    for service in "${OLD_SERVICES[@]}"; do
+        if systemctl --user list-unit-files 2>/dev/null | grep -q "^${service}"; then
+            echo "Stopping and disabling old service: $service"
+            systemctl --user stop "$service" 2>/dev/null || true
+            systemctl --user disable "$service" 2>/dev/null || true
+        fi
+    done
+    
+    # Reload daemon to pick up any changes
+    systemctl --user daemon-reload 2>/dev/null || true
+    
+    # Enable and start the new services if they exist
+    NEW_SERVICES=("chezmoi-update-check.service" "chezmoi-update-check.timer")
+    
+    for service in "${NEW_SERVICES[@]}"; do
+        if systemctl --user list-unit-files 2>/dev/null | grep -q "^${service}"; then
+            echo "Enabling new service: $service"
+            systemctl --user enable "$service" 2>/dev/null || true
+            
+            # Only start timers, not services (services are triggered by timers)
+            if [[ "$service" == *.timer ]]; then
+                systemctl --user start "$service" 2>/dev/null || true
+            fi
+        fi
+    done
+    
+    echo "Systemd service migration complete"
+else
+    echo "systemctl not available, skipping systemd migration"
+fi
+{{- end }}
+
+echo "Chezmoi update service migration completed successfully!"
