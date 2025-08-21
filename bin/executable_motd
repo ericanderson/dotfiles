@@ -11,12 +11,22 @@ SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "$SCRIPT_DIR/lib-common.sh"
 
 show_motd() {
-    # Get paths using common library
-    local app_name="chezmoi-auto-update"
+    # Get paths using common library - check both old and new app names
+    local old_app_name="chezmoi-auto-update"
+    local new_app_name="chezmoi-update-check"
     local chezmoi_update_log_file
     local chezmoi_update_status_file
-    chezmoi_update_log_file="$(get_app_log_file "$app_name")"
-    chezmoi_update_status_file="$(get_app_status_file "$app_name")"
+    
+    # Check if new app has status, otherwise fall back to old app
+    if [[ -f "$(get_app_status_file "$new_app_name")" ]]; then
+        chezmoi_update_log_file="$(get_app_log_file "$new_app_name")"
+        chezmoi_update_status_file="$(get_app_status_file "$new_app_name")"
+        local app_display_name="Chezmoi Update Check"
+    else
+        chezmoi_update_log_file="$(get_app_log_file "$old_app_name")"
+        chezmoi_update_status_file="$(get_app_status_file "$old_app_name")"
+        local app_display_name="Chezmoi Auto-Update"
+    fi
     
     # Header
     echo ""
@@ -41,86 +51,106 @@ show_motd() {
     echo "⚡ Uptime: $(uptime | awk '{print $3,$4}' | sed 's/,//')"
     echo ""
     
-    # Chezmoi Auto-Update Status
-    echo "📁 Chezmoi Auto-Update Status:"
-    if [[ -f "$chezmoi_update_log_file" ]]; then
-        # Get today's abbreviated weekday name (e.g., Mon)
-        local today_day
-        today_day=$(date '+%a')
-        # Get yesterday's abbreviated weekday name - cross-platform
-        local yesterday_day
-        if date -v-1d '+%a' &> /dev/null 2>&1; then
-            # macOS
-            yesterday_day=$(date -v-1d '+%a')
-        else
-            # Linux
-            yesterday_day=$(date -d 'yesterday' '+%a')
-        fi
+    # Chezmoi Update Status
+    echo "📁 $app_display_name:"
+    if [[ -f "$chezmoi_update_status_file" ]]; then
+        # Parse the status file (new extended format or old format)
+        local status_line
+        local status_date
+        local status_state
+        local status_message
+        local has_changes
+        local change_count
+        local summary
         
-        # Get the last few relevant log entries
-        local last_run
-        last_run=$(grep -E "${today_day}|${yesterday_day}" "$chezmoi_update_log_file" | tail -1)
+        status_line=$(cat "$chezmoi_update_status_file")
         
-        # Check for status file first (more reliable)
-        if [[ -f "$chezmoi_update_status_file" ]]; then
-            local status_line
-            local status_date
-            local status_state
-            local status_message
-            status_line=$(cat "$chezmoi_update_status_file")
+        # Check if this is the new extended format (6 fields) or old format (3 fields)
+        local field_count
+        field_count=$(echo "$status_line" | tr -cd '|' | wc -c)
+        
+        if [[ $field_count -eq 5 ]]; then
+            # New extended format: timestamp|state|message|has_changes|change_count|summary
             status_date=$(echo "$status_line" | cut -d'|' -f1)
             status_state=$(echo "$status_line" | cut -d'|' -f2)
             status_message=$(echo "$status_line" | cut -d'|' -f3)
-            
-            echo "   Last run: $status_date"
-            case "$status_state" in
-                "SUCCESS") echo "   Status: ✅ Success - $status_message" ;;
-                "RUNNING") echo "   Status: 🔄 Running - $status_message" ;;
-                "UPDATING") echo "   Status: ⬇️  Updating - $status_message" ;;
-                "SKIPPED") echo "   Status: ⏸️  Skipped - $status_message" ;;
-                "ERROR") echo "   Status: ❌ Failed - $status_message" ;;
-                *) echo "   Status: ℹ️  Unknown - $status_message" ;;
-            esac
-        elif [[ -n "$last_run" ]]; then
-            # Fallback to log parsing
+            has_changes=$(echo "$status_line" | cut -d'|' -f4)
+            change_count=$(echo "$status_line" | cut -d'|' -f5)
+            summary=$(echo "$status_line" | cut -d'|' -f6)
+        else
+            # Old format: timestamp|state|message
+            status_date=$(echo "$status_line" | cut -d'|' -f1)
+            status_state=$(echo "$status_line" | cut -d'|' -f2)
+            status_message=$(echo "$status_line" | cut -d'|' -f3)
+            has_changes="unknown"
+            change_count="0"
+            summary=""
+        fi
+        
+        # Show when last checked and how long ago
+        local time_ago
+        time_ago=$(get_time_since "$status_date")
+        echo "   Last checked: $time_ago"
+        
+        # Show status with appropriate emoji and message
+        case "$status_state" in
+            "SUCCESS")
+                if [[ "$has_changes" == "true" ]]; then
+                    echo "   Status: ✅ Changes available"
+                    if [[ -n "$summary" ]]; then
+                        echo "   Summary: \"$summary\""
+                        echo "   Action: Run 'chezmoi diff' to review, then 'chezmoi apply' to update"
+                    else
+                        echo "   Details: $change_count file(s) have changes"
+                        local diff_path
+                        diff_path="$(get_last_diff_path "$new_app_name" 2>/dev/null || get_last_diff_path "$old_app_name" 2>/dev/null || echo "~/.cache/chezmoi-update-check/last-diff.txt")"
+                        echo "   Diff: See $diff_path"
+                        echo "   Action: Run 'chezmoi apply' to update"
+                    fi
+                else
+                    echo "   Status: ✨ Up to date - $status_message"
+                fi
+                ;;
+            "RUNNING") echo "   Status: 🔄 Running - $status_message" ;;
+            "UPDATING") echo "   Status: ⬇️  Updating - $status_message" ;;
+            "SKIPPED") echo "   Status: ⏸️  Skipped - $status_message" ;;
+            "ERROR") echo "   Status: ❌ Failed - $status_message" ;;
+            *) echo "   Status: ℹ️  Unknown - $status_message" ;;
+        esac
+        
+    elif [[ -f "$chezmoi_update_log_file" ]]; then
+        # Fallback to legacy log parsing if no status file
+        echo "   Status: ⚠️  Using legacy status (consider running update check)"
+        local last_run
+        last_run=$(tail -5 "$chezmoi_update_log_file" | grep -E "\[(INFO|ERROR)\]" | tail -1)
+        
+        if [[ -n "$last_run" ]]; then
             local run_date
-            run_date=$(echo "$last_run" | cut -d':' -f1-3)
+            run_date=$(echo "$last_run" | sed 's/.*\[\(INFO\|ERROR\)\] \([^:]*\): .*/\2/')
             echo "   Last run: $run_date"
             
             if echo "$last_run" | grep -q "completed successfully"; then
                 echo "   Status: ✅ Success"
             elif echo "$last_run" | grep -q "No changes to apply"; then
                 echo "   Status: ✨ Up to date"
-            elif echo "$last_run" | grep -q "skipping update"; then
-                echo "   Status: ⏸️  Skipped (safe conditions not met)"
+            elif echo "$last_run" | grep -q "skipping"; then
+                echo "   Status: ⏸️  Skipped"
             elif echo "$last_run" | grep -q "failed"; then
                 echo "   Status: ❌ Failed"
-            else
-                echo "   Status: ℹ️  In progress or unknown"
-            fi
-        else
-            echo "   Status: 🆕 No recent runs found"
-        fi
-        
-        # Show if there are any pending changes
-        if command -v chezmoi &> /dev/null; then
-            local changes
-            changes=$(chezmoi status 2>/dev/null | wc -l)
-            if [[ $changes -gt 0 ]]; then
-                echo "   Pending: ⚠️  $changes file(s) have changes"
             fi
         fi
     else
-        echo "   Status: ⚠️ Log file not found"
+        echo "   Status: 🆕 No update checks found"
+        echo "   Action: Run 'chezmoi-update-check.sh' to start monitoring"
     fi
     
     # Quick actions
     echo ""
     echo "🔧 Quick commands:"
-    echo "   • chezmoi status    - Check for changes"
-    echo "   • chezmoi diff      - See what's different"
-    echo "   • tail -f $chezmoi_update_log_file"
-    echo "                      - Watch auto-update log"
+    echo "   • chezmoi status              - Check current status"
+    echo "   • chezmoi diff                - See what would change"
+    echo "   • chezmoi apply               - Apply pending changes"
+    echo "   • chezmoi-update-check.sh     - Manual update check"
     echo ""
 }
 

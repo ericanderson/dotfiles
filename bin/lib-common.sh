@@ -272,6 +272,170 @@ update_app_status() {
     echo "$(date '+%Y-%m-%d %H:%M:%S')|$status_value|$message" > "$status_file"
 }
 
+# Update status for any app with extended information
+update_app_status_extended() {
+    # If first argument looks like a status value, assume current app
+    if [[ "$1" =~ ^(RUNNING|SUCCESS|ERROR|SKIPPED|UPDATING)$ ]] && [[ -n "$_COMMON_APP_NAME" ]]; then
+        local app_name="$_COMMON_APP_NAME"
+        local status_value="$1"
+        local message="$2"
+        local has_changes="${3:-false}"
+        local change_count="${4:-0}"
+        local summary="${5:-}"
+    else
+        local app_name="${1:-$_COMMON_APP_NAME}"
+        local status_value="$2"
+        local message="$3"
+        local has_changes="${4:-false}"
+        local change_count="${5:-0}"
+        local summary="${6:-}"
+    fi
+    
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    
+    local status_file
+    status_file="$(get_app_status_file "$app_name")"
+    echo "$(date '+%Y-%m-%d %H:%M:%S')|$status_value|$message|$has_changes|$change_count|$summary" > "$status_file"
+}
+
+# Calculate human-readable time since timestamp
+get_time_since() {
+    local timestamp="$1"
+    local now
+    local then
+    now=$(date +%s)
+    
+    # Try different date parsing approaches for cross-platform compatibility
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        then=$(date -j -f "%Y-%m-%d %H:%M:%S" "$timestamp" +%s 2>/dev/null)
+    else
+        # Linux
+        then=$(date -d "$timestamp" +%s 2>/dev/null)
+    fi
+    
+    if [[ -z "$then" ]]; then
+        echo "unknown"
+        return
+    fi
+    
+    local diff=$((now - then))
+    
+    if [[ $diff -lt 60 ]]; then
+        echo "just now"
+    elif [[ $diff -lt 3600 ]]; then
+        local mins=$((diff / 60))
+        if [[ $mins -eq 1 ]]; then
+            echo "1 minute ago"
+        else
+            echo "$mins minutes ago"
+        fi
+    elif [[ $diff -lt 86400 ]]; then
+        local hours=$((diff / 3600))
+        if [[ $hours -eq 1 ]]; then
+            echo "1 hour ago"
+        else
+            echo "$hours hours ago"
+        fi
+    elif [[ $diff -lt 604800 ]]; then
+        local days=$((diff / 86400))
+        if [[ $days -eq 1 ]]; then
+            echo "1 day ago"
+        else
+            echo "$days days ago"
+        fi
+    else
+        local weeks=$((diff / 604800))
+        if [[ $weeks -eq 1 ]]; then
+            echo "1 week ago"
+        else
+            echo "$weeks weeks ago"
+        fi
+    fi
+}
+
+# Acquire lock file to prevent concurrent runs
+acquire_lock() {
+    local app_name="${1:-$_COMMON_APP_NAME}"
+    local lock_file="/tmp/${app_name}.lock"
+    local timeout=30
+    local elapsed=0
+    
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    
+    while [[ -f "$lock_file" ]] && [[ $elapsed -lt $timeout ]]; do
+        sleep 1
+        ((elapsed++))
+    done
+    
+    if [[ -f "$lock_file" ]]; then
+        log_error "Could not acquire lock after ${timeout}s"
+        return 1
+    fi
+    
+    echo $$ > "$lock_file"
+    return 0
+}
+
+# Release lock file
+release_lock() {
+    local app_name="${1:-$_COMMON_APP_NAME}"
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    rm -f "/tmp/${app_name}.lock"
+}
+
+# Store diff for later viewing
+store_diff() {
+    local app_name="${1:-$_COMMON_APP_NAME}"
+    local diff_content="$2"
+    
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    
+    local diff_file="$(get_app_cache_dir "$app_name")/last-diff.txt"
+    echo "$diff_content" > "$diff_file"
+    echo "$diff_file"
+}
+
+# Get stored diff path
+get_last_diff_path() {
+    local app_name="${1:-$_COMMON_APP_NAME}"
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    echo "$(get_app_cache_dir "$app_name")/last-diff.txt"
+}
+
+# Check if changes exist based on status file
+has_pending_changes() {
+    local app_name="${1:-$_COMMON_APP_NAME}"
+    if [[ -z "$app_name" ]]; then
+        echo "Error: App name not provided and init_common() not called" >&2
+        return 1
+    fi
+    
+    local status_file="$(get_app_status_file "$app_name")"
+    if [[ -f "$status_file" ]]; then
+        local has_changes
+        has_changes=$(cut -d'|' -f4 "$status_file" 2>/dev/null)
+        [[ "$has_changes" == "true" ]]
+    else
+        return 1
+    fi
+}
+
 # Initialize common setup (call this at start of scripts)
 init_common() {
     local app_name="${1:?App name required}"

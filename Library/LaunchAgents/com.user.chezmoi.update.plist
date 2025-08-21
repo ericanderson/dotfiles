@@ -10,7 +10,7 @@
         <string>/bin/bash</string>
         <string>-l</string>
         <string>-c</string>
-        <string>$HOME/bin/chezmoi-auto-update.sh 2>&1</string>
+        <string>$HOME/bin/chezmoi-update-check.sh 2>&1</string>
     </array>
     
     <key>StartCalendarInterval</key>
@@ -22,10 +22,10 @@
     </dict>
     
     <key>StandardOutPath</key>
-    <string>$HOME/Library/Logs/chezmoi-auto-update.out.log</string>
+    <string>$HOME/Library/Logs/chezmoi-update-check.out.log</string>
     
     <key>StandardErrorPath</key>
-    <string>$HOME/Library/Logs/chezmoi-auto-update.out.log</string>
+    <string>$HOME/Library/Logs/chezmoi-update-check.out.log</string>
     
     <key>RunAtLoad</key>
     <false/>
