@@ -33,3 +33,13 @@ if [ -f ${HOME}/.zprofile_local ]; then . ${HOME}/.zprofile_local; fi
 
 # Created by `pipx` on 2025-03-18 15:59:10
 path+=("$HOME/.local/bin")
+
+# Cargo (Rust)
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
+
+# Java
+if [ -x "/usr/libexec/java_home" ]; then
+    export JAVA_HOME="$(/usr/libexec/java_home)"
+fi
