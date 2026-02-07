@@ -41,5 +41,7 @@ fi
 
 # Java
 if [ -x "/usr/libexec/java_home" ]; then
-    export JAVA_HOME="$(/usr/libexec/java_home)"
+    if /usr/libexec/java_home &>/dev/null; then
+        export JAVA_HOME="$(/usr/libexec/java_home)"
+    fi
 fi

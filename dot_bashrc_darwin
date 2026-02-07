@@ -3,5 +3,7 @@ if [ -f `brew --prefix`/etc/bash_completion ]; then
     . `brew --prefix`/etc/bash_completion
 fi
 
-export JAVA_8_HOME=$(/usr/libexec/java_home -F -v1.8)
-export JAVA_HOME=$JAVA_8_HOME
+if [ -x /usr/libexec/java_home ] && /usr/libexec/java_home -F -v1.8 &>/dev/null; then
+    export JAVA_8_HOME=$(/usr/libexec/java_home -F -v1.8)
+    export JAVA_HOME=$JAVA_8_HOME
+fi

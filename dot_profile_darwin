@@ -14,7 +14,9 @@ function set_java_home {
 }
 
 if [[ `uname | tr 'A-Z' 'a-z'` == "darwin" ]]; then
-	[ -f /usr/libexec/java_home ] && export JAVA_HOME=`/usr/libexec/java_home`
+	if [ -x /usr/libexec/java_home ] && /usr/libexec/java_home &>/dev/null; then
+		export JAVA_HOME=`/usr/libexec/java_home`
+	fi
 fi
 
 if [ -f `brew --prefix`/etc/bash_completion ]; then
