@@ -45,3 +45,8 @@ if [ -x "/usr/libexec/java_home" ]; then
         export JAVA_HOME="$(/usr/libexec/java_home)"
     fi
 fi
+
+# OrbStack: command-line tools and integration
+if [ -f ~/.orbstack/shell/init.zsh ]; then
+    source ~/.orbstack/shell/init.zsh
+fi

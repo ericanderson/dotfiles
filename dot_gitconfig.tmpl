@@ -94,12 +94,15 @@
 [pull]
   rebase = true
 
+{{ $gh := lookPath "gh" -}}
+{{ if $gh -}}
 [credential "https://github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper =
+	helper = !{{ $gh }} auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper =
+	helper = !{{ $gh }} auth git-credential
+{{ end -}}
 [mergetool "vscode"]
 	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 [difftool "vscode"]
