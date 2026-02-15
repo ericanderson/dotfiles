@@ -17,3 +17,7 @@
 # We want nerdfonts config and data
 !/nerdfonts
 !/nerdfonts/**
+
+# We want ghostty config
+!/ghostty
+!/ghostty/**
