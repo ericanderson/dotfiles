@@ -1,51 +1,91 @@
 #!/bin/bash
 set -euo pipefail
 
-# gwt-claude - Git worktree helper that creates a worktree and opens Claude Code
+# gwt-claude - Git worktree helper using gtr with tmux session/window management
 # Usage: gwt-claude <branch-name>
 #
-# Creates a worktree for the specified branch at {repo-root}.worktrees/{branch-name}
-# and opens Claude Code in it (via tmux window if available, or directly).
+# Uses git-gtr to create worktrees with file copying and post-create hooks.
+# Creates/attaches to tmux session named after repo with window per branch.
 
 # Show usage if no branch name provided
 if [ $# -eq 0 ]; then
     echo "Usage: gwt-claude <branch-name>" >&2
     echo "" >&2
-    echo "Creates a git worktree for the branch and opens Claude Code in it." >&2
-    echo "Worktree location: {repo-root}.worktrees/{branch-name}" >&2
+    echo "Creates a git worktree using gtr and opens Claude Code in tmux." >&2
+    echo "Worktree location: managed by gtr (default: {repo-root}/.worktrees/{branch-name})" >&2
+    echo "" >&2
+    echo "Tmux session: named after repository" >&2
+    echo "Tmux window: named after branch" >&2
     exit 1
 fi
 
 BRANCH_NAME="$1"
 
-# Get the repository root
+# Get the repository root and name
 if ! REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null); then
     echo "Error: Not in a git repository" >&2
     exit 1
 fi
 
-# Compute worktree path
-WT_PATH="${REPO_ROOT}.worktrees/${BRANCH_NAME}"
+REPO_NAME=$(basename "$REPO_ROOT")
 
-# Check if worktree already exists
-if [ -d "$WT_PATH" ]; then
-    echo "Worktree already exists at: $WT_PATH" >&2
-    echo "Proceeding to open Claude Code..." >&2
+# Check if gtr is installed
+if ! command -v git-gtr &> /dev/null; then
+    echo "Error: git-gtr is not installed" >&2
+    echo "Install with: brew install coderabbitai/tap/git-gtr" >&2
+    exit 1
+fi
+
+# Determine worktree path that gtr will use/has used
+# gtr uses .worktrees by default, but we need to check if worktree exists
+WT_PATH="${REPO_ROOT}/.worktrees/${BRANCH_NAME}"
+
+# Create or attach to tmux session
+if [ -z "${TMUX:-}" ]; then
+    # Not in tmux - create session and attach
+    if tmux has-session -t "$REPO_NAME" 2>/dev/null; then
+        # Session exists, attach to it
+        exec tmux attach-session -t "$REPO_NAME"
+    else
+        # Create new session (will continue after this to create window)
+        tmux new-session -d -s "$REPO_NAME" -n "$BRANCH_NAME"
+        # Attach to the session we just created
+        exec tmux attach-session -t "$REPO_NAME"
+    fi
 else
-    # Create the worktree
-    echo "Creating worktree at: $WT_PATH"
-    if ! git worktree add -b "$BRANCH_NAME" "$WT_PATH"; then
-        echo "Error: Failed to create worktree" >&2
-        exit 1
+    # Already in tmux - switch to target session if not already there
+    CURRENT_SESSION=$(tmux display-message -p '#S')
+    if [ "$CURRENT_SESSION" != "$REPO_NAME" ]; then
+        if tmux has-session -t "$REPO_NAME" 2>/dev/null; then
+            tmux switch-client -t "$REPO_NAME"
+        else
+            # Create the session in detached mode
+            tmux new-session -d -s "$REPO_NAME"
+            tmux switch-client -t "$REPO_NAME"
+        fi
     fi
 fi
 
-# Open Claude Code in the worktree
-if [ -n "${TMUX:-}" ]; then
-    # Inside tmux: create new window and run claude
-    tmux new-window -n "claude-$BRANCH_NAME" -c "$WT_PATH" claude
-else
-    # Not in tmux: cd and exec claude
-    cd "$WT_PATH"
-    exec claude
+# At this point we're in the correct tmux session
+# Check if window for this branch already exists
+if tmux list-windows -t "$REPO_NAME" -F "#{window_name}" | grep -q "^${BRANCH_NAME}$"; then
+    echo "Window '$BRANCH_NAME' already exists, switching to it..." >&2
+    tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
+    exit 0
 fi
+
+# Create worktree using gtr if it doesn't exist
+if [ ! -d "$WT_PATH" ]; then
+    echo "Creating worktree with gtr for branch: $BRANCH_NAME"
+    cd "$REPO_ROOT"
+    if ! git gtr new "$BRANCH_NAME"; then
+        echo "Error: Failed to create worktree with gtr" >&2
+        exit 1
+    fi
+else
+    echo "Worktree already exists at: $WT_PATH"
+fi
+
+# Create new window in current session and run claude
+tmux new-window -t "$REPO_NAME" -n "$BRANCH_NAME" -c "$WT_PATH" claude
+tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
