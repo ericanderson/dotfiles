@@ -7,12 +7,24 @@ set -euo pipefail
 # Uses git-gtr to create worktrees with file copying and post-create hooks.
 # Creates/attaches to tmux session named after repo with window per branch.
 
+# END USAGE
+
+# NOTES
+
+# `git-gtr` is a tool that creates git worktrees with additional features like file copying
+# and post-create hooks. This script uses `git-gtr` to manage worktrees for different
+# branches and integrates with tmux to open Claude Code in a new window for each branch.
+# https://github.com/coderabbitai/git-worktree-runner
+# README: https://raw.githubusercontent.com/coderabbitai/git-worktree-runner/refs/heads/main/README.md
+# HELP: `git gtr help`
+
+
 # Show usage if no branch name provided
 if [ $# -eq 0 ]; then
     echo "Usage: gwt-claude <branch-name>" >&2
     echo "" >&2
     echo "Creates a git worktree using gtr and opens Claude Code in tmux." >&2
-    echo "Worktree location: managed by gtr (default: {repo-root}/.worktrees/{branch-name})" >&2
+    echo "Worktree location: <repo-parent>/<repo-name>.worktrees/<branch-name>" >&2
     echo "" >&2
     echo "Tmux session: named after repository" >&2
     echo "Tmux window: named after branch" >&2
@@ -21,11 +33,12 @@ fi
 
 BRANCH_NAME="$1"
 
-# Get the repository root and name
-if ! REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null); then
+# Get the main repository root (works from within worktrees too)
+if ! git rev-parse --show-toplevel &>/dev/null; then
     echo "Error: Not in a git repository" >&2
     exit 1
 fi
+REPO_ROOT=$(git worktree list --porcelain | awk 'NR==1{print $2}')
 
 REPO_NAME=$(basename "$REPO_ROOT")
 
@@ -36,43 +49,11 @@ if ! command -v git-gtr &> /dev/null; then
     exit 1
 fi
 
-# Determine worktree path that gtr will use/has used
-# gtr uses .worktrees by default, but we need to check if worktree exists
-WT_PATH="${REPO_ROOT}/.worktrees/${BRANCH_NAME}"
-
-# Create or attach to tmux session
-if [ -z "${TMUX:-}" ]; then
-    # Not in tmux - create session and attach
-    if tmux has-session -t "$REPO_NAME" 2>/dev/null; then
-        # Session exists, attach to it
-        exec tmux attach-session -t "$REPO_NAME"
-    else
-        # Create new session (will continue after this to create window)
-        tmux new-session -d -s "$REPO_NAME" -n "$BRANCH_NAME"
-        # Attach to the session we just created
-        exec tmux attach-session -t "$REPO_NAME"
-    fi
-else
-    # Already in tmux - switch to target session if not already there
-    CURRENT_SESSION=$(tmux display-message -p '#S')
-    if [ "$CURRENT_SESSION" != "$REPO_NAME" ]; then
-        if tmux has-session -t "$REPO_NAME" 2>/dev/null; then
-            tmux switch-client -t "$REPO_NAME"
-        else
-            # Create the session in detached mode
-            tmux new-session -d -s "$REPO_NAME"
-            tmux switch-client -t "$REPO_NAME"
-        fi
-    fi
-fi
-
-# At this point we're in the correct tmux session
-# Check if window for this branch already exists
-if tmux list-windows -t "$REPO_NAME" -F "#{window_name}" | grep -q "^${BRANCH_NAME}$"; then
-    echo "Window '$BRANCH_NAME' already exists, switching to it..." >&2
-    tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
-    exit 0
-fi
+# Worktree convention: sibling directory named <repo>.worktrees/<branch>
+# Set gtr.worktrees.dir locally so gtr uses the correct naming convention
+WORKTREES_DIR="$(cd "${REPO_ROOT}/.." && pwd)/${REPO_NAME}.worktrees"
+WT_PATH="${WORKTREES_DIR}/${BRANCH_NAME}"
+git -C "$REPO_ROOT" config --local gtr.worktrees.dir "$WORKTREES_DIR"
 
 # Create worktree using gtr if it doesn't exist
 if [ ! -d "$WT_PATH" ]; then
@@ -86,6 +67,55 @@ else
     echo "Worktree already exists at: $WT_PATH"
 fi
 
-# Create new window in current session and run claude
-tmux new-window -t "$REPO_NAME" -n "$BRANCH_NAME" -c "$WT_PATH" claude
-tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
+# If window for this branch already exists, just switch to it
+if tmux list-windows -t "$REPO_NAME" -F "#{window_name}" 2>/dev/null | grep -q "^${BRANCH_NAME}$"; then
+    echo "Window '$BRANCH_NAME' already exists, switching to it..." >&2
+    if [ -z "${TMUX:-}" ]; then
+        exec tmux attach-session -t "$REPO_NAME:$BRANCH_NAME"
+    else
+        tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
+    fi
+    exit 0
+fi
+
+# Build a temp ZDOTDIR so we get a real interactive zsh (full job control)
+# that sources the user's real .zshrc and then auto-starts claude.
+# Using ZDOTDIR rather than `zsh -ic` because -ic doesn't wait for input
+# after a ctrl+z, causing exec zsh to run immediately and losing the job.
+GWT_ZDOTDIR=$(mktemp -d)
+# .zshenv: source real zshenv so PATH etc are set up
+cat > "${GWT_ZDOTDIR}/.zshenv" << 'EOF'
+[[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
+EOF
+# .zshrc: source real zshrc, then run claude; leave shell alive afterwards
+cat > "${GWT_ZDOTDIR}/.zshrc" << EOF
+ZDOTDIR="\$HOME"
+[[ -f "\$HOME/.zshrc" ]] && source "\$HOME/.zshrc"
+rm -rf "${GWT_ZDOTDIR}" 2>/dev/null
+claude
+EOF
+
+# Create or switch to tmux session, then create the window with claude
+if [ -z "${TMUX:-}" ]; then
+    # Not in tmux
+    if tmux has-session -t "$REPO_NAME" 2>/dev/null; then
+        # Session exists - add window to it, then attach
+        ZDOTDIR="$GWT_ZDOTDIR" tmux new-window -a -t "$REPO_NAME" -n "$BRANCH_NAME" -c "$WT_PATH" zsh
+        exec tmux attach-session -t "$REPO_NAME:$BRANCH_NAME"
+    else
+        # Create new session with the window already configured
+        exec env ZDOTDIR="$GWT_ZDOTDIR" tmux new-session -s "$REPO_NAME" -n "$BRANCH_NAME" -c "$WT_PATH" zsh
+    fi
+else
+    # Already in tmux - ensure we're on the right session
+    CURRENT_SESSION=$(tmux display-message -p '#S')
+    if [ "$CURRENT_SESSION" != "$REPO_NAME" ]; then
+        if ! tmux has-session -t "$REPO_NAME" 2>/dev/null; then
+            tmux new-session -d -s "$REPO_NAME"
+        fi
+        tmux switch-client -t "$REPO_NAME"
+    fi
+    # Create the window in the target session
+    ZDOTDIR="$GWT_ZDOTDIR" tmux new-window -a -t "$REPO_NAME" -n "$BRANCH_NAME" -c "$WT_PATH" zsh
+    tmux select-window -t "$REPO_NAME:$BRANCH_NAME"
+fi
