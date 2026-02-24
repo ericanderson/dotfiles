@@ -1,5 +1,3 @@
-tap "coderabbitai/tap"
-
 brew "bash-completion"
 brew "chezmoi"
 brew "cloc"
@@ -9,7 +7,6 @@ brew "fd"
 brew "findutils"
 brew "git"
 brew "git-extras"
-brew "git-gtr"
 brew "git-lfs"
 brew "gh"
 brew "jq"
