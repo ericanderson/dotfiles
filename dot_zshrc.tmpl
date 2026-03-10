@@ -64,6 +64,14 @@ eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519_sk 2>/dev/null
 {{ end }}
 
+{{- if eq .chezmoi.os "darwin" }}
+# Start a fresh ssh-agent (override macOS default)
+eval "$(ssh-agent -s)"
+
+# Load Yubikey sk key
+ssh-add ~/.ssh/id_ed25519_sk 2>/dev/null
+{{ end }}
+
 # Source 1Password plugins if available
 if [ -f $HOME/.config/op/plugins.sh ]; then
     source $HOME/.config/op/plugins.sh
