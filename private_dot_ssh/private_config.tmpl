@@ -7,10 +7,16 @@
 # To add machine-specific SSH hosts, edit ~/.ssh/local_config directly.
 # This allows different SSH hosts on each machine while sharing common settings.
 
+{{- if and (eq .chezmoi.os "darwin") (stat (joinPath .chezmoi.homeDir ".orbstack")) }}
+# Added by OrbStack: 'orb' SSH host for Linux machines
+# This only works if it's at the top of ssh_config (before any Host blocks).
+Include ~/.orbstack/ssh/config
+
+{{ end -}}
 # Include machine-specific SSH configurations
 Include {{ .chezmoi.homeDir }}/.ssh/local_config
 
-{{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
+{{ if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
 Include {{ .chezmoi.homeDir }}/.ssh/coder_config
 
 Host localhost
@@ -23,8 +29,9 @@ Host coder.*
 
 {{ end -}}
 
-# Ensure rsa is enabled on machines that are being 'helpful' fips.
-Host *
-  PubkeyAcceptedKeyTypes=+ssh-rsa
-  HostKeyAlgorithms=+ssh-rsa
+# Uncomment to re-enable ssh-rsa on systems that disable it by default (e.g. FIPS).
+# Adds RSA back to the accepted key/algorithm list without replacing other types.
+# Host *
+#   PubkeyAcceptedKeyTypes=+ssh-rsa
+#   HostKeyAlgorithms=+ssh-rsa
 
