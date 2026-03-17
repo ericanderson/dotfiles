@@ -51,7 +51,10 @@ unset __conda_setup
 
 
 
-# alias claude="$HOME/.claude/local/claude"
+claude() {
+  [ -n "$TMUX" ] && tmux set-option -w monitor-activity off
+  command claude "$@"
+}
 
 # Source 1Password plugins if available
 if [ -f $HOME/.config/op/plugins.sh ]; then
@@ -60,6 +63,10 @@ fi
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# workmux
+alias wm='workmux'
+eval "$(workmux completions zsh)"
 
 # nvm (Node Version Manager)
 export NVM_DIR="$HOME/.nvm"
