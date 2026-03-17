@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git stash list*)",
+      "Bash(git rev-parse *)",
+      "Bash(git remote -v*)",
+      "Bash(git remote get-url *)",
+      "Bash(git worktree list*)",
+      "Bash(git branch)",
+      "Bash(git branch -a*)",
+      "Bash(git branch -r*)",
+      "Bash(git branch --list*)",
+      "Bash(git branch -v*)",
+      "Bash(git branch --show-current*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git stash push*)",
+      "Bash(git stash show*)",
+      "Bash(git stash apply*)",
+      "Bash(gh repo view*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue view*)",
+      "Bash(gh issue create*)",
+      "Bash(gh issue comment*)",
+      "Bash(gh issue status*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr comment*)",
+      "Bash(gh pr status*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr checks*)",
+      "Bash(cargo build*)",
+      "Bash(cargo test*)",
+      "Bash(cargo check*)",
+      "Bash(cargo clippy*)",
+      "Bash(cargo fmt*)",
+      "Bash(cargo doc*)",
+      "Bash(npm test*)",
+      "Bash(npm run build*)",
+      "Bash(npm run test*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run dev*)",
+      "Bash(npm ci*)",
+      "Bash(npm install)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(ls *)",
+      "Bash(ls)",
+      "Bash(which *)",
+      "Bash(wc *)",
+      "Bash(date*)",
+      "Bash(pwd)",
+      "Bash(docker ps*)",
+      "Bash(docker logs*)",
+      "Bash(docker build*)",
+      "Bash(chezmoi diff*)",
+      "Bash(chezmoi status*)",
+      "Bash(chezmoi data*)",
+      "Bash(chezmoi list*)",
+      "Bash(chezmoi managed*)",
+      "Bash(chezmoi unmanaged*)",
+      "Bash(chezmoi source-path*)",
+      "Bash(chezmoi target-path*)",
+      "Bash(chezmoi cat*)",
+      "Bash(mkdir *)",
+      "Bash(find *)",
+      "Bash(git push *)",
+      "Bash(gh api *)"
+    ],
+    "deny": [
+      "Bash(git worktree remove --force*)",
+      "Bash(git worktree remove -f *)",
+      "Bash(git worktree remove -f)",
+      "Bash(git worktree remove * --force*)",
+      "Bash(git worktree remove * -f *)",
+      "Bash(git worktree remove * -f)"
+    ],
+    "ask": [
+      "Bash(find * -exec *)",
+      "Bash(find * -execdir *)",
+      "Bash(find * -delete*)",
+      "Bash(find * -ok *)",
+      "Bash(gh api * --method *)",
+      "Bash(gh api * -X *)",
+      "Bash(gh api --method *)",
+      "Bash(gh api -X *)",
+      "Bash(gh api graphql *)",
+      "Bash(gh api * graphql *)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git push -f)",
+      "Bash(git push * --delete *)",
+      "Bash(git push --delete *)",
+      "Bash(git push * :*)",
+      "Bash(git merge *)",
+      "Bash(gh api * -f *)",
+      "Bash(gh api * -F *)",
+      "Bash(gh api * --field *)",
+      "Bash(gh api * --raw-field *)",
+      "Bash(gh api * --input *)"
+    ],
+    "additionalDirectories": [
+      "~/.cargo/registry/src/"
+    ]
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/tmux-bell.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status waiting"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status working"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status done"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status working"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c '\"/opt/homebrew/bin/node\" \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)dist/index.js\"'",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "ea-codes@ea-codes": true,
+    "feature-dev@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": false,
+    "ralph-skills@ralph-marketplace": false,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "tmux@ea-codes": false,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "ea-codes": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes"
+      },
+      "autoUpdate": true
+    }
+  },
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true
+}
