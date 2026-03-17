@@ -12,8 +12,7 @@ allowed-tools:
   - Bash(date +%H:%M:%S)
   - Bash(hostname)
   - Bash(pwd)
-  - Bash(git remote get-url origin)
-  - Bash(git branch --show-current)
+  - Bash(git branch --show-current 2>/dev/null || echo 'n/a')
 ---
 
 # Claude Action Logger
@@ -36,8 +35,7 @@ date: "!`date +%Y-%m-%d`"
 time: "!`date +%H:%M:%S`"
 hostname: !`hostname`
 directory: !`pwd`
-git_remote: !`git remote get-url origin`
-git_branch: !`git branch --show-current`
+git_branch: !`git branch --show-current 2>/dev/null || echo 'n/a'`
 session_id: ${CLAUDE_SESSION_ID}
 summary: "{1-2 sentence summary of what was done}"
 ---
