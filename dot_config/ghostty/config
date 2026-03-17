@@ -45,3 +45,14 @@ shell-integration-features = ssh-terminfo
 # resize-overlay-duration = 4s 200ms
 
 keybind = shift+enter=text:\n
+
+# Cmd+Shift+N switches tmux windows (sends C-a + number)
+keybind = cmd+shift+1=text:\x011
+keybind = cmd+shift+2=text:\x012
+keybind = cmd+shift+3=text:\x013
+keybind = cmd+shift+4=text:\x014
+keybind = cmd+shift+5=text:\x015
+keybind = cmd+shift+6=text:\x016
+keybind = cmd+shift+7=text:\x017
+keybind = cmd+shift+8=text:\x018
+keybind = cmd+shift+9=text:\x019
