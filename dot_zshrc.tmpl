@@ -97,6 +97,11 @@ alias motd='$HOME/bin/motd'
 # Call the function to show MOTD on login
 show_motd_on_login
 
+# zoxide - smarter cd that learns your most-used directories
+#   `z foo<enter>`      - jump to highest-ranked directory matching "foo"
+#   `z foo bar<enter>`  - jump to match for "foo" AND "bar"
+#   `z foo <tab>`       - interactive fzf picker filtered by "foo"
+#   `zi`                - interactive fzf picker (no filter)
 eval "$(zoxide init zsh)"
 
 
