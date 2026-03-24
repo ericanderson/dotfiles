@@ -21,3 +21,7 @@
 # We want ghostty config
 !/ghostty
 !/ghostty/**
+
+# We want workmux config
+!/workmux
+!/workmux/**

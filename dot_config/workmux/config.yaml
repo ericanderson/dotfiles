@@ -1,0 +1,24 @@
+agent: claude
+status_format: false
+
+post_create:
+  - git config extensions.worktreeConfig true
+  - git config --worktree user.name "ericanderson-bot"
+  - git config --worktree user.email "179007828+ericanderson-bot@users.noreply.github.com"
+sandbox:
+  enabled: true
+  image: ghcr.io/ericanderson/workmux-sandbox:latest
+  env_passthrough:
+    - WORKMUX_ENV__GH_TOKEN
+  host_commands:
+    - cargo
+    - node
+    - npm
+    - npx
+    - pnpm
+    - just
+nerdfont: true
+status_icons:
+  working: ' '
+  waiting: ' '
+  done: ' '
