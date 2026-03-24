@@ -12,7 +12,6 @@ sandbox:
     - WORKMUX_ENV__GH_TOKEN
   host_commands:
     - cargo
-    - node
     - npm
     - npx
     - pnpm
