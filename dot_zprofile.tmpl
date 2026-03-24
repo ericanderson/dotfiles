@@ -50,3 +50,8 @@ fi
 if [ -f ~/.orbstack/shell/init.zsh ]; then
     source ~/.orbstack/shell/init.zsh
 fi
+
+# Obsidian CLI
+if [ -d "/Applications/Obsidian.app/Contents/MacOS" ]; then
+    path+="/Applications/Obsidian.app/Contents/MacOS"
+fi
