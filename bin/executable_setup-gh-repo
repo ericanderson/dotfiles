@@ -17,7 +17,7 @@ Flags:
   --dry-run           preview changes without applying
   --help              show this help
 EOF
-  exit 0
+  exit "${1:-0}"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -32,7 +32,7 @@ done
 
 if [[ ${#PATTERNS[@]} -eq 0 ]]; then
   echo "Error: at least one pattern required" >&2
-  usage
+  usage 1
 fi
 
 # Detect bot username
@@ -46,6 +46,10 @@ BOT_USERNAME=$(GH_TOKEN="$WORKMUX_ENV__GH_TOKEN" gh api /user --jq '.login' 2>/d
   exit 1
 }
 
+if [[ ! "$BOT_USERNAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "Error: unexpected bot username format: $BOT_USERNAME" >&2
+  exit 1
+fi
 echo "Bot account: $BOT_USERNAME"
 
 build_ruleset_json() {
@@ -53,11 +57,13 @@ build_ruleset_json() {
   local bypass_actors
 
   if [[ "$owner_type" == "Organization" ]]; then
+    # actor_id 5 = RepositoryRole "Admin", actor_id 1 = OrganizationAdmin
     bypass_actors='[
       {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"},
       {"actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always"}
     ]'
   else
+    # actor_id 5 = RepositoryRole "Admin"
     bypass_actors='[
       {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}
     ]'
@@ -100,34 +106,31 @@ ensure_ruleset() {
   local ruleset_id
   ruleset_id=$(gh api "repos/$repo/rulesets" --jq '.[] | select(.name=="ai-agent-protection") | .id' 2>/dev/null) || true
 
-  local tmpfile
-  tmpfile=$(mktemp)
-  build_ruleset_json "$owner_type" > "$tmpfile"
-
   if [[ -z "$ruleset_id" ]]; then
     if [[ "$DRY_RUN" == "true" ]]; then
       echo "would create ruleset"
     else
-      gh api "repos/$repo/rulesets" --method POST --input "$tmpfile" > /dev/null
+      build_ruleset_json "$owner_type" | gh api "repos/$repo/rulesets" --method POST --input - > /dev/null
       echo "ruleset created"
     fi
   else
     if [[ "$DRY_RUN" == "true" ]]; then
       echo "would update ruleset"
     else
-      gh api "repos/$repo/rulesets/$ruleset_id" --method PUT --input "$tmpfile" > /dev/null
+      build_ruleset_json "$owner_type" | gh api "repos/$repo/rulesets/$ruleset_id" --method PUT --input - > /dev/null
       echo "ruleset updated"
     fi
   fi
-
-  rm -f "$tmpfile"
 }
 
 ensure_bot() {
   local repo="$1"
 
   local bot_role
-  bot_role=$(gh api "repos/$repo/collaborators/$BOT_USERNAME/permission" --jq '.role_name' 2>/dev/null) || true
+  if ! bot_role=$(gh api "repos/$repo/collaborators/$BOT_USERNAME/permission" --jq '.role_name' 2>/dev/null); then
+    echo "bot error (failed to check permissions)"
+    return 1
+  fi
 
   case "$bot_role" in
     write|maintain|admin)
@@ -137,8 +140,8 @@ ensure_bot() {
     read|triage)
       # Needs upgrade
       ;;
-    *)
-      # Not a collaborator or empty
+    ""|none)
+      # Not a collaborator
       ;;
   esac
 
@@ -214,6 +217,7 @@ resolve_patterns() {
       }
 
       # Filter by glob pattern
+      [[ -z "$all_repos" ]] && continue
       while IFS= read -r repo; do
         local repo_name="${repo#*/}"
         # Use bash pattern matching
@@ -241,6 +245,8 @@ resolve_patterns() {
 }
 
 REPOS=$(resolve_patterns)
+# Trim whitespace for reliable empty check
+REPOS="${REPOS#"${REPOS%%[![:space:]]*}"}"
 if [[ -z "$REPOS" ]]; then
   echo "No repos matched" >&2
   exit 1
