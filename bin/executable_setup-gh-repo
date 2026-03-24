@@ -1,0 +1,257 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DRY_RUN=false
+PATTERNS=()
+
+usage() {
+  cat <<'EOF'
+Usage: setup-gh-repo [--dry-run] <pattern>...
+
+Patterns:
+  owner/repo          exact repo
+  'owner/*'           all non-archived repos for owner
+  'owner/prefix-*'    glob match on repo name
+
+Flags:
+  --dry-run           preview changes without applying
+  --help              show this help
+EOF
+  exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=true; shift ;;
+    --help|-h) usage ;;
+    --) shift; PATTERNS+=("$@"); break ;;
+    -*) echo "Unknown flag: $1" >&2; exit 1 ;;
+    *) PATTERNS+=("$1"); shift ;;
+  esac
+done
+
+if [[ ${#PATTERNS[@]} -eq 0 ]]; then
+  echo "Error: at least one pattern required" >&2
+  usage
+fi
+
+# Detect bot username
+if [[ -z "${WORKMUX_ENV__GH_TOKEN:-}" ]]; then
+  echo "Error: WORKMUX_ENV__GH_TOKEN is not set" >&2
+  exit 1
+fi
+
+BOT_USERNAME=$(GH_TOKEN="$WORKMUX_ENV__GH_TOKEN" gh api /user --jq '.login' 2>/dev/null) || {
+  echo "Error: failed to detect bot username from WORKMUX_ENV__GH_TOKEN" >&2
+  exit 1
+}
+
+echo "Bot account: $BOT_USERNAME"
+
+build_ruleset_json() {
+  local owner_type="$1"
+  local bypass_actors
+
+  if [[ "$owner_type" == "Organization" ]]; then
+    bypass_actors='[
+      {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"},
+      {"actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always"}
+    ]'
+  else
+    bypass_actors='[
+      {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}
+    ]'
+  fi
+
+  cat <<EOF
+{
+  "name": "ai-agent-protection",
+  "enforcement": "active",
+  "target": "branch",
+  "bypass_actors": $bypass_actors,
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main", "refs/heads/release/*"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {"type": "deletion"},
+    {"type": "non_fast_forward"},
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": false,
+        "require_code_owner_review": false,
+        "require_last_push_approval": true,
+        "required_review_thread_resolution": false
+      }
+    }
+  ]
+}
+EOF
+}
+
+ensure_ruleset() {
+  local repo="$1"
+  local owner_type="$2"
+
+  local ruleset_id
+  ruleset_id=$(gh api "repos/$repo/rulesets" --jq '.[] | select(.name=="ai-agent-protection") | .id' 2>/dev/null) || true
+
+  local tmpfile
+  tmpfile=$(mktemp)
+  build_ruleset_json "$owner_type" > "$tmpfile"
+
+  if [[ -z "$ruleset_id" ]]; then
+    if [[ "$DRY_RUN" == "true" ]]; then
+      echo "would create ruleset"
+    else
+      gh api "repos/$repo/rulesets" --method POST --input "$tmpfile" > /dev/null
+      echo "ruleset created"
+    fi
+  else
+    if [[ "$DRY_RUN" == "true" ]]; then
+      echo "would update ruleset"
+    else
+      gh api "repos/$repo/rulesets/$ruleset_id" --method PUT --input "$tmpfile" > /dev/null
+      echo "ruleset updated"
+    fi
+  fi
+
+  rm -f "$tmpfile"
+}
+
+ensure_bot() {
+  local repo="$1"
+
+  local bot_role
+  bot_role=$(gh api "repos/$repo/collaborators/$BOT_USERNAME/permission" --jq '.role_name' 2>/dev/null) || true
+
+  case "$bot_role" in
+    write|maintain|admin)
+      echo "bot ok"
+      return 0
+      ;;
+    read|triage)
+      # Needs upgrade
+      ;;
+    *)
+      # Not a collaborator or empty
+      ;;
+  esac
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    if [[ -z "$bot_role" ]]; then
+      echo "would add bot"
+    else
+      echo "would upgrade bot from $bot_role"
+    fi
+    return 0
+  fi
+
+  local response
+  response=$(gh api "repos/$repo/collaborators/$BOT_USERNAME" --method PUT -f permission="push" 2>/dev/null) || {
+    echo "bot error"
+    return 1
+  }
+
+  local invitation_id
+  invitation_id=$(echo "$response" | jq -r '.id // empty' 2>/dev/null) || true
+
+  if [[ -n "$invitation_id" ]]; then
+    # Try to auto-accept
+    if GH_TOKEN="$WORKMUX_ENV__GH_TOKEN" gh api "/user/repository_invitations/$invitation_id" --method PATCH > /dev/null 2>&1; then
+      echo "bot added"
+    else
+      echo "bot added (pending accept)"
+    fi
+  else
+    echo "bot updated"
+  fi
+}
+
+process_repo() {
+  local repo="$1"
+  local owner_type
+  owner_type=$(gh api "repos/$repo" --jq '.owner.type') || {
+    echo "$repo: error fetching repo info" >&2
+    return 1
+  }
+
+  local ruleset_status bot_status
+  ruleset_status=$(ensure_ruleset "$repo" "$owner_type") || {
+    echo "$repo: error configuring ruleset" >&2
+    return 1
+  }
+  bot_status=$(ensure_bot "$repo") || {
+    echo "$repo: error configuring bot" >&2
+    return 1
+  }
+
+  local prefix=""
+  [[ "$DRY_RUN" == "true" ]] && prefix="[dry-run] "
+
+  echo "${prefix}${repo}: ${ruleset_status}, ${bot_status}"
+}
+
+resolve_patterns() {
+  local -a repos=()
+
+  for pattern in "${PATTERNS[@]}"; do
+    if [[ "$pattern" == *"*"* ]]; then
+      # Glob pattern — extract owner from before the /
+      local owner="${pattern%%/*}"
+      local repo_glob="${pattern#*/}"
+
+      # Fetch all non-archived repos for owner
+      local all_repos
+      all_repos=$(gh repo list "$owner" --limit 1000 --json nameWithOwner,isArchived \
+        --jq '.[] | select(.isArchived == false) | .nameWithOwner') || {
+        echo "Error: failed to list repos for $owner" >&2
+        continue
+      }
+
+      # Filter by glob pattern
+      while IFS= read -r repo; do
+        local repo_name="${repo#*/}"
+        # Use bash pattern matching
+        if [[ "$repo_name" == $repo_glob ]]; then
+          repos+=("$repo")
+        fi
+      done <<< "$all_repos"
+    else
+      # Exact repo — verify it exists and is not archived
+      local archived
+      archived=$(gh api "repos/$pattern" --jq '.archived' 2>/dev/null) || {
+        echo "Error: repo $pattern not found" >&2
+        continue
+      }
+      if [[ "$archived" == "true" ]]; then
+        echo "Skipping archived repo: $pattern" >&2
+        continue
+      fi
+      repos+=("$pattern")
+    fi
+  done
+
+  # Deduplicate
+  printf '%s\n' "${repos[@]}" | sort -u
+}
+
+REPOS=$(resolve_patterns)
+if [[ -z "$REPOS" ]]; then
+  echo "No repos matched" >&2
+  exit 1
+fi
+
+HAS_ERROR=false
+
+while IFS= read -r repo; do
+  process_repo "$repo" || HAS_ERROR=true
+done <<< "$REPOS"
+
+if [[ "$HAS_ERROR" == "true" ]]; then
+  exit 1
+fi
