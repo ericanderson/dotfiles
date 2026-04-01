@@ -88,12 +88,17 @@ See these files for template examples:
 1. `chezmoi diff --exclude externals` — shows only files we directly manage in this repo. Use this to understand **our** changes.
 2. `chezmoi diff --include externals` — shows what external sources (e.g., oh-my-zsh) would update. Useful for understanding the full scope of an `apply` but not our direct changes.
 
-When you see removals in managed files, always ask: **why is this line missing from chezmoi source?**
+When you see removals (`-` lines) in managed files, always ask: **why is this line missing from chezmoi source?**
 
 - **Intentional removal**: The user deleted it from the chezmoi source file → applying is correct
 - **External modification**: Something (an app, a manual edit, another tool) added it directly to the deployed file and it was never in chezmoi → applying would silently destroy it
 
-Before applying or ignoring diffs, **flag unexpected removals to the user**. Ask whether they want to adopt the change into chezmoi source (preserve it) or let chezmoi overwrite it.
+When you see additions (`+` lines) in managed files, always ask: **does the user actually want this added back?**
+
+- **Intentional addition**: We added it to the chezmoi source → applying is correct
+- **Stale source**: The user removed it from the deployed file (e.g., via a UI or manual edit) but the chezmoi source still has the old value → applying would silently revert the user's change. Remove it from chezmoi source instead.
+
+Before applying or ignoring diffs, **flag unexpected changes in both directions to the user**. Ask whether the chezmoi source or the deployed file represents the desired state.
 
 ## Development Workflow
 
