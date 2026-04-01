@@ -4,6 +4,7 @@ description: >
   Log significant Claude Code actions to Obsidian vault. Invoke after completing
   features, bug fixes, refactors, deployments, cleanups, or any substantial task.
 allowed-tools:
+  - Agent
   - Read(~/Vaults/Personal/ClaudeLog/*)
   - Write(~/Vaults/Personal/ClaudeLog/*)
   - Edit(~/Vaults/Personal/ClaudeLog/*)

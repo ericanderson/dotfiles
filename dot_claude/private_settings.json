@@ -208,5 +208,6 @@
     }
   },
   "effortLevel": "medium",
+  "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true
 }

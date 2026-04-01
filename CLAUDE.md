@@ -80,6 +80,21 @@ See these files for template examples:
 - `private_dot_ssh/private_config.tmpl` - Work-specific SSH configurations
 - `run_once_install-packages-darwin.sh.tmpl` - OS-specific installations
 
+## Reading `chezmoi diff` Output
+
+`chezmoi diff` shows what would change in the **deployed** (home directory) files if you ran `chezmoi apply`. A `-` line means that content exists in the deployed file but NOT in the chezmoi source — applying would **remove** it.
+
+**Always run diff in two modes:**
+1. `chezmoi diff --exclude externals` — shows only files we directly manage in this repo. Use this to understand **our** changes.
+2. `chezmoi diff --include externals` — shows what external sources (e.g., oh-my-zsh) would update. Useful for understanding the full scope of an `apply` but not our direct changes.
+
+When you see removals in managed files, always ask: **why is this line missing from chezmoi source?**
+
+- **Intentional removal**: The user deleted it from the chezmoi source file → applying is correct
+- **External modification**: Something (an app, a manual edit, another tool) added it directly to the deployed file and it was never in chezmoi → applying would silently destroy it
+
+Before applying or ignoring diffs, **flag unexpected removals to the user**. Ask whether they want to adopt the change into chezmoi source (preserve it) or let chezmoi overwrite it.
+
 ## Development Workflow
 
 1. Edit files in the chezmoi source directory (this repository)

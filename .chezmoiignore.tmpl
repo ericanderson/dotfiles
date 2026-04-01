@@ -42,6 +42,14 @@ Brewfile.work
 
 
 #######################################
+# Skills managed by workmux
+# (installed directly to ~/.claude/skills/, not managed by chezmoi)
+# Cannot be ignored here because ! negations take precedence.
+# workmux, merge, rebase, worktree, coordinator, open-pr
+#######################################
+
+
+#######################################
 # SSH Files
 #######################################
 /.ssh/*
@@ -102,6 +110,7 @@ ca-bundle.crt
 # Repository Management
 #########################################
 CHANGES
+docs
 
 
 #########################################
@@ -124,7 +133,12 @@ CHANGES
 #########################################
 .cocoapods
 .cisco
+/.codex
+/.copilot
 /.cups
+/.paperclip
+/.rmapi
+/.terminfo
 
 
 #######################################
@@ -151,14 +165,19 @@ CHANGES
 #######################################
 /.docker
 /.expo
+/.gemini
 /.gk
 /.gsutil
+/.ipatool
 /.lima
+/.ollama
+/.orbstack
 /.terraform.d
 /.colima
 /.aws
 /.kube
 /.azure
+/.pulumi
 
 
 #######################################
@@ -213,6 +232,7 @@ CHANGES
 /.bash_history
 /.bash_sessions
 /.zprofile_local
+/.zshenv_local
 /.zsh_history
 /.zshrc.backup-*
 /.motd_shown
@@ -240,8 +260,19 @@ CHANGES
 
 
 #######################################
+# User Directories & Cloud Storage
+#######################################
+/Finances
+/OneDrive
+/OrbStack
+/Vaults
+/iCloud
+
+
+#######################################
 # Temporary & Generated Files
 #######################################
+*.pklg
 /.hawtjni
 /.jsdoc-api
 /.vpython-root
