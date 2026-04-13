@@ -206,12 +206,31 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      },
+      "autoUpdate": true
+    },
     "ea-codes": {
       "source": {
         "source": "directory",
         "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes"
       },
       "autoUpdate": true
+    }
+  },
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "git.anderson.haus"
+      ]
+    },
+    "filesystem": {
+      "allowWrite": [
+        "~/Library/Application Support/Cyborus/forgejo-cli"
+      ]
     }
   },
   "showThinkingSummaries": true,
