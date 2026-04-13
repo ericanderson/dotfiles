@@ -1,4 +1,5 @@
 ---
+name: integrate-changes
 description: Analyze chezmoi changes and create safe integration plan
 allowed-tools: Bash(chezmoi:*), Bash(mkdir:*), Bash(cp:*), Read, Write, ExitPlanMode
 extended-thinking: true
@@ -160,7 +161,7 @@ After review, provide summary and next steps.
 <detailed_changes_display>
 When showing detailed changes, format as:
 
-#### 🔴 High Risk - Potential Data Loss
+#### High Risk - Potential Data Loss
 These changes would remove content from your current files:
 
 **File: ~/.zshrc**
@@ -171,7 +172,7 @@ These changes would remove content from your current files:
 **Risk**: These appear to be custom additions that would be lost
 **Recommendation**: Save these changes before applying
 
-#### 🟡 Medium Risk - Configuration Changes
+#### Medium Risk - Configuration Changes
 These changes modify existing configurations:
 
 **File: ~/.gitconfig**
@@ -182,7 +183,7 @@ These changes modify existing configurations:
 **Risk**: Email configuration would be changed
 **Recommendation**: Verify the new email is correct
 
-#### 🟢 Low Risk - Safe Additions
+#### Low Risk - Safe Additions
 These changes add new content without removing anything:
 
 **File: ~/.bashrc**

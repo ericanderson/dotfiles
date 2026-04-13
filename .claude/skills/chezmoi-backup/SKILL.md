@@ -1,4 +1,5 @@
 ---
+name: chezmoi-backup
 description: Create timestamped backup of files that would be changed by chezmoi
 allowed-tools: Bash(chezmoi:*), Bash(mkdir:*), Bash(cp:*), Bash(ln:*), Write
 ---
@@ -71,7 +72,7 @@ Execute these steps:
 </backup_process>
 
 <output_format>
-## Backup Complete ✓
+## Backup Complete
 
 **Backup ID**: [timestamp]
 **Location**: ~/.chezmoi-backups/[timestamp]/

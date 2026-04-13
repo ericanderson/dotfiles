@@ -13,19 +13,19 @@
 {{- end -}}
 
 
-{{- if (hasKey . "signingkey") }}
-    {{- $_ := set $data "signingKey" .signingkey }}
+{{- if (hasKey . "signingKey") }}
+    {{- $_ := set $data "signingKey" .signingKey }}
 {{- end }}
 
-{{- if (hasKey . "forcegitsigning") }}
-    {{- $_ := set $data "forceGitSigning" .forcegitsigning }}
+{{- if (hasKey . "forceGitSigning") }}
+    {{- $_ := set $data "forceGitSigning" .forceGitSigning }}
 {{- end }}
 
 {{- $isWork := regexMatch "^eanderson[0-9]+-mac$" .chezmoi.hostname }}
 {{- $internalGitHost := "" }}
 {{- if $isWork }}
-{{-   if (hasKey . "internalgithost") }}
-{{-     $internalGitHost = .internalgithost }}
+{{-   if (hasKey . "internalGitHost") }}
+{{-     $internalGitHost = .internalGitHost }}
 {{-   else }}
 {{-     $internalGitHost = promptString "internal git hostname (e.g. github.example.com)" }}
 {{-   end }}
@@ -35,11 +35,11 @@
     email = {{ $email | quote }}
     internalGitHost = {{ $internalGitHost | quote }}
 
-{{- if (hasKey . "signingkey") }}
-    signingKey = "{{ .signingkey }}"
+{{- if (hasKey . "signingKey") }}
+    signingKey = "{{ .signingKey }}"
 {{- end }}
-{{- if (hasKey . "forcegitsigning") }}
-    forceGitSigning = "{{ .forcegitsigning }}"
+{{- if (hasKey . "forceGitSigning") }}
+    forceGitSigning = "{{ .forceGitSigning }}"
 {{- end }}
 
 {{ dict "data2" $data | toToml }}

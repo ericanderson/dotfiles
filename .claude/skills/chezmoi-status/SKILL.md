@@ -1,15 +1,27 @@
 ---
+name: chezmoi-status
 description: Comprehensive chezmoi and dotfiles status overview
-allowed-tools: Bash(chezmoi:*), Bash(git:*), Bash(ls:*), Bash(du:*), Bash(readlink:*), Bash(xargs basename:*), Bash(wc:*), Read
+allowed-tools:
+  - Bash(chezmoi:*)
+  - Bash(git:*)
+  - Bash(ls:*)
+  - Bash(find:*)
+  - Bash(du:*)
+  - Bash(readlink:*)
+  - Bash(xargs basename:*)
+  - Bash(wc:*)
+  - Bash(grep:*)
+  - Bash(cut:*)
+  - Read
 ---
 
 # /chezmoi-status
 
 ## Repository Status
 - Location: ~/.local/share/chezmoi
-- Branch: !`cd ~/.local/share/chezmoi && git branch --show-current`
-- Last commit: !`cd ~/.local/share/chezmoi && git log -1 --oneline`
-- Uncommitted changes: !`cd ~/.local/share/chezmoi && git status --porcelain | wc -l`
+- Branch: !`git -C ~/.local/share/chezmoi branch --show-current`
+- Last commit: !`git -C ~/.local/share/chezmoi log -1 --oneline`
+- Uncommitted changes: !`git -C ~/.local/share/chezmoi status --porcelain | wc -l`
 
 ## Chezmoi Status
 - Managed files: !`chezmoi managed | wc -l`
@@ -19,8 +31,8 @@ allowed-tools: Bash(chezmoi:*), Bash(git:*), Bash(ls:*), Bash(du:*), Bash(readli
 - Total additions pending: !`chezmoi diff --exclude=externals | grep '^+' | grep -v '^+++' | wc -l`
 
 ## Backup Status
-- Total backups: !`ls -d ~/.chezmoi-backups/*/ 2>/dev/null | grep -v latest | wc -l`
-- Latest backup: `readlink ~/.chezmoi-backups/latest 2>/dev/null | xargs basename 2>/dev/null || echo "No backups yet"`
+- Total backups: !`find ~/.chezmoi-backups -maxdepth 1 -mindepth 1 -type d -not -name latest 2>/dev/null | wc -l`
+- Latest backup: !`readlink ~/.chezmoi-backups/latest 2>/dev/null | xargs basename 2>/dev/null || echo "No backups yet"`
 - Backup directory size: !`du -sh ~/.chezmoi-backups 2>/dev/null | cut -f1 || echo "0"`
 
 <task>
@@ -73,28 +85,28 @@ Based on the current state, suggest actions:
 <output_format>
 # Chezmoi Status Overview
 
-## 📁 Repository
+## Repository
 - **Branch**: [branch-name]
 - **Status**: [Clean|X uncommitted changes]
 - **Last commit**: [hash] [message]
 
-## 📊 File Management
+## File Management
 - **Managed files**: [count]
-- **Unmanaged files**: [count] [⚠️ if > 10]
+- **Unmanaged files**: [count]
 - **Pending changes**: [count] files affected
 
-## 🔄 Pending Changes
+## Pending Changes
 [If changes exist, show summary]
-- ⚠️ **Removals**: [count] lines would be removed
-- 🔄 **Additions**: [count] lines would be added
-- 📝 **Files affected**: [list top 5]
+- **Removals**: [count] lines would be removed
+- **Additions**: [count] lines would be added
+- **Files affected**: [list top 5]
 
-## 💾 Backups
+## Backups
 - **Total backups**: [count]
 - **Latest backup**: [timestamp or "None"]
 - **Storage used**: [size]
 
-## 💡 Recommendations
+## Recommendations
 
 [Dynamic recommendations based on state]
 
@@ -110,31 +122,31 @@ Provide contextual recommendations:
 
 1. **If unmanaged files > 10**:
    ```
-   ⚠️ You have [X] unmanaged files. Consider reviewing them:
+   You have [X] unmanaged files. Consider reviewing them:
    Run: /chezmoi-unmanaged
    ```
 
 2. **If pending changes exist without recent backup**:
    ```
-   ⚠️ You have pending changes but no recent backup.
+   You have pending changes but no recent backup.
    Recommend: /chezmoi-backup before applying changes
    ```
 
 3. **If high-risk removals detected**:
    ```
-   🔴 Warning: [X] lines would be removed if you apply changes.
+   Warning: [X] lines would be removed if you apply changes.
    Review carefully: /integrate-changes
    ```
 
 4. **If repository has uncommitted changes**:
    ```
-   📝 You have uncommitted changes in your chezmoi repository.
+   You have uncommitted changes in your chezmoi repository.
    Consider committing: cd ~/.local/share/chezmoi && git add -A && git commit
    ```
 
 5. **If everything is clean**:
    ```
-   ✅ Everything is in sync! No actions needed.
+   Everything is in sync! No actions needed.
    ```
 </smart_recommendations>
 

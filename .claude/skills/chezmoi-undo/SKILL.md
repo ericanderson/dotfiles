@@ -1,4 +1,5 @@
 ---
+name: chezmoi-undo
 description: Restore files from a chezmoi backup
 allowed-tools: Bash(ls:*), Bash(cp:*), Bash(cat:*), Read
 argument-hint: [backup-timestamp] (optional, uses latest if not specified)
@@ -80,7 +81,7 @@ Based on user input (${ARGUMENTS} or latest):
    - .gitconfig
    - [etc...]
    
-   ⚠️  Current versions of these files will be overwritten!
+   Current versions of these files will be overwritten!
    
    Proceed with restoration? [y/N]:
    ```
@@ -111,7 +112,7 @@ Based on user input (${ARGUMENTS} or latest):
 
 ### Restoration Summary
 
-✓ Successfully restored [X] files:
+Successfully restored [X] files:
 - ~/.zshrc
 - ~/.gitconfig
 

@@ -1,4 +1,5 @@
 ---
+name: chezmoi-unmanaged
 description: Safely review and process unmanaged chezmoi files
 allowed-tools: Bash(chezmoi:*), Bash(ls:*), Bash(awk:*), Bash(echo:*) Read, Edit, LS, Glob
 ---
