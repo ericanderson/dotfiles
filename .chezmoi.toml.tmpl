@@ -21,8 +21,19 @@
     {{- $_ := set $data "forceGitSigning" .forcegitsigning }}
 {{- end }}
 
+{{- $isWork := regexMatch "^eanderson[0-9]+-mac$" .chezmoi.hostname }}
+{{- $internalGitHost := "" }}
+{{- if $isWork }}
+{{-   if (hasKey . "internalgithost") }}
+{{-     $internalGitHost = .internalgithost }}
+{{-   else }}
+{{-     $internalGitHost = promptString "internal git hostname (e.g. github.example.com)" }}
+{{-   end }}
+{{- end }}
+
 [data]
     email = {{ $email | quote }}
+    internalGitHost = {{ $internalGitHost | quote }}
 
 {{- if (hasKey . "signingkey") }}
     signingKey = "{{ .signingkey }}"

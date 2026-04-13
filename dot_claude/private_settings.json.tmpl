@@ -2,15 +2,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "attribution": {
+{{- if $isWork }}
+    "commit": "trailer",
+    "pr": "trailer"
+{{- else }}
     "commit": "",
     "pr": ""
-  },
-{{- if $isWork }}
-  "model": "opus[1m]",
-  "effortLevel": "high",
-{{- else }}
-  "effortLevel": "medium",
 {{- end }}
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -131,6 +130,9 @@
       "~/.cargo/registry/src/"
     ]
   },
+{{- if $isWork }}
+  "model": "opus[1m]",
+{{- end }}
   "hooks": {
     "Notification": [
       {
@@ -194,7 +196,9 @@
     "code-simplifier@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
+{{- if not $isWork }}
     "ea-codes@ea-codes": true,
+{{- end }}
     "feature-dev@claude-plugins-official": true,
     "hookify@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
@@ -202,7 +206,9 @@
     "security-guidance@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
+{{- if not $isWork }}
     "tmux@ea-codes": false,
+{{- end }}
     "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
@@ -213,6 +219,20 @@
       },
       "autoUpdate": true
     },
+    "agents": {
+      "source": {
+        "source": "github",
+        "repo": "wshobson/agents"
+      },
+      "autoUpdate": true
+    }{{ if $isWork }},
+    "work-ai-configs": {
+      "source": {
+        "source": "git",
+        "url": "git@{{ .internalGitHost }}:devtools/ai-configs.git"
+      }
+    }
+{{- else }},
     "ea-codes": {
       "source": {
         "source": "directory",
@@ -220,6 +240,7 @@
       },
       "autoUpdate": true
     }
+{{- end }}
   },
   "sandbox": {
     "network": {
@@ -233,6 +254,11 @@
       ]
     }
   },
+{{- if $isWork }}
+  "effortLevel": "high",
+{{- else }}
+  "effortLevel": "medium",
+{{- end }}
   "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true
 }
