@@ -12,7 +12,7 @@
 # This only works if it's at the top of ssh_config (before any Host blocks).
 Include ~/.orbstack/ssh/config
 
-{{ end -}}
+{{ end }}
 # Include machine-specific SSH configurations
 Include {{ .chezmoi.homeDir }}/.ssh/local_config
 
