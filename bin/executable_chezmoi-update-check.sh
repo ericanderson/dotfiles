@@ -20,14 +20,29 @@ init_common "$APP_NAME"
 CHEZMOI_UPDATE_LOG_FILE="$(get_app_log_file)"
 CHEZMOI_UPDATE_CACHE_DIR="$(get_app_cache_dir)"
 
+# Mirror stdout/stderr to the log file so callers (dagu, shell) see output live
+# while the log still accumulates on disk.
+exec > >(tee -a "$CHEZMOI_UPDATE_LOG_FILE") 2>&1
+
+# Route log_* through stdout (captured by the tee above) instead of writing to
+# the log file directly — avoids a double-write and surfaces logs to callers.
+log_message() {
+    local level="$1"
+    local message="$2"
+    local timestamp
+    timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    echo "[$level] $timestamp: $message"
+}
+
 # Function to safely call Claude CLI with proper error handling
 generate_change_summary() {
     local diff_file="$1"
-    local claude_cli="/home/eanderson/.local/bin/claude"
-    
-    # Check if Claude CLI exists and is executable
-    if [[ ! -x "$claude_cli" ]]; then
-        log_warn "Claude CLI not found or not executable at $claude_cli"
+    local claude_cli
+    claude_cli="$(command -v claude)"
+
+    # Check if Claude CLI is available
+    if [[ -z "$claude_cli" || ! -x "$claude_cli" ]]; then
+        log_warn "Claude CLI not found in PATH"
         return 1
     fi
     
@@ -57,7 +72,7 @@ $diff_content"
     
     # Call Claude with timeout and error handling
     local summary
-    if summary=$(timeout 10 "$claude_cli" --print --model haiku <<< "$prompt" 2>/dev/null); then
+    if summary=$(timeout 30 "$claude_cli" --print --model haiku <<< "$prompt" 2>/dev/null); then
         # Clean up the summary (remove quotes, trim whitespace, ensure it's reasonable length)
         summary=$(echo "$summary" | tr -d '"' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | head -1)
         
@@ -130,7 +145,7 @@ fi
 log_info "Pulling latest changes from remote repository..."
 update_app_status_extended "RUNNING" "Pulling from remote..."
 
-if ! chezmoi git pull >> "$CHEZMOI_UPDATE_LOG_FILE" 2>&1; then
+if ! chezmoi git pull; then
     log_error "Failed to pull from remote repository"
     update_app_status_extended "ERROR" "Failed to pull from remote"
     exit 1
@@ -187,3 +202,6 @@ log_info "Run 'chezmoi diff' to review changes, then 'chezmoi apply' to update"
 
 # Cleanup temporary diff file (we've stored it elsewhere)
 rm -f "$DIFF_FILE"
+
+# Exit 2 to signal "pending updates" distinctly from "up to date" (0) / error (1)
+exit 2
