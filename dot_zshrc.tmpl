@@ -81,8 +81,25 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# mise (polyglot runtime manager) — activates shims and per-directory env
+if command -v mise >/dev/null; then
+  eval "$(mise activate zsh)"
+  eval "$(mise completion zsh)"
+fi
+
 # We need this last so claude can be found
 export PATH="$HOME/.local/bin:$PATH"
+
+# Re-assert ~/.local/bin precedence after mise's precmd hook reshuffles PATH,
+# so the user's `claude` binary always wins over any mise shim.
+_ensure_local_bin_first() {
+  case ":$PATH:" in
+    :"$HOME/.local/bin":*) ;;
+    *) export PATH="$HOME/.local/bin:${PATH//":$HOME/.local/bin:"/:}" ;;
+  esac
+}
+typeset -ag precmd_functions
+precmd_functions+=(_ensure_local_bin_first)
 
 # Show MOTD on login (throttled to once per day)
 show_motd_on_login() {

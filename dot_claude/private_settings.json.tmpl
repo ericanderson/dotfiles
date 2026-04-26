@@ -186,7 +186,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'node \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)dist/index.js\"'",
+    "command": "bash -c 'cols=$(stty size </dev/tty 2>/dev/null | awk '\"'\"'{print $2}'\"'\"'); export COLUMNS=$(( ${cols:-120} > 4 ? ${cols:-120} - 4 : 1 )); plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | grep -E '\"'\"'^[0-9]+\\.[0-9]+\\.[0-9]+\\t'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec node \"${plugin_dir}dist/index.js\"'",
     "padding": 0
   },
   "enabledPlugins": {
@@ -209,7 +209,9 @@
 {{- if not $isWork }}
     "tmux@ea-codes": false,
 {{- end }}
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "git@ea-claude": true,
+    "cleanroom@ea-claude": true
   },
   "extraKnownMarketplaces": {
     "claude-hud": {
@@ -240,7 +242,13 @@
       },
       "autoUpdate": true
     }
-{{- end }}
+{{- end }},
+    "ea-claude": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins"
+      }
+    }
   },
   "sandbox": {
     "network": {
@@ -250,16 +258,18 @@
     },
     "filesystem": {
       "allowWrite": [
-        "~/Library/Application Support/Cyborus/forgejo-cli"
+        "~/Library/Application Support/Cyborus.forgejo-cli"
       ]
-    }
+    },
+    "enableWeakerNetworkIsolation": true
   },
-{{- if $isWork }}
   "effortLevel": "high",
-{{- else }}
-  "effortLevel": "medium",
-{{- end }}
+  "tui": "default",
   "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "verbose": true,
+  "preferredNotifChannel": "iterm2_with_bell",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true
 }
