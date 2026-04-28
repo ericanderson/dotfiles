@@ -3,7 +3,8 @@
 # shellcheck shell=sh
 
 # Editor configuration
-export EDITOR="vim"
+export EDITOR="nvim"
+export VISUAL="nvim"
 
 # Enable color output for various commands
 export CLICOLOR=1
