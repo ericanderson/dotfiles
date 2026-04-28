@@ -39,6 +39,7 @@ Execute these steps:
    - Parse `chezmoi diff --exclude=externals`
    - Extract file paths that would be modified
    - Only backup files that exist (not new files)
+   - **Skip `run_once_` script artifacts**: A `run_once_` source script appears in the diff as a "new file" at its rendered name (e.g. `install-packages-darwin.sh`), but chezmoi only materializes it temporarily, runs it, then discards it. There is nothing on disk to back up and nothing will exist after apply. Cross-reference each "new file" entry with `chezmoi source-path <target>` — if the source path starts with `run_once_`, skip it.
 
 3. **Copy files to backup**:
    ```bash

@@ -2,16 +2,18 @@
 name: chezmoi-status
 description: Comprehensive chezmoi and dotfiles status overview
 allowed-tools:
-  - Bash(chezmoi:*)
-  - Bash(git:*)
-  - Bash(ls:*)
-  - Bash(find:*)
-  - Bash(du:*)
-  - Bash(readlink:*)
-  - Bash(xargs basename:*)
-  - Bash(wc:*)
-  - Bash(grep:*)
-  - Bash(cut:*)
+  - Bash(chezmoi *)
+  - Bash(git *)
+  - Bash(ls *)
+  - Bash(find *)
+  - Bash(du *)
+  - Bash(readlink *)
+  - Bash(xargs *)
+  - Bash(basename *)
+  - Bash(wc *)
+  - Bash(grep *)
+  - Bash(cut *)
+  - Bash(echo *)
   - Read
 ---
 
@@ -31,7 +33,6 @@ allowed-tools:
 - Total additions pending: !`chezmoi diff --exclude=externals | grep '^+' | grep -v '^+++' | wc -l`
 
 ## Backup Status
-- Total backups: !`find ~/.chezmoi-backups -maxdepth 1 -mindepth 1 -type d -not -name latest 2>/dev/null | wc -l`
 - Latest backup: !`readlink ~/.chezmoi-backups/latest 2>/dev/null | xargs basename 2>/dev/null || echo "No backups yet"`
 - Backup directory size: !`du -sh ~/.chezmoi-backups 2>/dev/null | cut -f1 || echo "0"`
 

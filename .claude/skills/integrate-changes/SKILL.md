@@ -7,9 +7,6 @@ extended-thinking: true
 
 # /integrate-changes
 
-## Pre-flight Safety Check
-!`mkdir -p ~/.chezmoi-backups`
-
 ## Change Analysis
 - Files with changes: !`chezmoi diff --exclude=externals | grep '^diff' | wc -l`
 - Lines to be removed: !`chezmoi diff --exclude=externals | grep '^-' | grep -v '^---' | wc -l`
@@ -57,6 +54,7 @@ For each file with changes:
    - File deletion (high risk)
    - Content modification (variable risk)
    - Permission changes (low risk)
+   - **`run_once_` script execution (no persistent file)**: a "new file" entry whose `chezmoi source-path` resolves to a `run_once_*` source isn't actually deployed — chezmoi materializes it as a temporary script, runs it, then discards it. Categorize as a *script-run event* and note its side effects (e.g. `brew bundle` will install/upgrade packages) rather than treating it as file creation.
 
 2. **Assess data loss risk**:
    - HIGH: Removing content that appears to be user customizations

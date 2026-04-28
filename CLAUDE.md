@@ -100,6 +100,10 @@ When you see additions (`+` lines) in managed files, always ask: **does the user
 
 Before applying or ignoring diffs, **flag unexpected changes in both directions to the user**. Ask whether the chezmoi source or the deployed file represents the desired state.
 
+### `run_once_` scripts in diff output
+
+A `run_once_` source script (e.g. `run_once_install-packages-darwin.sh.tmpl`) appears in `chezmoi diff` as a brand-new file at the target path (`install-packages-darwin.sh` in the home dir). **It is not actually deployed as a persistent file.** Chezmoi materializes it as a temporary script, executes it, and uses its rendered content to compute a hash so the script is only re-run when its content changes. If the only "new file" in the diff is a `run_once_` artifact, treat it as a script-execution event, not a file creation — there's nothing to back up, and the file won't be sitting in the home directory afterward.
+
 ## Development Workflow
 
 1. Edit files in the chezmoi source directory (this repository)
