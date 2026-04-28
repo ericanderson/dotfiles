@@ -49,6 +49,9 @@ opt.directory = backup_dirs
 -- System clipboard. Neovim 0.10+ auto-uses OSC52 over SSH.
 opt.clipboard = "unnamedplus"
 
+-- Hover events (statusline tooltips, plugin hover handlers)
+opt.mousemoveevent = true
+
 -- Leader (set before plugin keys are registered)
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
