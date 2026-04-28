@@ -7,3 +7,8 @@ bin/chezmoi-auto-update.sh.backup
 
 # Old state directory
 .local/state/chezmoi-auto-update/
+
+# Old vim-plug-based nvim config (replaced by lazy.nvim init.lua)
+.config/nvim/init.vim
+.config/nvim/autoload/plug.vim
+.config/nvim/autoload
