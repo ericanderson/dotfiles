@@ -46,6 +46,9 @@ shell-integration-features = ssh-terminfo
 
 keybind = shift+enter=text:\n
 
+# Quake-style drop-down terminal (uncomment to re-enable)
+# keybind = global:cmd+backquote=toggle_quick_terminal
+
 # Cmd+Shift+N switches tmux windows (sends C-a + number)
 keybind = cmd+shift+1=text:\x011
 keybind = cmd+shift+2=text:\x012

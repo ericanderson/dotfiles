@@ -216,6 +216,11 @@
     "typescript-lsp@claude-plugins-official": true,
     "git@ea-claude": true,
     "cleanroom@ea-claude": true,
+{{- if $isWork }}
+{{- range .workPlugins }}
+    "{{ . }}@{{ $.workMarketplace }}": true,
+{{- end }}
+{{- end }}
     "dagu@ea-claude": true
   },
   "extraKnownMarketplaces": {
@@ -233,7 +238,7 @@
       },
       "autoUpdate": true
     }{{ if $isWork }},
-    "work-ai-configs": {
+    "{{ .workMarketplace }}": {
       "source": {
         "source": "git",
         "url": "git@{{ .internalGitHost }}:devtools/ai-configs.git"
