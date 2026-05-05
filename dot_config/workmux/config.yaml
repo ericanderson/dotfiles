@@ -17,6 +17,12 @@ sandbox:
     - pnpm
     - just
 nerdfont: true
+sidebar:
+  templates:
+    tiles:
+      - "#[fg=cyan,bold]{project}#[default] {pane_suffix} {fill} {elapsed}"
+      - "#[fg=yellow]{window}#[default] #[fg=magenta]{git_branch}#[default] {fill} {git_stats}"
+      - "{pane_title}"
 status_icons:
   working: ' '
   waiting: ' '
