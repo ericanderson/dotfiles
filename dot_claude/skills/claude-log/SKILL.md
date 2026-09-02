@@ -3,6 +3,8 @@ name: claude-log
 description: >
   Log significant Claude Code actions to Obsidian vault. Invoke after completing
   features, bug fixes, refactors, deployments, cleanups, or any substantial task.
+  Only for the top-level agent working directly with the human. Do NOT invoke this
+  if your task came from another agent that launched you.
 allowed-tools:
   - Agent
   - Read(~/Vaults/Personal/ClaudeLog/*)
@@ -19,6 +21,32 @@ allowed-tools:
 # Claude Action Logger
 
 Log significant actions to the Obsidian vault at `~/Vaults/Personal/ClaudeLog/`.
+
+## Stop: only the top-level agent logs
+
+**Check this before doing anything else.**
+
+This log is a record of a session with the human, written once, by the agent
+that talked to them. If you are a subagent, you are one step inside someone
+else's session and must not write your own entry.
+
+You are a subagent if your task came from another agent rather than directly
+from a human. The clearest tell is your own instructions: if they refer to
+"the agent that launched you", describe you as having been spawned or
+delegated to, or hand you a single scoped assignment written by another agent,
+then that is what you are. Do not go looking in the environment for proof —
+subagents share the main agent's process, PID and session id, so nothing there
+will tell you either way. `CLAUDE_CODE_CHILD_SESSION` in particular is set for
+the main agent too and means nothing here.
+
+If you are a subagent: **stop now.** Do not draft, do not write a file. Say in
+your final report that you skipped logging because the agent that launched you
+owns it, and put anything worth recording in that report instead — the agent
+that launched you can then log it as part of the wider session.
+
+If you are unsure, do not log. A missing subagent entry costs nothing; the
+top-level agent still logs the same work with better context. Duplicate
+fragments from three subagents are noise nobody asked for.
 
 ## Instructions
 
@@ -72,7 +100,7 @@ time: "!`date +%H:%M:%S`"
 hostname: !`hostname`
 directory: !`pwd`
 git_branch: !`git branch --show-current 2>/dev/null || echo 'n/a'`
-session_id: ${CLAUDE_SESSION_ID}
+session_id: {the current session id}
 summary: "{1-2 sentence summary of what was done}"
 ---
 

@@ -6,7 +6,7 @@ post_create:
   - git config --worktree user.name "ericanderson-bot"
   - git config --worktree user.email "179007828+ericanderson-bot@users.noreply.github.com"
 sandbox:
-  enabled: true
+  enabled: false
   image: ghcr.io/ericanderson/workmux-sandbox:latest
   env_passthrough:
     - WORKMUX_ENV__GH_TOKEN
@@ -22,7 +22,7 @@ sidebar:
     tiles:
       - "#[fg=cyan,bold]{project}#[default] {pane_suffix} {fill} {elapsed}"
       - "#[fg=yellow]{window}#[default] #[fg=magenta]{git_branch}#[default] {fill} {git_stats}"
-      - "{pane_title}"
+      - "{pane_title} {fill} #[fg=blue]{pr_number}#[default] {pr_checks}"
 status_icons:
   working: ' '
   waiting: ' '
