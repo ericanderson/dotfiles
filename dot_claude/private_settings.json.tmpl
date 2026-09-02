@@ -1,16 +1,170 @@
 {{- $isWork := regexMatch "^eanderson[0-9]+-mac$" .chezmoi.hostname -}}
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "agentPushNotifEnabled": true,
   "attribution": {
 {{- if $isWork }}
     "commit": "trailer",
-    "pr": "trailer"
+    "pr": "trailer",
 {{- else }}
     "commit": "",
-    "pr": ""
+    "pr": "",
+{{- end }}
+    "sessionUrl": false
+  },
+  "autoMode": {
+    "environment": [
+      "$defaults"
+    ]
+  },
+  "effortLevel": "high",
+  "enabledPlugins": {
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
+    "claude-md-management@claude-plugins-official": true,
+    "cleanroom@ea-claude": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": false,
+    "dagu@ea-claude": true,
+{{- if not $isWork }}
+    "ea-codes@ea-codes": true,
+{{- end }}
+    "feature-dev@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "git@ea-claude": true,
+    "hookify@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "remember@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
+{{- if not $isWork }}
+    "tmux@ea-codes": false,
+{{- end }}
+    "typescript-lsp@claude-plugins-official": true
+{{- if $isWork }}
+{{- range .workPlugins }},
+    "{{ . }}@{{ $.workMarketplace }}": true
+{{- end }}
 {{- end }}
   },
+  "extraKnownMarketplaces": {
+    "agents": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "wshobson/agents",
+        "source": "github"
+      }
+    },
+    "claude-hud": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "jarrodwatts/claude-hud",
+        "source": "github"
+      }
+    },
+    "ea-claude": {
+      "autoUpdate": true,
+      "source": {
+        "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins",
+        "source": "directory"
+      }
+    }
+{{- if $isWork }},
+    "{{ .workMarketplace }}": {
+      "source": {
+        "source": "git",
+        "url": "git@{{ .internalGitHost }}:devtools/ai-configs.git"
+      }
+    }
+{{- else }},
+    "ea-codes": {
+      "autoUpdate": true,
+      "source": {
+        "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes",
+        "source": "directory"
+      }
+    }
+{{- end }}
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "command": "~/.claude/hooks/tmux-bell.sh",
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "workmux set-window-status waiting",
+            "type": "command"
+          }
+        ],
+        "matcher": "permission_prompt|elicitation_dialog"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "workmux set-window-status working",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "workmux register-agent",
+            "type": "command"
+          }
+        ],
+        "matcher": "startup|resume|clear|fork"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "workmux set-window-status done",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "workmux set-window-status working",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+{{- if $isWork }}
+  "model": "opus[1m]",
+{{- end }}
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "medium"
+    }
+  },
   "permissions": {
+    "additionalDirectories": [
+      "~/.cargo/registry/src/"
+    ],
     "allow": [
       "Read",
       "Glob",
@@ -93,14 +247,6 @@
       "Bash(git push *)",
       "Bash(gh api *)"
     ],
-    "deny": [
-      "Bash(git worktree remove --force*)",
-      "Bash(git worktree remove -f *)",
-      "Bash(git worktree remove -f)",
-      "Bash(git worktree remove * --force*)",
-      "Bash(git worktree remove * -f *)",
-      "Bash(git worktree remove * -f)"
-    ],
     "ask": [
       "Bash(find * -exec *)",
       "Bash(find * -execdir *)",
@@ -128,159 +274,38 @@
       "Bash(gh api * --raw-field *)",
       "Bash(gh api * --input *)"
     ],
-    "additionalDirectories": [
-      "~/.cargo/registry/src/"
+    "deny": [
+      "Bash(git worktree remove --force*)",
+      "Bash(git worktree remove -f *)",
+      "Bash(git worktree remove -f)",
+      "Bash(git worktree remove * --force*)",
+      "Bash(git worktree remove * -f *)",
+      "Bash(git worktree remove * -f)"
     ]
   },
-{{- if $isWork }}
-  "model": "opus[1m]",
-{{- end }}
-  "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/tmux-bell.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "permission_prompt|elicitation_dialog",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status waiting"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status working"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status done"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status working"
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'cols=$(stty size </dev/tty 2>/dev/null | awk '\"'\"'{print $2}'\"'\"'); export COLUMNS=$(( ${cols:-120} > 4 ? ${cols:-120} - 4 : 1 )); plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | grep -E '\"'\"'^[0-9]+\\.[0-9]+\\.[0-9]+\\t'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec node \"${plugin_dir}dist/index.js\"'",
-    "padding": 0
-  },
-  "enabledPlugins": {
-    "claude-hud@claude-hud": true,
-    "claude-md-management@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-{{- if not $isWork }}
-    "context7@claude-plugins-official": true,
-{{- end }}
-{{- if not $isWork }}
-    "ea-codes@ea-codes": true,
-{{- end }}
-    "feature-dev@claude-plugins-official": true,
-    "hookify@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-{{- if not $isWork }}
-    "tmux@ea-codes": false,
-{{- end }}
-    "typescript-lsp@claude-plugins-official": true,
-    "git@ea-claude": true,
-    "cleanroom@ea-claude": true,
-{{- if $isWork }}
-{{- range .workPlugins }}
-    "{{ . }}@{{ $.workMarketplace }}": true,
-{{- end }}
-{{- end }}
-    "dagu@ea-claude": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-hud": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
-      },
-      "autoUpdate": true
-    },
-    "agents": {
-      "source": {
-        "source": "github",
-        "repo": "wshobson/agents"
-      },
-      "autoUpdate": true
-    }{{ if $isWork }},
-    "{{ .workMarketplace }}": {
-      "source": {
-        "source": "git",
-        "url": "git@{{ .internalGitHost }}:devtools/ai-configs.git"
-      }
-    }
-{{- else }},
-    "ea-codes": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes"
-      },
-      "autoUpdate": true
-    }
-{{- end }},
-    "ea-claude": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins"
-      },
-      "autoUpdate": true
-    }
-  },
+  "preferredNotifChannel": "iterm2_with_bell",
+  "remoteControlAtStartup": true,
   "sandbox": {
-    "network": {
-      "allowedDomains": [
-        "git.anderson.haus"
-      ]
-    },
+    "enableWeakerNetworkIsolation": true,
     "filesystem": {
       "allowWrite": [
         "~/Library/Application Support/Cyborus.forgejo-cli"
       ]
     },
-    "enableWeakerNetworkIsolation": true
+    "network": {
+      "allowedDomains": [
+        "git.anderson.haus"
+      ]
+    }
   },
-  "effortLevel": "high",
-  "tui": "default",
   "showThinkingSummaries": true,
+  "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
-  "verbose": true,
-  "preferredNotifChannel": "iterm2_with_bell",
-  "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "statusLine": {
+    "command": "bash -c 'cols=$(stty size </dev/tty 2>/dev/null | awk '\"'\"'{print $2}'\"'\"'); export COLUMNS=$(( ${cols:-120} > 4 ? ${cols:-120} - 4 : 1 )); plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | grep -E '\"'\"'^[0-9]+\\.[0-9]+\\.[0-9]+\\t'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec node \"${plugin_dir}dist/index.js\"'",
+    "padding": 0,
+    "type": "command"
+  },
+  "tui": "default",
+  "verbose": true
 }

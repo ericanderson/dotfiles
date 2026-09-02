@@ -43,3 +43,6 @@
 {{- end }}
 
 {{ dict "data2" $data | toToml }}
+
+[diff]
+    exclude = ["externals"]

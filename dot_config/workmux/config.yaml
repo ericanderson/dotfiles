@@ -21,7 +21,7 @@ sidebar:
   templates:
     tiles:
       - "#[fg=cyan,bold]{project}#[default] {pane_suffix} {fill} {elapsed}"
-      - "#[fg=yellow]{window}#[default] #[fg=magenta]{git_branch}#[default] {fill} {git_stats}"
+      - "#[fg=yellow]{window} #[default]#[fg=magenta]{git_branch}#[default] {fill} {git_stats}"
       - "{pane_title} {fill} #[fg=blue]{pr_number}#[default] {pr_checks}"
 status_icons:
   working: ' '
