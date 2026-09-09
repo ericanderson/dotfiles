@@ -35,3 +35,27 @@ Host coder.*
 #   PubkeyAcceptedKeyTypes=+ssh-rsa
 #   HostKeyAlgorithms=+ssh-rsa
 
+# Hardware-backed FIDO2 resident keys -- one entry per YubiKey.
+#
+# Add a token by appending its label to the list below. The label must match the
+# `ssh:<label>` application the key was created with, so that `ssh-keygen -K` on
+# any machine re-derives exactly these filenames.
+#
+# Naming IdentityFile REPLACES ssh's default probe list, so anything that should
+# still be offered must be listed explicitly -- including id_rsa.
+#
+# Missing files are skipped silently, so it is safe to list keys that exist on
+# only some machines.
+#
+# This block is last on purpose: IdentityFile accumulates across matching blocks
+# rather than first-wins, so it composes with the per-host blocks in local_config.
+#
+# Note: each offered key burns one of the server's MaxAuthTries (default 6).
+# Beyond ~5 keys, switch to per-host IdentityFile plus IdentitiesOnly.
+{{- $fido2Tokens := list "yk-grey-camo" }}
+Host *
+{{- range $fido2Tokens }}
+    IdentityFile ~/.ssh/id_ed25519_sk_rk_{{ . }}
+{{- end }}
+    IdentityFile ~/.ssh/id_rsa
+

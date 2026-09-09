@@ -8,7 +8,9 @@
 # - Use descriptive category names in headers
 #
 # PATTERN SYNTAX:
-# - Paths starting with / are relative to home directory
+# - Patterns are matched against the target path, relative to the home directory
+# - Do NOT prefix patterns with / -- chezmoi v2.72+ rejects a leading slash as an
+#   "invalid path". Patterns are already root-anchored without it.
 # - Use ** for recursive matching
 # - Use ! to negate/include specific paths
 # - Supports Go template conditionals (see Homebrew section example)
@@ -29,18 +31,18 @@ Brewfile.work
 #######################################
 # Claude
 #######################################
-/.claude/**/*
-!/.claude/commands
-!/.claude/commands/**
-!/.claude/agents/**
-!/.claude/hooks
-!/.claude/hooks/**
-!/.claude/skills
-!/.claude/skills/**
-!/.claude/settings.json
-/.claude.json
-/.claude.json.backup
-/CLAUDE.md
+.claude/**/*
+!.claude/commands
+!.claude/commands/**
+!.claude/agents/**
+!.claude/hooks
+!.claude/hooks/**
+!.claude/skills
+!.claude/skills/**
+!.claude/settings.json
+.claude.json
+.claude.json.backup
+CLAUDE.md
 
 
 #######################################
@@ -54,8 +56,8 @@ Brewfile.work
 #######################################
 # SSH Files
 #######################################
-/.ssh/*
-!/.ssh/config
+.ssh/*
+!.ssh/config
 
 
 #######################################
@@ -87,25 +89,25 @@ zsh_custom
 .DS_Store
 .Trash
 .CFUserTextEncoding
-/Applications
-/Desktop
-/Documents
-/Downloads
+Applications
+Desktop
+Documents
+Downloads
 {{- if eq .chezmoi.os "darwin" }}
-/Library/**/*
-!/Library/LaunchAgents
-!/Library/LaunchAgents/com.user.chezmoi.update.plist
+Library/**/*
+!Library/LaunchAgents
+!Library/LaunchAgents/com.user.chezmoi.update.plist
 {{- else }}
-/Library
+Library
 {{- end }}
-/Movies
-/Music
-/Parallels
-/Pictures
-/Public
+Movies
+Music
+Parallels
+Pictures
+Public
 ca-bundle.crt
-/retention_folder
-/.sudo_as_admin_successful
+retention_folder
+.sudo_as_admin_successful
 
 
 #########################################
@@ -118,16 +120,16 @@ docs
 #########################################
 # Development Tools & Build Artifacts
 #########################################
-/.android
-/.ansible
-/.aspnet
-/.babel.json
-/.codemod
-/.cache
-/.degit
-/bin/chezmoi
-/bin/CLAUDE.md
-/.shellcheckrc
+.android
+.ansible
+.aspnet
+.babel.json
+.codemod
+.cache
+.degit
+bin/chezmoi
+bin/CLAUDE.md
+.shellcheckrc
 
 
 #########################################
@@ -135,152 +137,152 @@ docs
 #########################################
 .cocoapods
 .cisco
-/.codex
-/.copilot
-/.cups
-/.paperclip
-/.rmapi
-/.terminfo
+.codex
+.copilot
+.cups
+.paperclip
+.rmapi
+.terminfo
 
 
 #######################################
 # Config directories
 #######################################
 # Exclude all .config directories by default
-/.config/**/*
+.config/**/*
 # Except specifically included ones
-!/.config/.gitignore
-!/.config/nvim
-!/.config/nvim/**/*
-!/.config/ccstatusline
-!/.config/ccstatusline/**/*
-!/.config/systemd
-!/.config/systemd/**/*
-!/.config/ghostty
-!/.config/ghostty/**/*
-!/.config/workmux
-!/.config/workmux/**/*
+!.config/.gitignore
+!.config/nvim
+!.config/nvim/**/*
+!.config/ccstatusline
+!.config/ccstatusline/**/*
+!.config/systemd
+!.config/systemd/**/*
+!.config/ghostty
+!.config/ghostty/**/*
+!.config/workmux
+!.config/workmux/**/*
 
 
 #######################################
 # Docker, Infrastructure & Cloud
 #######################################
-/.docker
-/.expo
-/.gemini
-/.gk
-/.gsutil
-/.ipatool
-/.lima
-/.ollama
-/.orbstack
-/.terraform.d
-/.colima
-/.aws
-/.kube
-/.azure
-/.pulumi
+.docker
+.expo
+.gemini
+.gk
+.gsutil
+.ipatool
+.lima
+.ollama
+.orbstack
+.terraform.d
+.colima
+.aws
+.kube
+.azure
+.pulumi
 
 
 #######################################
 # Package Management & Language Environments
 #######################################
-/.dotnet
-/.dts
-/.gradle
-/.m2
-/.nodenv
-/.npm
-/.npmrc
-/.nuget
-/.pnpm-state
-/.rustup
-/.swiftpm
-/.templateengine
-/.yarn
-/.yarnrc
-/.bun
-/.cargo
-/.conda
-/.nvm
+.dotnet
+.dts
+.gradle
+.m2
+.nodenv
+.npm
+.npmrc
+.nuget
+.pnpm-state
+.rustup
+.swiftpm
+.templateengine
+.yarn
+.yarnrc
+.bun
+.cargo
+.conda
+.nvm
 
 #######################################
 # Code Checkouts
 #######################################
-/src
+src
 
 
 #######################################
 # Python & Data Science Tools
 #######################################
-/.ipython
-/.jupyter
-/.matplotlib
-/.python_history
+.ipython
+.jupyter
+.matplotlib
+.python_history
 
 
 #######################################
 # Shell & Terminal History/Configuration
 #######################################
-/.lesshst
-/.node_repl_history
-/.wget-hsts
-/.zcompdump
-/.zcompdump-*
-/.zsh_custom/completions
-/.zsh_custom/pure
-/.zsh_custom/themes/powerlevel10k
-/.zsh_sessions
-/.bash_history
-/.bash_sessions
-/.zprofile_local
-/.zshenv_local
-/.zsh_history
-/.zshrc.backup-*
-/.motd_shown
+.lesshst
+.node_repl_history
+.wget-hsts
+.zcompdump
+.zcompdump-*
+.zsh_custom/completions
+.zsh_custom/pure
+.zsh_custom/themes/powerlevel10k
+.zsh_sessions
+.bash_history
+.bash_sessions
+.zprofile_local
+.zshenv_local
+.zsh_history
+.zshrc.backup-*
+.motd_shown
 
 
 #######################################
 # Security & Credentials
 #######################################
-/.gnupg
-/.netrc
-/.redhat
+.gnupg
+.netrc
+.redhat
 
 
 #######################################
 # Editor & IDE Data
 #######################################
-/.vim/plugged
-/.viminfo
-/.vscode-server
-/.rest-client
-/.vscode
-/.vscode/argv.json
-/.vscode-remote-containers
-/.nv
+.vim/plugged
+.viminfo
+.vscode-server
+.rest-client
+.vscode
+.vscode/argv.json
+.vscode-remote-containers
+.nv
 
 
 #######################################
 # User Directories & Cloud Storage
 #######################################
-/Finances
-/OneDrive
-/OrbStack
-/Vaults
-/iCloud
+Finances
+OneDrive
+OrbStack
+Vaults
+iCloud
 
 
 #######################################
 # Temporary & Generated Files
 #######################################
 *.pklg
-/.hawtjni
-/.jsdoc-api
-/.vpython-root
-/.vpython_cipd_cache
-/.palantir
-/.local
-/.chezmoi-backups
-/scratchpad
-/tmp
+.hawtjni
+.jsdoc-api
+.vpython-root
+.vpython_cipd_cache
+.palantir
+.local
+.chezmoi-backups
+scratchpad
+tmp
