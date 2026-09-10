@@ -52,7 +52,7 @@ Host coder.*
 #
 # Note: each offered key burns one of the server's MaxAuthTries (default 6).
 # Beyond ~5 keys, switch to per-host IdentityFile plus IdentitiesOnly.
-{{- $fido2Tokens := list "yk-grey-camo" }}
+{{- $fido2Tokens := list "yk-grey-camo" "yk-nano" }}
 Host *
 {{- range $fido2Tokens }}
     IdentityFile ~/.ssh/id_ed25519_sk_rk_{{ . }}
