@@ -132,7 +132,7 @@ eval "$(zoxide init zsh)"
 
 # Auto-attach to tmux session on SSH login
 if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -n "$SSH_CONNECTION" ] && [ -z "$VSCODE_IPC_HOOK_CLI" ]; then
-  # Try to attach to existing session, or create new one
-  tmux attach-session -t default || tmux new-session -s default
+  # Attach to session "0" if it exists, otherwise create it
+  tmux new-session -A -s 0
 fi
 
