@@ -44,8 +44,10 @@ Host coder.*
 # Naming IdentityFile REPLACES ssh's default probe list, so anything that should
 # still be offered must be listed explicitly -- including id_rsa.
 #
-# Missing files are skipped silently, so it is safe to list keys that exist on
-# only some machines.
+# Each IdentityFile is emitted only if the key exists on this machine at apply
+# time: OpenSSH (10.x) prints "no such identity" on every connection for missing
+# files. After adding a key to a machine (e.g. `ssh-keygen -K`), re-run
+# `chezmoi apply` so it gets listed.
 #
 # This block is last on purpose: IdentityFile accumulates across matching blocks
 # rather than first-wins, so it composes with the per-host blocks in local_config.
@@ -53,9 +55,15 @@ Host coder.*
 # Note: each offered key burns one of the server's MaxAuthTries (default 6).
 # Beyond ~5 keys, switch to per-host IdentityFile plus IdentitiesOnly.
 {{- $fido2Tokens := list "yk-grey-camo" "yk-nano" }}
-Host *
+{{- $identityFiles := list }}
 {{- range $fido2Tokens }}
-    IdentityFile ~/.ssh/id_ed25519_sk_rk_{{ . }}
+{{-   $identityFiles = append $identityFiles (printf "id_ed25519_sk_rk_%s" .) }}
 {{- end }}
-    IdentityFile ~/.ssh/id_rsa
+{{- $identityFiles = append $identityFiles "id_rsa" }}
+Host *
+{{- range $identityFiles }}
+{{-   if stat (joinPath $.chezmoi.homeDir ".ssh" .) }}
+    IdentityFile ~/.ssh/{{ . }}
+{{-   end }}
+{{- end }}
 
