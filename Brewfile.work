@@ -1,6 +1,0 @@
-tap "coder/coder"
-brew "pango"
-brew "graphviz"
-brew "nginx"
-brew "coder/coder/coder"
-cask "zulu@17"
