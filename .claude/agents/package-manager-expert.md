@@ -18,25 +18,13 @@ You are an expert in package management, specializing in Homebrew configuration 
 ## Repository Package Structure
 
 ```
-Brewfile.tmpl      # Dynamic template selecting appropriate Brewfile
-Brewfile.common    # Base packages for all environments  
-Brewfile.work      # Additional packages for work machines
+Brewfile.tmpl      # Template that includes Brewfile.common
+Brewfile.common    # Package list
 run_once_install-packages-darwin.sh.tmpl  # macOS package installation
 ```
 
 ### Brewfile Template Logic
-The `Brewfile.tmpl` dynamically includes the appropriate configuration:
-
-```ruby
-{{- if regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname -}}
-# Work machine - include both common and work packages
-{{ include "Brewfile.common" }}
-{{ include "Brewfile.work" }}
-{{- else -}}
-# Personal machine - include only common packages
-{{ include "Brewfile.common" }}
-{{- end -}}
-```
+`Brewfile.tmpl` renders `Brewfile.common`; add packages there. There is no work/personal split.
 
 ## Homebrew Management
 
@@ -105,21 +93,6 @@ brew "fzf" if system("/usr/bin/env", "fzf", err: :out)
 ```
 
 ## Managing Multiple Environments
-
-### Work vs Personal
-This repository uses hostname matching for work machines:
-- Pattern: `eanderson[0-9]+-mac`
-- Includes both `Brewfile.common` and `Brewfile.work`
-
-### Adding Work-Specific Packages
-1. Edit `Brewfile.work`
-2. Add work-only tools:
-```ruby
-# Development Tools
-brew "vault"           # Secret management
-brew "terraform"       # Infrastructure as code
-cask "slack"          # Communication
-```
 
 ### Platform Considerations
 

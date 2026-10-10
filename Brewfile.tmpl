@@ -1,4 +1,1 @@
 {{   include "Brewfile.common" }}
-{{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) }}
-{{   include "Brewfile.work" }}
-{{- end }}

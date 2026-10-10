@@ -107,16 +107,6 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 3. **Platform-specific**: Using templates
 4. **Sensitive**: Never commit, use `.zprofile_local`
 
-### Work vs Personal
-```bash
-{{- if regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname }}
-export WORK_ENV=1
-export GIT_AUTHOR_EMAIL="work@company.com"
-{{- else }}
-export GIT_AUTHOR_EMAIL="{{ .email }}"
-{{- end }}
-```
-
 ## Cross-Platform Compatibility
 
 ### OS Detection

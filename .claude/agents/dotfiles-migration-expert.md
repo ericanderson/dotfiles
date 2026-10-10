@@ -77,12 +77,10 @@ chezmoi execute-template < ~/.local/share/chezmoi/dot_gitconfig.tmpl
 {{- end }}
 ```
 
-**Work vs Personal**:
+**Only where something exists**:
 ```go
-{{- if regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname }}
-# Work machine configuration
-{{- else }}
-# Personal machine configuration
+{{- if stat (joinPath .chezmoi.homeDir ".orbstack") }}
+# Config that depends on OrbStack being installed
 {{- end }}
 ```
 
@@ -123,9 +121,8 @@ Example:
    - `dot_tmux.conf`: Terminal multiplexer
 
 3. **Package Management**:
-   - `Brewfile.tmpl`: Dynamic based on environment
-   - `Brewfile.common`: Base packages
-   - `Brewfile.work`: Work-specific packages
+   - `Brewfile.tmpl`: Includes `Brewfile.common`
+   - `Brewfile.common`: Package list
 
 ## Migration Checklist
 
@@ -154,13 +151,6 @@ Example:
 export EDITOR="code --wait"
 {{- else }}
 export EDITOR="vim"
-{{- end }}
-```
-
-### Environment-Specific Settings
-```go
-{{- if .is_work }}
-export CORPORATE_PROXY="http://proxy.company.com:8080"
 {{- end }}
 ```
 

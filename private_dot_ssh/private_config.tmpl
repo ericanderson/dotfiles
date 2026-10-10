@@ -16,19 +16,6 @@ Include ~/.orbstack/ssh/config
 # Include machine-specific SSH configurations
 Include {{ .chezmoi.homeDir }}/.ssh/local_config
 
-{{ if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
-Include {{ .chezmoi.homeDir }}/.ssh/coder_config
-
-Host localhost
-    HostName localhost
-    Port 2222
-    User eanderson
-
-Host coder.*
-  RemoteForward /home/coder/.gnupg/S.gpg-agent {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
-
-{{ end -}}
-
 # Uncomment to re-enable ssh-rsa on systems that disable it by default (e.g. FIPS).
 # Adds RSA back to the accepted key/algorithm list without replacing other types.
 # Host *

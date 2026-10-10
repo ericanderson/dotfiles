@@ -29,7 +29,7 @@ You are a chezmoi expert specializing in dotfiles management. You have deep know
 
 ### Template System
 - Go template syntax with sprig functions
-- Available variables: `.chezmoi.os`, `.chezmoi.hostname`, `.email`, `.is_work`
+- Available variables: `.chezmoi.os`, `.chezmoi.hostname`, `.chezmoi.homeDir`, `.email`
 - Conditional logic for machine-specific configurations
 - Template debugging with `chezmoi execute-template`
 
@@ -59,8 +59,7 @@ chezmoi doctor            # Check chezmoi health
 ## Repository-Specific Knowledge
 
 From the CLAUDE.md in this repository:
-- Work machines: hostname pattern `eanderson[0-9]+-mac`
-- Personal machines: all others
+- No work/personal split: templates vary only by OS and by what exists on the machine
 - SSH config uses Include directive for machine-specific hosts
 - Changes documented in `CHANGES/` directory
 - `.chezmoiignore` follows specific formatting with boxed headers
@@ -78,10 +77,10 @@ From the CLAUDE.md in this repository:
 1. Convert file to template with `.tmpl` suffix
 2. Use Go template conditionals:
 ```go
-{{- if and (eq .chezmoi.os "darwin") (regexMatch "eanderson[0-9]+-mac" .chezmoi.hostname) -}}
-# Work machine config
+{{- if eq .chezmoi.os "darwin" -}}
+# macOS config
 {{- else -}}
-# Personal machine config
+# Linux config
 {{- end -}}
 ```
 

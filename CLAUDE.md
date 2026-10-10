@@ -49,9 +49,8 @@ Key prefixes: `dot_` (dotfiles), `private_` (600 permissions), `run_once_` (one-
    - Profile files handle environment setup and PATH management
 
 2. **Package Management**
-   - `Brewfile.tmpl`: Dynamically generated based on environment
-   - `Brewfile.common`: Base packages for all environments
-   - `Brewfile.work`: Additional packages for work machines
+   - `Brewfile.tmpl`: Template that includes `Brewfile.common`
+   - `Brewfile.common`: Package list
 
 3. **Development Tools**
    - Git configuration with extensive aliases and merge strategies
@@ -64,20 +63,15 @@ The repository uses chezmoi template variables including:
 
 - `{{ .email }}`: User's email (from git config during install)
 - `{{ .chezmoi.os }}`: Operating system (darwin, linux)
-- `{{ .is_work }}`: Boolean flag for work environment
-- `{{ .chezmoi.hostname }}`: Machine hostname (used for machine-specific logic)
+- `{{ .chezmoi.hostname }}`: Machine hostname
 
 ### Machine-Specific Configurations
 
-This repository uses template conditions to apply different configurations based on the machine:
+There is no work/personal split; every machine gets the same configuration. Templates vary only by OS and by what exists on the machine at apply time:
 
-- **Work machines**: Identified by hostname pattern `eanderson[0-9]+-mac`
-- **Personal machines**: All other machines
-
-See these files for template examples:
-- `dot_gitconfig.tmpl` - Conditional GPG signing for work/personal
-- `Brewfile.tmpl` - Different packages for work/personal environments
-- `private_dot_ssh/private_config.tmpl` - Work-specific SSH configurations
+- `dot_gitconfig.tmpl` - `gh` credential helper only when `gh` is on PATH (`lookPath`)
+- `private_dot_ssh/private_config.tmpl` - OrbStack include and FIDO2 `IdentityFile`s only when present (`stat`)
+- `dot_claude/private_settings.json.tmpl` - herdr `SessionStart` hook only when herdr's script exists (`stat`)
 - `run_once_install-packages-darwin.sh.tmpl` - OS-specific installations
 
 ## Reading `chezmoi diff` Output
