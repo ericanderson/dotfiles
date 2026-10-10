@@ -62,3 +62,6 @@ keybind = cmd+shift+9=text:\x019
 
 # Cmd+E opens workmux dashboard (sends C-a C-s to tmux)
 keybind = cmd+e=text:\x01\x13
+
+# Cmd+K
+keybind = cmd+k=text:\x1b[107;7u
