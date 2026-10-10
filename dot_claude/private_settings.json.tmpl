@@ -1,15 +1,9 @@
-{{- $isWork := regexMatch "^eanderson[0-9]+-mac$" .chezmoi.hostname -}}
 {{- $herdrHook := joinPath .chezmoi.homeDir ".claude/hooks/herdr-agent-state.sh" -}}
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "attribution": {
-{{- if $isWork }}
-    "commit": "trailer",
-    "pr": "trailer",
-{{- else }}
     "commit": "",
     "pr": "",
-{{- end }}
     "sessionUrl": false
   },
   "permissions": {
@@ -19,10 +13,8 @@
       "Grep",
       "WebFetch",
       "WebSearch",
-{{- if not $isWork }}
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
-{{- end }}
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
@@ -232,9 +224,7 @@
     "commit-commands@claude-plugins-official": true,
     "context7@claude-plugins-official": false,
     "dagu@ea-claude": true,
-{{- if not $isWork }}
     "ea-codes@ea-codes": true,
-{{- end }}
     "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "git@ea-claude": true,
@@ -246,15 +236,8 @@
     "security-guidance@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": false,
-{{- if not $isWork }}
     "tmux@ea-codes": false,
-{{- end }}
     "typescript-lsp@claude-plugins-official": true
-{{- if $isWork }}
-{{- range .workPlugins }},
-    "{{ . }}@{{ $.workMarketplace }}": true
-{{- end }}
-{{- end }}
   },
   "extraKnownMarketplaces": {
     "agents": {
@@ -277,15 +260,7 @@
         "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins"
       },
       "autoUpdate": true
-    }
-{{- if $isWork }},
-    "{{ .workMarketplace }}": {
-      "source": {
-        "source": "git",
-        "url": "git@{{ .internalGitHost }}:devtools/ai-configs.git"
-      }
-    }
-{{- else }},
+    },
     "ea-codes": {
       "source": {
         "source": "directory",
@@ -293,7 +268,6 @@
       },
       "autoUpdate": true
     }
-{{- end }}
   },
   "sandbox": {
     "network": {
@@ -309,9 +283,6 @@
     "enableWeakerNetworkIsolation": true
   },
   "effortLevel": "high",
-{{- if $isWork }}
-  "model": "opus[1m]",
-{{- end }}
   "modelSettings": {
     "claude-opus-5": {
       "effortLevel": "high"
