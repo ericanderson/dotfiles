@@ -3,5 +3,6 @@
 
 # Brewfile hash: {{ include "Brewfile.tmpl" | sha256sum }}
 # Brewfile.common hash: {{ include "Brewfile.common" | sha256sum }}
-brew bundle --file=Brewfile
+# --no-upgrade: install missing packages without upgrading outdated ones
+brew bundle --no-upgrade --file=Brewfile
 {{ end -}}
