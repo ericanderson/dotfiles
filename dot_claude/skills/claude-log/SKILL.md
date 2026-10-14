@@ -3,8 +3,8 @@ name: claude-log
 description: >
   Log significant Claude Code actions to Obsidian vault. Invoke after completing
   features, bug fixes, refactors, deployments, cleanups, or any substantial task.
-  Only for the top-level agent working directly with the human. Do NOT invoke this
-  if your task came from another agent that launched you.
+  Only for top-level sessions. Do NOT invoke this if you are a subagent that
+  another agent launched with the Agent tool inside its own session.
 allowed-tools:
   - Agent
   - Read(~/Vaults/Personal/ClaudeLog/*)
@@ -30,11 +30,17 @@ This log is a record of a session with the human, written once, by the agent
 that talked to them. If you are a subagent, you are one step inside someone
 else's session and must not write your own entry.
 
-You are a subagent if your task came from another agent rather than directly
-from a human. The clearest tell is your own instructions: if they refer to
-"the agent that launched you", describe you as having been spawned or
-delegated to, or hand you a single scoped assignment written by another agent,
-then that is what you are. Do not go looking in the environment for proof —
+This rule is about subagents launched with the Agent tool inside one session.
+A separate Claude Code session running in its own pane or terminal (for example
+a herdr worker started and briefed by a Boss session) is a top-level session and
+logs its own work, even though another session gave it its task.
+
+You are a subagent if another agent launched you in-process with the Agent tool
+rather than you running as your own session. The clearest tell is your own
+instructions: if they refer to "the agent that launched you" or describe you as
+having been spawned or delegated to with the Agent tool, then that is what you
+are. A brief from a Boss session, such as a herdr worker's `common.md`, does not
+make you a subagent. Do not go looking in the environment for proof —
 subagents share the main agent's process, PID and session id, so nothing there
 will tell you either way. `CLAUDE_CODE_CHILD_SESSION` in particular is set for
 the main agent too and means nothing here.
