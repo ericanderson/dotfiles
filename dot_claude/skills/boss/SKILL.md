@@ -149,6 +149,19 @@ Never pass `--trust-repository` unless Eric says to. Never `herdr server stop`.
    - CI is green, or the failure is shown to be on main as well.
 
    Then tell Eric it's ready, with the merge order if it matters.
+8. **Combined check**, when more than one PR is ready. Each PR's CI ran against the
+   base it was branched from, so it can't see a clash between two PRs: one moves an
+   import or renames a function the other still uses, git merges the text cleanly,
+   and main stops building. Before giving Eric a merge order:
+   - Merge the PRs in that order onto `origin/<default>` without touching any branch:
+     for each one, `git merge-tree --write-tree <base> origin/<branch>` (it fails on
+     a conflict), then `git commit-tree <tree> -p <base> -p origin/<branch>` to get
+     the next base.
+   - Check out the result in a throwaway detached worktree
+     (`git worktree add --detach <path> <commit>`), and run the repo's build, lint
+     and test commands there. Remove the worktree afterwards (never `--force`).
+   - If it fails, find which PR breaks it, have that worker rebase onto the PR it
+     clashes with once that one merges, and tell Eric which PR has to wait.
 
 Before triggering anything that reads main (a pipeline run, a deploy, a live check),
 verify the fix is on `origin/<default>`.
