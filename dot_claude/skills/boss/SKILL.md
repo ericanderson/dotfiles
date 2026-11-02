@@ -30,12 +30,20 @@ Never pass `--trust-repository` unless Eric says to. Never `herdr server stop`.
 - **Workers:** one task each. They plan, wait for approval, implement, test, push their
   own branch, and open their PR once you approve it.
 
+Boss doesn't implement, even small edits. Hand those to a standing worker (see
+[Standing worker](#standing-worker)); Eric's words: "have the chore guy do it not
+you." If something seems worth doing yourself, such as an outage fix, ask Eric
+first.
+
 ## Setup
 
-1. **Brief.** Orch files live in the session scratchpad, not `$TMPDIR`: `$TMPDIR` can
-   differ between sandboxed and unsandboxed commands. Copy `standards.md` (next to
-   this file) into your scratchpad as `orch/common.md`, and add the repo's own rules
-   from the "Working with agents" section of its CLAUDE.md. If the repo has no such
+1. **Brief.** Orch files live in an `orch/` directory in your own checkout, kept out of
+   git by an `orch/` line in the repo's `.git/info/exclude`. Not `$TMPDIR`, which can
+   differ between sandboxed and unsandboxed commands, and not the session scratchpad,
+   which sits under `/private/tmp` and was once found empty partway through a
+   nine-day Boss session, tracker and briefs gone. Delete `orch/` when you finish.
+   Copy `standards.md` (next to this file) into it as `orch/common.md`, and add the
+   repo's own rules from the "Working with agents" section of its CLAUDE.md. If the repo has no such
    section, propose one to Eric; don't put repo specifics in this skill. Write one
    `orch/<task>.md` per worker: the issue, what's in and out of scope, known
    pitfalls, and its size ("small: short plan and go" or "substantial").
@@ -81,7 +89,8 @@ Never pass `--trust-repository` unless Eric says to. Never `herdr server stop`.
    status, and who holds each shared resource. Update it at every state change. After
    a compaction, re-read it, run `herdr agent list` and
    `herdr worktree list --cwd <repo>`, and match workers by workspace and path, not
-   by name.
+   by name. If the tracker itself is gone, rebuild it from those two lists, the
+   local branches, the open PRs, and a status SendMessage to each worker.
 5. **Memory:** save a project memory that you are orchestrating, with the tracker's
    path.
 
@@ -107,6 +116,11 @@ Never pass `--trust-repository` unless Eric says to. Never `herdr server stop`.
 1. **Plan.** It names the approach, the files, every consumer of any type it changes,
    the tests, the risks and the questions. Approve it, or send it back. Questions
    that are Eric's to decide go to Eric; batch them.
+
+   Send back any plan that makes a failure go away without fixing its cause:
+   loosening a check, back-dating data, skipping a step. If no real fix is possible,
+   take the trade-off to Eric before anyone builds it. The same applies to your own
+   fixes.
 2. **Ready for review.** The worker rebases onto the latest `origin/<default>`, reruns every
    check, pushes, and sends the branch, the head commit, test counts, lint results and
    any live evidence.
@@ -192,6 +206,13 @@ touches the production config.
   has since landed on main.
 - A worker that notices something out of scope sends it to you, not to an issue.
   You route it to Eric, so several workers don't file duplicates.
+- An issue filed for a follow-up is a record, not approval to build it. Its body
+  says "Not approved for implementation; check with Eric first", and no worker
+  picks it up until Eric says so and agrees the approach.
+- Check your own claims about the repo against the source (its config, its data)
+  before you state them, as you would a reviewer's finding. An unchecked "only one
+  account sets this flag" once shipped in a PR and took a nightly pipeline down for
+  eight days.
 
 ## Logging
 
@@ -210,9 +231,12 @@ finished worker:
    merged. Delete with `-D` only after the ancestor check passes.
 3. The worker has nothing pending, and its last message says it's done.
 4. **Never submit text sitting in an agent's input box.** It may be Eric's, typed and
-   not yet sent. Leave that agent and tell him.
+   not yet sent. Leave that agent and tell him. To tell, read the pane with
+   `herdr agent read <name> --source visible --format ansi`. Dim text (`ESC[2m`)
+   after the prompt is a Claude Code suggestion; `/exit` replaces it, so it's safe.
+   Normal-intensity text is typed.
 5. Stop the agent. Check `herdr agent get <name>` shows idle or done, and that its
-   input box is empty (`herdr agent read <name> --source visible`). Then run
+   input box is empty or holds only a dim suggestion. Then run
    `herdr agent prompt <name> "/exit"`. Don't use ctrl+c: it wipes anything Eric
    typed.
 
