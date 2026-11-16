@@ -30,7 +30,7 @@ chezmoi status --exclude=externals
 
 - Managed entries: !`chezmoi managed | wc -l`
 - Unmanaged entries: !`chezmoi unmanaged | wc -l`
-- Age identity: !`ls ~/.config/chezmoi/key.txt || echo "not present"`
+- Age identity: !`chezmoi execute-template '{{ $id := .chezmoi.config.age.identity }}{{ if and $id (stat $id) }}present ({{ $id }}){{ else }}not present{{ end }}'`
 
 ## Backups
 
@@ -58,7 +58,7 @@ The line counts show size, not risk. A removed line may be a local edit about to
 
 **Source repo.** The first line shows the branch and whether it is ahead of or behind its remote. If the branch is not `master`, say so: `chezmoi apply` deploys whatever branch is checked out.
 
-**Age identity.** Without `~/.config/chezmoi/key.txt`, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
+**Age identity.** This is the key file named in the chezmoi config, normally `~/.config/chezmoi/key.txt`. Without it, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
 
 **Warnings.** If any block above contains "config file template has changed", the machine's chezmoi config is older than `.chezmoi.toml.tmpl`; recommend `chezmoi init`.
 
