@@ -65,6 +65,16 @@ The repository uses chezmoi template variables including:
 - `{{ .chezmoi.os }}`: Operating system (darwin, linux)
 - `{{ .chezmoi.hostname }}`: Machine hostname
 
+### Never hard-code a home directory
+
+Do not write `/Users/eanderson`, `/home/<name>` or any other literal home path when an alternative exists. These files are deployed to machines with different users and operating systems. Use, in order of preference:
+
+- `~` or `$HOME`, when the program reading the file expands them (shell scripts, most Claude Code settings such as permission rules and sandbox paths).
+- `{{ .chezmoi.homeDir }}` or `{{ joinPath .chezmoi.homeDir "..." }}` in a template, when the program needs an absolute path. Turn the file into a `.tmpl` if that is what it takes.
+- `{{ .chezmoi.sourceDir }}` for paths into this repo.
+
+The same applies when capturing a deployed file into the source: an app that wrote an absolute home path gets it replaced with one of the above, not copied as is. A literal home path is acceptable only inside a comment or where none of these work, and then say why next to it.
+
 ### Machine-Specific Configurations
 
 There is no work/personal split; every machine gets the same configuration. Templates vary only by OS and by what exists on the machine at apply time:
