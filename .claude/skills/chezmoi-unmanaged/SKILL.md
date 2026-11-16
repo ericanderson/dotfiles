@@ -1,148 +1,72 @@
 ---
 name: chezmoi-unmanaged
-description: Safely review and process unmanaged chezmoi files
-allowed-tools: Bash(chezmoi:*), Bash(ls:*), Bash(awk:*), Bash(echo:*) Read, Edit, LS, Glob
+description: Sort the entries in the home directory that chezmoi neither manages nor ignores into managed, ignored or deliberately left alone. Use when `chezmoi unmanaged` has grown, when the user asks to clean up or review unmanaged files, or to start managing a new config file.
+allowed-tools: Bash(chezmoi *), Bash(ls *), Read, Edit, Glob, Grep, AskUserQuestion
 ---
 
 # /chezmoi-unmanaged
 
-## Safety Check
-- Auto-backup suggestion: ENABLED
-- Backup location: ~/.chezmoi-backups/
+## Unmanaged entries
 
-## Current Status
-- Unmanaged files count: !`chezmoi unmanaged | wc -l`
-- Last backup: `ls -la ~/.chezmoi-backups/latest 2>/dev/null | awk '{print $11}' || echo "No backups yet"`
-- Chezmoi source: ~/.local/share/chezmoi
-
-## Files to Process
-!`chezmoi unmanaged | head -10`
-
-<task>
-You are a chezmoi dotfiles assistant helping the user efficiently process unmanaged files.
-Your job is to help the user review files that aren't yet tracked by chezmoi and
-decide what to do with each one. Always prioritize safety and user control.
-</task>
-
-<context>
-This command helps manage dotfiles by reviewing unmanaged files in the home directory
-and processing them one by one to either:
-
-1. Add them to chezmoi management
-2. Add them to .chezmoiignore
-3. Skip them for now
-
-Reference:
-- Chezmoi documentation: https://www.chezmoi.io/
-- Existing .chezmoiignore: @.chezmoiignore
-</context>
-
-<workflow>
-1. Get list of unmanaged files using embedded command above
-2. For each file:
-   - Present the file name/path
-   - Offer options to add, ignore, or skip
-   - DO NOT try to read file contents unless necessary for categorization
-   - If the file is a directory, you may inspect child file names but not their contents
-   - Provide recommendations based on file type, location, and patterns
-3. Execute the chosen action for each file
-4. Suggest creating a backup before applying changes
-5. Summarize actions taken at the end
-</workflow>
-
-<options>
-When processing each file, offer these options:
-
-[A] Add to chezmoi (tracked)
-[T] Add as template (for files with dynamic content)
-[I] Add to .chezmoiignore
-[S] Skip for now
-[Q] Quit processing
-
-For directories, also offer:
-[R] Add recursively
-[P] Add specific pattern to .chezmoiignore (e.g., .config/dir_name/**)
-</options>
-
-<recommendations>
-Provide smart recommendations based on:
-
-- File location (e.g., config directories likely should be tracked)
-- File type (cache files, history files typically ignored)
-- Common patterns:
-  - Add: .zshrc, .bashrc, .vimrc, .gitconfig, .config/* (selective)
-  - Ignore: .*_history, cache directories, large binary files, .local/
-  - Template: Files with hostname, username, or environment-specific content
-</recommendations>
-
-<output_format>
-For each file:
-
-```
-File: ~/.example_file
-Type: [Configuration|Data|Cache|History|...]
-Recommendation: [Add|Ignore|Template|Review] - [Reason for recommendation]
-
-Options:
-[A] Add to chezmoi
-[T] Add as template
-[I] Add to .chezmoiignore
-[S] Skip for now
-[Q] Quit processing
-
-Enter choice:
+```!
+chezmoi unmanaged
 ```
 
-Wait for user's choice before proceeding to next file.
-</output_format>
+## Goal
 
-<execution>
-When user selects an option:
+Each entry above ends in one of three states: managed by chezmoi, listed in `.chezmoiignore.tmpl`, or left unmanaged on purpose because the user said so. Work in groups, not one entry at a time.
 
-For [A] Add:
-- Execute `chezmoi add ~/[file_path]`
-- Confirm success
+## Rules
 
-For [T] Template:
-- Execute `chezmoi add --template ~/[file_path]`
-- Confirm success
+- **This repo is public.** Read a file before adding it. Do not add anything that holds a secret, a key or certificate, a token, a host name, an internal domain, a tailnet name, an IP address or personal data. If the user wants such a file synced anyway, stop and ask how; do not reach for `chezmoi add --encrypt` on your own, because a whole encrypted file makes `chezmoi apply` fail on every machine without the age key.
+- Never delete or move anything in the home directory.
+- Never run `chezmoi apply`. Adding a file copies it into the source; it does not change the deployed file.
+- Do not commit unless asked.
 
-For [I] Ignore:
-- Read current .chezmoiignore
-- Add entry following existing patterns
-- Update .chezmoiignore
-- Confirm success
+## Step 1: classify by name
 
-For [R] Add recursively:
-- Execute `chezmoi add -r ~/[directory_path]`
-- Confirm success
+Sort the entries into groups without opening them. Use `ls` on a directory to see what is inside when its name is not enough.
 
-Track all changes made in a summary to display at the end.
-</execution>
+| Group | Typical entries | Default |
+|---|---|---|
+| Configuration worth syncing | A hand-edited dotfile or a small config directory for a tool used on several machines | Add |
+| Application state | Caches, histories, lock files, tool data directories, backups an app wrote | Ignore |
+| Not dotfiles | Documents, media, project folders, downloads | Ignore |
+| Sensitive | Keys, certificates (`.p12`, `.pem`), credential stores, anything named for a secret | Ignore, never add |
+| Owned by another tool | Files another installer manages and rewrites | Ignore, or leave if the ignore file says it cannot be ignored |
 
-<summary_report>
-After processing files (or on quit), show:
+`.chezmoiignore.tmpl` already documents one case of the last kind: skills that workmux installs under `~/.claude/skills/` cannot be ignored, because the negation patterns for that directory take precedence. Leave those unmanaged and say why.
 
-```
-Summary of Actions:
-- Added to chezmoi: [count] files
-  - [list files]
-- Added as templates: [count] files
-  - [list files]
-- Added to .chezmoiignore: [count] entries
-  - [list entries]
-- Skipped: [count] files
-  - [list files]
+## Step 2: check the "add" candidates
 
-Recommendation: Run `/chezmoi-status` to see overall status
-```
-</summary_report>
+Read each file you would add. Confirm it is hand-maintained configuration, not generated state, and that it passes the public-repo rule. Note whether it contains values that differ per machine (a home directory path, a hostname): if so it needs to be a template.
 
-<safety_reminders>
-- Never auto-apply changes without user confirmation
-- Suggest backups before significant changes
-- Group similar files for batch operations
-- Use absolute paths in .chezmoiignore when adding specific files
-- Follow existing .chezmoiignore patterns
-- Consider using `/chezmoi-backup` before applying changes
-</safety_reminders>
+## Step 3: ask
+
+Present the groups with your recommendation for each, then ask with AskUserQuestion: one question per group (add, ignore or leave), and a separate question for any entry you are unsure about. Do not ask about each entry in a large group individually.
+
+## Step 4: carry out the answers
+
+**Add:** `chezmoi add <path>`. Directories are added recursively by default. For a file with per-machine values, `chezmoi add --template <path>`, then edit the new source file to replace those values with template expressions.
+
+**Ignore:** edit `.chezmoiignore.tmpl` in the source directory. Read the rules at the top of that file first and follow them:
+
+- Patterns are relative to the home directory. **Never start one with `/`.** chezmoi 2.72 and later rejects a leading slash and then fails on every command.
+- Put each entry in the section it belongs to; add a boxed header only when no section fits, with two blank lines before it.
+- A pattern that starts with an exclamation mark re-includes a path and takes precedence, so an ignore under a re-included directory has no effect.
+
+**Leave:** do nothing; list it in the report.
+
+## Step 5: verify
+
+- `chezmoi unmanaged` again: every entry handled as add or ignore should be gone from the list. If one remains, the ignore pattern does not match; fix it.
+- `chezmoi status --exclude=externals`: a file just added should not appear as pending, because the source copy equals the deployed one. If any chezmoi command now errors, the last ignore edit is the likely cause; fix it before anything else.
+- `chezmoi git -- status --short`: shows what changed in the source.
+
+## Report
+
+- Added: each path, and which became templates.
+- Ignored: each pattern and the section it went in.
+- Left unmanaged: each entry and why.
+- Anything skipped under the public-repo rule, named without quoting its contents.
+- The source files now uncommitted, and an offer to commit them on a branch.

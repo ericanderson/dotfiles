@@ -1,166 +1,71 @@
 ---
 name: chezmoi-undo
-description: Restore files from a chezmoi backup
-allowed-tools: Bash(ls:*), Bash(cp:*), Bash(cat:*), Read
-argument-hint: [backup-timestamp] (optional, uses latest if not specified)
+description: Restore deployed files from a chezmoi backup, after showing what would change. Use when a `chezmoi apply` needs undoing, when the user asks to restore or roll back dotfiles, or to check what differs from a backup.
+argument-hint: "[backup-id] [file ...]"
+allowed-tools: Bash(bash *undo.sh*), Bash(ls *), Bash(readlink *), Read, AskUserQuestion
 ---
 
 # /chezmoi-undo
 
-## Available Backups
-!`ls -la ~/.chezmoi-backups/ | grep -E '^d' | grep -v '\.$' | grep -v 'latest' | sort -r | head -10 | awk '{print $9 " - Created: " $6 " " $7 " " $8}'`
+## Current state
 
-## Latest Backup
-!`readlink ~/.chezmoi-backups/latest 2>/dev/null | xargs basename 2>/dev/null || echo "No backups available"`
+Contents of `~/.chezmoi-backups`:
 
-<task>
-You are a chezmoi restore assistant that helps users safely restore files from previous backups. Your goal is to make it easy to undo changes and restore files to their backed-up state.
-</task>
+```!
+ls -1 ~/.chezmoi-backups || true
+```
 
-<context>
-Backups are stored in ~/.chezmoi-backups/ with:
-- Timestamped directories (YYYY-MM-DD_HH-MM-SS)
-- A 'latest' symlink pointing to the most recent backup
-- Each backup contains:
-  - files/ directory with backed up files
-  - manifest.json with backup metadata
-  - chezmoi-diff.txt showing what changes were pending
-</context>
+Latest backup: !`readlink ~/.chezmoi-backups/latest || true`
 
-<workflow>
-1. Determine which backup to use:
-   - If user provided timestamp argument, use that
-   - Otherwise, use 'latest' symlink
-   - If no backups exist, inform user
+A backup is a folder that holds a `manifest.json`. Anything else in that directory (loose `.bak` files, folders without a manifest) is not one; ignore it. A folder ending in `_pre-undo` is the safety copy an earlier restore took.
 
-2. Show backup information:
-   - Read manifest.json to show backup details
-   - List files available for restoration
+## Step 1: choose the backup
 
-3. Confirm restoration:
-   - Show which files will be restored
-   - Get user confirmation before proceeding
+If the skill was invoked with arguments, the first is the backup ID and any others are files to limit the restore to. With no arguments, use `latest`. If there are no backups, say so, point to `/chezmoi-backup`, and stop.
 
-4. Restore files:
-   - Copy files from backup to home directory
-   - Preserve permissions
-   - Report each file restored
+## Step 2: see what would change
 
-5. Post-restore advice:
-   - Suggest running `chezmoi diff` to see current state
-   - Remind about re-applying changes if desired
-</workflow>
-
-<restore_process>
-Based on user input (${ARGUMENTS} or latest):
-
-1. **Validate backup exists**:
-   ```bash
-   BACKUP="${ARGUMENTS:-latest}"
-   if [[ "$BACKUP" == "latest" ]]; then
-     BACKUP_DIR="$HOME/.chezmoi-backups/latest"
-   else
-     BACKUP_DIR="$HOME/.chezmoi-backups/$BACKUP"
-   fi
-   
-   if [[ ! -d "$BACKUP_DIR" ]]; then
-     echo "Backup not found: $BACKUP"
-     exit 1
-   fi
-   ```
-
-2. **Show backup information**:
-   - Read and display manifest.json
-   - Show list of files in backup
-   - Display backup timestamp and date
-
-3. **Confirm restoration**:
-   ```
-   This will restore [X] files from backup [timestamp]:
-   - .zshrc
-   - .gitconfig
-   - [etc...]
-   
-   Current versions of these files will be overwritten!
-   
-   Proceed with restoration? [y/N]:
-   ```
-
-4. **Restore files**:
-   ```bash
-   # For each file in manifest
-   cp -p "$BACKUP_DIR/files/.example" "$HOME/.example"
-   ```
-
-5. **Report results**:
-   - List each file restored
-   - Note any errors
-   - Provide next steps
-</restore_process>
-
-<output_format>
-## Backup Information
-
-**Backup ID**: [timestamp]
-**Created**: [human-readable date]
-**Files in backup**: [count]
-
-### Files available for restore:
-- ~/.zshrc
-- ~/.gitconfig
-- [etc...]
-
-### Restoration Summary
-
-Successfully restored [X] files:
-- ~/.zshrc
-- ~/.gitconfig
-
-### Next steps:
-1. Run `chezmoi diff` to see current differences
-2. Run `/chezmoi-status` for overview
-3. If you want to reapply chezmoi changes, run `chezmoi apply`
-</output_format>
-
-<error_handling>
-Handle these scenarios:
-
-1. **No backups exist**:
-   ```
-   No backups found in ~/.chezmoi-backups/
-   
-   To create a backup, run: /chezmoi-backup
-   ```
-
-2. **Backup not found**:
-   ```
-   Backup '[timestamp]' not found.
-   
-   Available backups:
-   [list recent backups]
-   ```
-
-3. **Permission errors**:
-   - Report which files couldn't be restored
-   - Continue with other files
-   - Summary of failures at end
-
-4. **File conflicts**:
-   - If restore would overwrite newer changes
-   - Warn user before proceeding
-</error_handling>
-
-<interactive_mode>
-If user wants to select specific files:
+Run the script in this skill's directory:
 
 ```
-Select files to restore:
-[1] .zshrc
-[2] .gitconfig
-[3] .bashrc
-[A] All files
-[C] Cancel
-
-Enter choices (e.g., 1,3 or A):
+bash <this skill's directory>/undo.sh plan <backup-id> [file ...]
 ```
-</interactive_mode>
+
+It changes nothing. For each file in the backup it prints `identical`, `differs` or `missing` (the deployed copy is gone), and it lists files that apply created after the backup. Read the backup's `manifest.json` for its date and note.
+
+If every file is `identical`, there is nothing to undo. Say so and stop.
+
+## Step 3: tell the user what a restore means
+
+Show the backup's ID, date and note, and the list of files that differ or are missing. Do not print file contents; they can hold secrets. Then state plainly:
+
+- A restore overwrites the deployed copies of those files with the backed-up ones.
+- The chezmoi source is not changed. After the restore those files show as pending again, and the next `chezmoi apply` would redo the change. Follow with `/integrate-changes` to decide what the source should say.
+- Files that apply created are left in place. Name them; removing them is the user's call.
+
+## Step 4: ask
+
+Ask with AskUserQuestion: restore every file that differs, restore only some (ask which), or cancel. Do not restore without an answer in this conversation, even if the user invoked the skill with a backup ID.
+
+## Step 5: restore and verify
+
+```
+bash <this skill's directory>/undo.sh restore <backup-id> [file ...]
+```
+
+Before overwriting anything, the script saves the current copies into a new backup named `<timestamp>_pre-undo` and prints its ID. Then it copies the files back.
+
+Run the `plan` command again to confirm the restored files are now `identical`.
+
+## Report
+
+- Each file restored, and any `FAILED` line with its error.
+- The `_pre-undo` backup ID, as the way to reverse this restore: `/chezmoi-undo <that ID>`.
+- Files apply created that are still in place.
+- The reminder from step 3: the source is unchanged, so run `/integrate-changes` before the next apply.
+
+## Rules
+
+- Never delete a file from the home directory.
+- Never edit the chezmoi source and never run `chezmoi apply`.
+- Do the copying with the script, not by hand: it replaces symlinks correctly and takes the safety copy first.
