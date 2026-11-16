@@ -1,203 +1,134 @@
 ---
 name: integrate-changes
-description: Analyze chezmoi changes and create safe integration plan
-allowed-tools: Bash(chezmoi:*), Bash(mkdir:*), Bash(cp:*), Read, Write, ExitPlanMode
-extended-thinking: true
+description: Work out, file by file, whether pending chezmoi differences should be applied to the home directory or folded back into the source, then carry out the source-side half. Use when `chezmoi diff` or `chezmoi status` shows pending changes, before any `chezmoi apply`, or when the user asks to integrate, reconcile or review chezmoi drift.
+allowed-tools: Bash(chezmoi *), Bash(readlink *), Read, Edit, AskUserQuestion
 ---
 
 # /integrate-changes
 
-## Change Analysis
-- Files with changes: !`chezmoi diff --exclude=externals | grep '^diff' | wc -l`
-- Lines to be removed: !`chezmoi diff --exclude=externals | grep '^-' | grep -v '^---' | wc -l`
-- Lines to be added: !`chezmoi diff --exclude=externals | grep '^+' | grep -v '^+++' | wc -l`
-- Unmanaged files: !`chezmoi unmanaged | wc -l`
+## Current state
 
-<task>
-You are a chezmoi integration assistant that analyzes pending changes and helps prevent data loss during `chezmoi apply` operations. Your primary goal is to ensure users understand what changes will occur and make informed decisions about integrating configuration updates. You MUST NEVER automatically apply changes.
-</task>
+Pending changes (externals excluded):
 
-<context>
-This command analyzes the output of `chezmoi diff --exclude=externals` to:
-1. Identify what changes would occur if `chezmoi apply` is run
-2. Detect potential data loss scenarios
-3. Present clear options to the user
-4. Ensure valuable local changes are preserved
-
-Key principle: chezmoi diff shows what WOULD happen if we applied the config files:
-- Removals (red/minus): Content exists in current files but NOT in chezmoi templates
-- Additions (green/plus): Content exists in chezmoi templates but NOT in current files
-
-Reference:
-- Chezmoi documentation: https://www.chezmoi.io/
-- CLAUDE.md: @/CLAUDE.md for project conventions
-</context>
-
-<workflow>
-1. Run `chezmoi diff --exclude=externals` to get pending changes
-2. Parse and categorize the changes:
-   - Files to be created
-   - Files to be modified
-   - Content to be removed (potential data loss)
-   - Content to be added
-3. Analyze each change for risk level
-4. Present findings in a clear, organized manner
-5. Offer safe action options (NO auto-apply)
-6. Guide user through decision-making process
-</workflow>
-
-<analysis_process>
-For each file with changes:
-
-1. **Categorize the change type**:
-   - New file creation (safe)
-   - File deletion (high risk)
-   - Content modification (variable risk)
-   - Permission changes (low risk)
-   - **`run_once_` script execution (no persistent file)**: a "new file" entry whose `chezmoi source-path` resolves to a `run_once_*` source isn't actually deployed — chezmoi materializes it as a temporary script, runs it, then discards it. Categorize as a *script-run event* and note its side effects (e.g. `brew bundle` will install/upgrade packages) rather than treating it as file creation.
-
-2. **Assess data loss risk**:
-   - HIGH: Removing content that appears to be user customizations
-   - MEDIUM: Replacing configurations with different values
-   - LOW: Adding new content or fixing formatting
-
-3. **Identify patterns**:
-   - User-specific configurations (paths, usernames, emails)
-   - Recent additions (comments, new aliases, functions)
-   - Custom scripts or configurations
-   - API keys or secrets (CRITICAL - never overwrite)
-</analysis_process>
-
-<output_format>
-## Chezmoi Integration Analysis
-
-### Summary
-- Total files affected: [count]
-- High risk changes: [count]
-- Medium risk changes: [count]
-- Low risk changes: [count]
-- Unmanaged files found: [count]
-
-### Available Actions
-
-1. **[B] Create backup** - Backup affected files before any changes
-2. **[D] View detailed diff** - See all pending changes
-3. **[S] Selective review** - Review and decide file by file  
-4. **[P] Plan integration** - Create detailed merge strategy
-5. **[U] Process unmanaged** - Handle unmanaged files first
-6. **[C] Cancel** - Exit without changes
-
-**IMPORTANT: This command will NEVER automatically apply changes.**
-**You must explicitly run `chezmoi apply` after review.**
-
-Enter your choice:
-</output_format>
-
-<user_options>
-## Option Details
-
-### [B] Create backup
-- Runs `/chezmoi-backup` to save current state
-- Creates timestamped backup in ~/.chezmoi-backups/
-- Allows safe experimentation
-
-### [D] View detailed diff
-- Shows full output of `chezmoi diff --exclude=externals`
-- Color-coded additions/removals
-- File-by-file breakdown
-
-### [S] Selective review
-- Review each file individually
-- Choose which changes to accept
-- Create custom apply strategy
-
-### [P] Plan integration
-- Enter planning mode for complex merges
-- Create detailed strategy document
-- Identify conflicts to resolve manually
-
-### [U] Process unmanaged
-- Launch `/chezmoi-unmanaged` command
-- Add/ignore files before integration
-- Return here when complete
-
-### [C] Cancel
-- Exit without making any changes
-- Suggest next steps
-</user_options>
-
-<selective_review_workflow>
-When user chooses [S] Selective review:
-
-For each file with changes:
-```
-File: ~/.example
-Changes: [brief summary]
-Risk: [High/Medium/Low]
-
-Options:
-[V] View full diff for this file
-[A] Mark for apply (accept chezmoi version)
-[K] Keep current (preserve local version)
-[M] Merge manually later
-[S] Skip to next file
-
-Choice:
+```!
+chezmoi status --exclude=externals
 ```
 
-After review, provide summary and next steps.
-</selective_review_workflow>
+Uncommitted changes in the source repo:
 
-<safety_features>
-- NO automatic `chezmoi apply` - user must run explicitly
-- Backup recommendations before any changes
-- Clear risk assessment for each change
-- Preserve user customizations by default
-- Detailed diff viewing before decisions
-</safety_features>
-
-<detailed_changes_display>
-When showing detailed changes, format as:
-
-#### High Risk - Potential Data Loss
-These changes would remove content from your current files:
-
-**File: ~/.zshrc**
-```diff
-- alias myproject='cd ~/projects/important-work'
-- export CUSTOM_VAR="my-special-value"
+```!
+chezmoi git -- status --short
 ```
-**Risk**: These appear to be custom additions that would be lost
-**Recommendation**: Save these changes before applying
 
-#### Medium Risk - Configuration Changes
-These changes modify existing configurations:
+Latest backup: !`readlink ~/.chezmoi-backups/latest || true`
 
-**File: ~/.gitconfig**
-```diff
-- email = old@example.com
-+ email = new@example.com
+## Goal
+
+Every pending file ends in one of two states: the deployed file matches the source because the source was right, or the source was changed to match the deployed file because the deployed file was right. Nothing is left as unexplained drift.
+
+A diff has two sides and either can be the stale one. A `-` line may be a local edit that apply would destroy, or a line deliberately deleted from the source. A `+` line may be a new source change, or something the user removed locally that apply would bring back. Line direction alone never tells you the risk; where the change came from does.
+
+## Rules
+
+- Never run `chezmoi apply`, with or without targets. The user runs it. Give them the exact command.
+- Never use `--force`.
+- Change the source (edits, `chezmoi re-add`) only after the user has chosen a direction for that file.
+- Do not print secret values (tokens, keys, passwords) in the analysis. Say that a line holds a secret and name the key.
+- Run one command per Bash call, with no pipes or `&&`. A hook in this setup refuses chained git commands. Use `chezmoi git -- <args>` for git in the source repo.
+
+## Step 1: find where each change came from
+
+Read the status block above. The two columns mean:
+
+| Columns | Meaning |
+|---|---|
+| ` M` | Only the source moved. The deployed file is as chezmoi last wrote it. |
+| `MM` | The deployed file was edited since the last apply, and apply would change it. Local edits are at stake. |
+| ` A` | Apply would create the file. Check that nothing unmanaged already sits at that path. |
+| ` D` | Apply would delete the entry. |
+| ` R` | A script would run. See below. |
+
+If the status block is empty, say everything is in sync and stop.
+
+For each pending file, gather:
+
+1. `chezmoi diff <target>` for the content.
+2. `chezmoi source-path <target>` for the source file. Note whether it ends in `.tmpl`; that decides how a deployed-side change can be kept.
+3. `chezmoi git -- log --oneline -5 -- <source file>` and whether the source file is in the uncommitted list above. Recent commits or uncommitted edits that explain a hunk mean the source side is intentional. A hunk no commit explains, in an `MM` file, came from the deployed side: an app, a UI toggle or a manual edit.
+
+Classify each hunk, not just each file. One file often holds both kinds.
+
+**Scripts.** A `run_once_` or `run_onchange_` source shows in the diff as a new file at its rendered name. Nothing is deployed; chezmoi runs it and discards it. Report it as "this script will run" and say what it does (for example, `brew bundle` installs and upgrades packages).
+
+**Conflicts in kind.** If apply would replace a directory with a symlink or the reverse, say exactly what would be deleted. Treat it as the highest risk in the report.
+
+**Externals.** Run `chezmoi status --include=externals` once and report how many external entries would update. Do not analyse their content.
+
+## Step 2: flag what needs extra care
+
+Call these out in their own section, whichever direction they run:
+
+- **Security posture in `~/.claude/settings.json`**: any change to `permissions` (allow, ask, deny), `sandbox`, `hooks`, `autoMode` or `enabledPlugins`. Dropping a deny rule or turning off the sandbox is not ordinary drift. State plainly what protection would be lost or gained.
+- **Secrets**: lines holding credentials on either side.
+- **Deletions**: whole files or directories apply would remove.
+- **Credential and identity config**: `.gitconfig` credential helpers and signing, anything under `.ssh/`.
+
+## Step 3: check the backup
+
+Read `manifest.json` in the latest backup. If any `MM` or ` D` file is missing from it, or the file has changed since that backup was taken, tell the user to run `/chezmoi-backup` before they apply anything. Source-side work does not need a backup; git covers it.
+
+## Step 4: report
+
+Lead with the findings, not with counts.
+
 ```
-**Risk**: Email configuration would be changed
-**Recommendation**: Verify the new email is correct
+## Chezmoi integration analysis
 
-#### Low Risk - Safe Additions
-These changes add new content without removing anything:
+[One or two sentences: how many files, how many have local edits at stake, anything from step 2.]
 
-**File: ~/.bashrc**
-```diff
-+ source ~/.bash_aliases
-+ export PATH="$PATH:/usr/local/bin"
+| File | Status | Where the change came from | Recommended direction |
+|---|---|---|---|
+
+### Needs extra care
+[Step 2 findings, or omit the section.]
+
+### Per file
+**~/.example** (template: yes/no)
+- [hunk]: [what it is, which side it came from, evidence such as a commit hash]
+- Recommendation: [direction and why]
+
+### Backup
+[Covered by <id>, or run /chezmoi-backup first.]
 ```
-**Risk**: Only adding content, no data loss
-**Recommendation**: Safe to apply
-</detailed_changes_display>
 
-<next_steps>
-After analysis, always remind user:
+Show the actual diff lines for hunks where local content would be lost. Summarise the rest.
 
-1. Review the analysis carefully
-2. Create a backup with `/chezmoi-backup` if needed
-3. When ready, manually run `chezmoi apply` or `chezmoi apply [specific-file]`
-4. Use `/chezmoi-undo` if you need to restore from backup
-</next_steps>
+## Step 5: get decisions
+
+Ask with AskUserQuestion, recommended option first. Group files that share an origin and a recommendation into one question (for example, "these three changed only in the source: apply all?"). Ask about a file on its own when it has mixed hunks or a step 2 flag. The directions are:
+
+- **Source wins**: apply will overwrite the deployed file.
+- **Deployed wins**: the source is changed to match the deployed file.
+- **Split**: some hunks each way. Ask which.
+- **Leave for now**: no change. Record it in the summary as still open.
+
+## Step 6: carry out the source-side half
+
+For each file where the deployed side wins, fully or for some hunks:
+
+- **Plain file** (no `.tmpl`): `chezmoi re-add <target>` when the whole file wins. For a split, edit the source file by hand.
+- **Template**: `re-add` will not overwrite templates. Edit the `.tmpl` source by hand so it renders the wanted content, keeping the template logic (conditionals, variables) intact. Do not paste rendered values over template expressions.
+- `chezmoi merge <target>` opens an interactive merge tool. Do not run it; mention it if the user would rather merge by hand.
+
+Then verify with `chezmoi diff <target>`. A file where the deployed side won outright should show no diff. A split file should show only the hunks the user chose to apply.
+
+## Step 7: hand over
+
+Finish with:
+
+1. What was changed in the source, per file.
+2. The exact apply command for the files where the source wins, one target per file, never a bare `chezmoi apply` unless every pending file was approved:
+   `chezmoi apply ~/.zshrc ~/.gitconfig`
+3. A note that the source repo now has uncommitted changes, with the file list, and an offer to commit.
+4. Anything left open.
+5. `/chezmoi-undo <backup id>` as the way back.
