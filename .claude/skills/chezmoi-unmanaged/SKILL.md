@@ -19,6 +19,7 @@ Each entry above ends in one of three states: managed by chezmoi, listed in `.ch
 ## Rules
 
 - **This repo is public.** Read a file before adding it. Do not add anything that holds a secret, a key or certificate, a token, a host name, an internal domain, a tailnet name, an IP address or personal data. If the user wants such a file synced anyway, stop and ask how; do not reach for `chezmoi add --encrypt` on your own, because a whole encrypted file makes `chezmoi apply` fail on every machine without the age key.
+- **Ignore patterns are public too.** `.chezmoiignore.tmpl` is in the repo, so an exact file name written there is published. For a file whose name is itself personal or revealing, use a generic pattern (`*.p12`, `*.epub`) or leave it unmanaged; say which you chose.
 - Never delete or move anything in the home directory.
 - Never run `chezmoi apply`. Adding a file copies it into the source; it does not change the deployed file.
 - Do not commit unless asked.

@@ -25,6 +25,7 @@ Brewfile
 
 # Brewfile.common is included by Brewfile.tmpl, dont copy to home
 Brewfile.common
+.homebrew
 
 
 #######################################
@@ -41,6 +42,10 @@ Brewfile.common
 !.claude/settings.json
 .claude.json
 .claude.json.backup
+.claude.json.backup.*
+.claude-sandbox-config
+.claude-sandbox.json
+.remember
 CLAUDE.md
 
 
@@ -127,6 +132,7 @@ docs
 .codemod
 .cache
 .degit
+.bin
 bin/chezmoi
 bin/CLAUDE.md
 .shellcheckrc
@@ -135,11 +141,18 @@ bin/CLAUDE.md
 #########################################
 # Third-party Services & Applications
 #########################################
+.agents
 .cocoapods
 .cisco
 .codex
 .copilot
 .cups
+.gbrain
+.herdr
+.mcp-inspector
+.obsidian-headless
+.omlx
+.omp
 .paperclip
 .rmapi
 .terminfo
@@ -176,6 +189,7 @@ bin/CLAUDE.md
 .lima
 .ollama
 .orbstack
+.tart
 .terraform.d
 .colima
 .aws
@@ -248,6 +262,7 @@ src
 .gnupg
 .netrc
 .redhat
+*.p12
 
 
 #######################################
@@ -260,6 +275,7 @@ src
 .vscode
 .vscode/argv.json
 .vscode-remote-containers
+.vscode-shared
 .nv
 
 
