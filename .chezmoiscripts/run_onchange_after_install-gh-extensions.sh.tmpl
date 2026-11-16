@@ -1,0 +1,39 @@
+#!/bin/bash
+# Install the gh CLI extensions listed below.
+#
+# chezmoi re-runs this script whenever its rendered content changes, so adding a line to
+# the list installs that extension on the next apply. Nothing is upgraded or removed:
+# use `gh extension upgrade --all` or `gh extension remove <name>` for that.
+
+extensions=(
+  github/gh-stack
+)
+
+{{/* Fixed install locations only, so the result does not depend on PATH. Inside a
+     Claude session PATH starts with a claude-flow gh wrapper that must not be used.
+     Rendering the path below also re-runs the script once gh gets installed. */ -}}
+gh_bin={{ findExecutable "gh" (list "/opt/homebrew/bin" "/usr/local/bin" "/home/linuxbrew/.linuxbrew/bin" "/usr/bin") | quote }}
+
+if [ -z "$gh_bin" ]; then
+  echo "gh extensions: gh is not installed; skipping"
+  exit 0
+fi
+
+# `gh extension list` needs a login, so look at the extensions folder instead.
+ext_dir="${XDG_DATA_HOME:-$HOME/.local/share}/gh/extensions"
+
+failed=0
+for repo in "${extensions[@]}"; do
+  name="${repo##*/}"
+  if [ -d "$ext_dir/$name" ]; then
+    continue
+  fi
+  echo "gh extensions: installing $repo"
+  if ! "$gh_bin" extension install "$repo"; then
+    echo "gh extensions: could not install $repo" >&2
+    failed=1
+  fi
+done
+
+# A failure makes chezmoi report an error and try this script again on the next apply.
+exit "$failed"
