@@ -69,6 +69,7 @@ Classify each hunk, not just each file. One file often holds both kinds.
 Call these out in their own section, whichever direction they run:
 
 - **Security posture in `~/.claude/settings.json`**: any change to `permissions` (allow, ask, deny), `sandbox`, `hooks`, `autoMode` or `enabledPlugins`. Dropping a deny rule or turning off the sandbox is not ordinary drift. State plainly what protection would be lost or gained.
+- **Infrastructure details headed for the source**: this repo is public. A deployed-side hunk that names a host, an internal domain, a tailnet, an IP address or a private repo must not be captured as plain text. For `settings.json` auto-mode entries, it goes into the encrypted `.private/claude.json.age` (see step 6). For anything else, stop and ask.
 - **Secrets**: lines holding credentials on either side.
 - **Deletions**: whole files or directories apply would remove.
 - **Credential and identity config**: `.gitconfig` credential helpers and signing, anything under `.ssh/`.
@@ -118,6 +119,7 @@ For each file where the deployed side wins, fully or for some hunks:
 
 - **Plain file** (no `.tmpl`): `chezmoi re-add <target>` when the whole file wins. For a split, edit the source file by hand.
 - **Template**: `re-add` will not overwrite templates. Edit the `.tmpl` source by hand so it renders the wanted content, keeping the template logic (conditionals, variables) intact. Do not paste rendered values over template expressions.
+- **Private auto-mode entries**: `autoMode.allow` and `autoMode.environment` lines that describe the homelab live in `.private/claude.json.age` as JSON (`autoModeAllow`, `autoModeEnvironment`), and the settings template splices them in after the public entries. To add or change one, decrypt to the scratchpad with `chezmoi decrypt`, edit the JSON there, and write it back with `chezmoi encrypt -o .private/claude.json.age <file>`. Never put the decrypted file in the source directory. The user can instead run `chezmoi edit-encrypted .private/claude.json.age` themselves. This only works on a machine that has `~/.config/chezmoi/key.txt`; without it the private lines show as a pending removal that must not be applied or captured.
 - `chezmoi merge <target>` opens an interactive merge tool. Do not run it; mention it if the user would rather merge by hand.
 
 Then verify with `chezmoi diff <target>`. A file where the deployed side won outright should show no diff. A split file should show only the hunks the user chose to apply.
