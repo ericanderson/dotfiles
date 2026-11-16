@@ -92,7 +92,17 @@
 [pull]
   rebase = true
 
-{{ $gh := lookPath "gh" -}}
+{{/* Resolve gh from fixed install locations first, so the result does not depend on
+     the PATH of whoever runs chezmoi. Inside a Claude session the claude-flow plugin
+     puts a gh wrapper first on PATH; it refuses to run without a role token and must
+     never become the credential helper. */ -}}
+{{ $gh := findExecutable "gh" (list "/opt/homebrew/bin" "/usr/local/bin" "/home/linuxbrew/.linuxbrew/bin" "/usr/bin") -}}
+{{ if not $gh -}}
+{{   $gh = lookPath "gh" -}}
+{{   if contains "claude-agents" $gh -}}
+{{     $gh = "" -}}
+{{   end -}}
+{{ end -}}
 {{ if $gh -}}
 [credential "https://github.com"]
 	helper =

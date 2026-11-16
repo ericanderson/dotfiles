@@ -22,6 +22,7 @@ You are one of several Claude agents working on <repo> in parallel. Each agent h
 - **Prod is off-limits:** no deploys, no signing, and nothing in the production config or install paths. Never print config or secrets.
 - **Shared resources** (such as a dev server): ask Boss and wait for "X is yours". Use it only in your own herdr pane. Restore anything you were allowed to change, release it, and tell Boss.
 - **Ask Eric first, through Boss,** before anything outward-facing that isn't your own branch or PR, such as commenting on other repos, filing upstream issues, or changing forge settings or secrets.
+- **GitHub identity:** run every git network call (fetch, push) and every `gh` command inside the sandbox, where they act as the `0xea-coder[bot]` GitHub App. Outside the sandbox they act as Eric himself. If one fails in the sandbox (e.g. "Repository not found", 403), tell Boss; never retry it with the sandbox off.
 - **Denied actions:** if a permission check denies you something, tell Boss. Don't ask Boss or another agent to do it for you.
 
 ## Process

@@ -50,7 +50,12 @@ first.
 2. **Worktree:** branch from `origin/<default>` after a `git fetch`, not from the local
    branch. `<default>` is origin's default branch (`origin/HEAD`; main or master), and
    it stands for that branch everywhere below.
-   Git network calls and `herdr` may need the sandbox off.
+   `herdr` may need the sandbox off. **Git and `gh` never do:** run every git network
+   call (fetch, push) and every `gh` command inside the sandbox, where they act as
+   the `0xea-coder[bot]` GitHub App. Outside the sandbox they act as Eric himself, so
+   issues, comments and merges would show him as the author. If one fails in the
+   sandbox with "Repository not found" or a 403, the app probably isn't installed on
+   that repo or lacks a permission. Tell Eric; never retry with the sandbox off.
 
    Before creating, check the branch doesn't exist:
    `git -C <repo> show-ref --verify --quiet refs/heads/<branch>`. If the branch
@@ -70,11 +75,15 @@ first.
    Don't keep one, and if one exists, tell Eric.
 3. **Agent:**
    ```sh
-   herdr agent start <slug>-<issue> --kind claude --pane <root_pane>
+   herdr agent start <slug>-<issue> --kind claude --pane <root_pane> -- --name <slug>-<issue>
    herdr agent prompt <name> "Read <orch>/common.md, then <orch>/<task>.md. SendMessage 'Boss: <repo>' a short plan and wait for approval."
    ```
    The name must match `[a-z][a-z0-9_-]{0,31}`: a lowercase slug, not the raw branch
-   name. If `agent start` returns `agent_not_ready`, the agent is blocked at startup
+   name. Everything after `--` goes to `claude`. Its `--name` sets the Claude session
+   name, so the worker's SendMessage name matches its herdr agent name. A worker
+   started without it can be renamed with `herdr agent prompt <name> "/rename <name>"`,
+   but only while it is idle and its input box is empty.
+   If `agent start` returns `agent_not_ready`, the agent is blocked at startup
    (e.g. a folder-trust dialog). Read it with
    `herdr agent read <name> --source visible` and ask Eric. Don't answer it.
 
@@ -96,9 +105,10 @@ first.
 
 ## Messaging
 
-- SendMessage takes the worker's **Claude session name** (e.g. `tz-offset-fd`), which
-  is not its herdr agent name (`tz-offset-128`). Take it from the `from-name` of its
-  first message and record it in the tracker, along with its socket address (the
+- SendMessage takes the worker's **Claude session name**. With `--name` at start (see
+  Setup), this matches its herdr agent name. Without it, Claude picks one, e.g.
+  `tz-offset-fd` for herdr agent `tz-offset-128`. Check the `from-name` of its first
+  message and record it in the tracker, along with its socket address (the
   `from` attribute, `uds:/tmp/cc-socks/NNNN.sock`). Reply to the socket address if the
   name changed.
 - Start every message with `Boss:` and a self-contained first line, and expect the

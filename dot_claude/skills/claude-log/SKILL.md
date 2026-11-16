@@ -7,9 +7,9 @@ description: >
   another agent launched with the Agent tool inside its own session.
 allowed-tools:
   - Agent
-  - Read(~/Vaults/Personal/ClaudeLog/*)
-  - Write(~/Vaults/Personal/ClaudeLog/*)
-  - Edit(~/Vaults/Personal/ClaudeLog/*)
+  - Read(~/Vaults/Claude/ClaudeLog/*)
+  - Write(~/Vaults/Claude/ClaudeLog/*)
+  - Edit(~/Vaults/Claude/ClaudeLog/*)
   - Bash(date +%Y%m%d-%H%M%S)
   - Bash(date +%Y-%m-%d)
   - Bash(date +%H:%M:%S)
@@ -20,7 +20,7 @@ allowed-tools:
 
 # Claude Action Logger
 
-Log significant actions to the Obsidian vault at `~/Vaults/Personal/ClaudeLog/`.
+Log significant actions to the Obsidian vault at `~/Vaults/Claude/ClaudeLog/`.
 
 ## Stop: only the top-level agent logs
 
@@ -97,7 +97,7 @@ Provide this prompt to the subagent:
 
 8. Review the inspector's feedback
 9. Revise the draft to address legitimate gaps (you have the conversation context the inspector lacked — use it)
-10. Write the final log file to `~/Vaults/Personal/ClaudeLog/`
+10. Write the final log file to `~/Vaults/Claude/ClaudeLog/`
 
 <output-template>
 ---

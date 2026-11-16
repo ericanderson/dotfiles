@@ -21,6 +21,10 @@
     {{- $_ := set $data "forceGitSigning" .forceGitSigning }}
 {{- end }}
 
+# age decrypts the private data under .private/ in the source. A machine without the
+# identity file still works: templates check for it and skip the private parts.
+encryption = "age"
+
 [data]
     email = {{ $email | quote }}
 
@@ -35,3 +39,7 @@
 
 [diff]
     exclude = ["externals"]
+
+[age]
+    identity = {{ joinPath .chezmoi.homeDir ".config/chezmoi/key.txt" | quote }}
+    recipientsFile = {{ joinPath .chezmoi.sourceDir ".private/age-recipients.txt" | quote }}
