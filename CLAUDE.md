@@ -76,7 +76,7 @@ There is no work/personal split; every machine gets the same configuration. Temp
 
 ### This repo is public: private data is encrypted
 
-Never commit a host name, internal domain, tailnet name, IP address or private repo name as plain text. The auto-mode entries in `~/.claude/settings.json` that describe the homelab are age-encrypted in `.private/claude.json.age` and spliced into the settings template at apply time.
+Never commit a host name, internal domain, tailnet name or IP address as plain text. The names of Eric's private GitHub repos (for example `boss-board`) are fine to publish; what is inside them is not. The auto-mode entries in `~/.claude/settings.json` that describe the homelab are age-encrypted in `.private/claude.json.age` and spliced into the settings template at apply time.
 
 - The identity is `~/.config/chezmoi/key.txt` (master copy in 1Password). A machine without it renders settings without the private entries; that is expected, not drift.
 - The public half is `.private/age-recipients.txt`. `.chezmoi.toml.tmpl` points chezmoi at both.

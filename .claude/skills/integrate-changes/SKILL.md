@@ -1,7 +1,7 @@
 ---
 name: integrate-changes
 description: Work out, file by file, whether pending chezmoi differences should be applied to the home directory or folded back into the source, then carry out the source-side half. Use when `chezmoi diff` or `chezmoi status` shows pending changes, before any `chezmoi apply`, or when the user asks to integrate, reconcile or review chezmoi drift.
-allowed-tools: Bash(chezmoi *), Bash(readlink *), Read, Edit, AskUserQuestion
+allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi source-path*), Bash(chezmoi git*), Bash(chezmoi re-add*), Bash(chezmoi decrypt*), Bash(chezmoi encrypt*), Bash(readlink *), Read, Edit, AskUserQuestion
 ---
 
 # /integrate-changes
@@ -69,7 +69,7 @@ Classify each hunk, not just each file. One file often holds both kinds.
 Call these out in their own section, whichever direction they run:
 
 - **Security posture in `~/.claude/settings.json`**: any change to `permissions` (allow, ask, deny), `sandbox`, `hooks`, `autoMode` or `enabledPlugins`. Dropping a deny rule or turning off the sandbox is not ordinary drift. State plainly what protection would be lost or gained.
-- **Infrastructure details headed for the source**: this repo is public. A deployed-side hunk that names a host, an internal domain, a tailnet, an IP address or a private repo must not be captured as plain text. For `settings.json` auto-mode entries, it goes into the encrypted `.private/claude.json.age` (see step 6). For anything else, stop and ask.
+- **Infrastructure details headed for the source**: this repo is public. A deployed-side hunk that names a host, an internal domain, a tailnet or an IP address must not be captured as plain text. The name of one of Eric's private GitHub repos is fine. For `settings.json` auto-mode entries, it goes into the encrypted `.private/claude.json.age` (see step 6). For anything else, stop and ask.
 - **Secrets**: lines holding credentials on either side.
 - **Deletions**: whole files or directories apply would remove.
 - **Credential and identity config**: `.gitconfig` credential helpers and signing, anything under `.ssh/`.

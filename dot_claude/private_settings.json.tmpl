@@ -305,14 +305,14 @@
     "ea-claude": {
       "source": {
         "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins"
+        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-plugins" | toJson }}
       },
       "autoUpdate": true
     },
     "ea-codes": {
       "source": {
         "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes"
+        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" | toJson }}
       },
       "autoUpdate": true
     },
@@ -326,7 +326,7 @@
     "claude-flow": {
       "source": {
         "source": "directory",
-        "path": "/Users/eanderson/.config/claude-agents/flow/plugin"
+        "path": {{ joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" | toJson }}
       }
     }
   },

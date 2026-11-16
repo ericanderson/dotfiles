@@ -1,7 +1,7 @@
 ---
 name: chezmoi-status
 description: Read-only overview of the dotfiles state - what `chezmoi apply` would change and which side changed, the source repo's git state, backups, and what to do next. Use when the user asks for chezmoi or dotfiles status, or at the start of any chezmoi work.
-allowed-tools: Bash(chezmoi *), Bash(ls *), Bash(readlink *), Bash(wc *), Bash(grep *), Read
+allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi git*), Bash(chezmoi managed*), Bash(chezmoi unmanaged*), Bash(chezmoi execute-template*), Bash(ls *), Bash(readlink *), Bash(wc *), Bash(grep *), Read
 ---
 
 # /chezmoi-status

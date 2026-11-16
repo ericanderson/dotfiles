@@ -2,7 +2,7 @@
 name: chezmoi-backup
 description: Save the current deployed copy of every file that `chezmoi apply` would change, so an apply can be undone. Use before applying pending chezmoi changes, when the user asks for a backup of their dotfiles state, or when another chezmoi skill says a backup is needed.
 argument-hint: "[note]"
-allowed-tools: Bash(bash *backup.sh*), Bash(chezmoi *), Bash(readlink *), Read
+allowed-tools: Bash(bash *backup.sh*), Bash(chezmoi status*), Bash(readlink *), Read
 ---
 
 # /chezmoi-backup
