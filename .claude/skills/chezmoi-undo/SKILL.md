@@ -31,7 +31,7 @@ Run the script in this skill's directory:
 bash <this skill's directory>/undo.sh plan <backup-id> [file ...]
 ```
 
-It changes nothing. For each file in the backup it prints `identical`, `differs` or `missing` (the deployed copy is gone), and it lists files that apply created after the backup. Read the backup's `manifest.json` for its date and note.
+It changes nothing. For each file in the backup it prints `identical`, `differs`, `missing` (the deployed copy is gone) or `directory` (a real directory now sits at that path; the script will not remove it, so that file cannot be restored until the user moves the directory). It also lists files that apply created after the backup. Read the backup's `manifest.json` for its date and note.
 
 If every file is `identical`, there is nothing to undo. Say so and stop.
 

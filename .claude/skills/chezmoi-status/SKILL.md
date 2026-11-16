@@ -1,7 +1,7 @@
 ---
 name: chezmoi-status
 description: Read-only overview of the dotfiles state - what `chezmoi apply` would change and which side changed, the source repo's git state, backups, and what to do next. Use when the user asks for chezmoi or dotfiles status, or at the start of any chezmoi work.
-allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi git*), Bash(chezmoi managed*), Bash(chezmoi unmanaged*), Bash(chezmoi execute-template*), Bash(ls *), Bash(readlink *), Bash(wc *), Bash(grep *), Read
+allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi git -- status*), Bash(chezmoi git -- log*), Bash(chezmoi managed*), Bash(chezmoi unmanaged*), Bash(ls *), Bash(readlink *), Bash(wc *), Bash(grep *), Read
 ---
 
 # /chezmoi-status
@@ -30,7 +30,7 @@ chezmoi status --exclude=externals
 
 - Managed entries: !`chezmoi managed | wc -l`
 - Unmanaged entries: !`chezmoi unmanaged | wc -l`
-- Age identity: !`chezmoi execute-template '{{ $id := .chezmoi.config.age.identity }}{{ if and $id (stat $id) }}present ({{ $id }}){{ else }}not present{{ end }}'`
+- Age identity: !`ls ~/.config/chezmoi/key.txt || true`
 
 ## Backups
 
@@ -58,7 +58,7 @@ The line counts show size, not risk. A removed line may be a local edit about to
 
 **Source repo.** The first line shows the branch and whether it is ahead of or behind its remote. If the branch is not `master`, say so: `chezmoi apply` deploys whatever branch is checked out.
 
-**Age identity.** This is the key file named in the chezmoi config, normally `~/.config/chezmoi/key.txt`. Without it, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
+**Age identity.** The line above shows the key file's path when it exists and "No such file or directory" when it does not. Without it, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
 
 **Warnings.** If any block above contains "config file template has changed", the machine's chezmoi config is older than `.chezmoi.toml.tmpl`; recommend `chezmoi init`.
 

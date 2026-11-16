@@ -1,7 +1,7 @@
 ---
 name: integrate-changes
 description: Work out, file by file, whether pending chezmoi differences should be applied to the home directory or folded back into the source, then carry out the source-side half. Use when `chezmoi diff` or `chezmoi status` shows pending changes, before any `chezmoi apply`, or when the user asks to integrate, reconcile or review chezmoi drift.
-allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi source-path*), Bash(chezmoi git*), Bash(chezmoi re-add*), Bash(chezmoi decrypt*), Bash(chezmoi encrypt*), Bash(readlink *), Read, Edit, AskUserQuestion
+allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi source-path*), Bash(chezmoi git -- status*), Bash(chezmoi git -- log*), Bash(chezmoi git -- diff*), Bash(chezmoi re-add*), Bash(chezmoi decrypt*), Bash(chezmoi encrypt*), Bash(readlink *), Read, Edit, AskUserQuestion
 ---
 
 # /integrate-changes

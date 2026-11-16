@@ -78,7 +78,10 @@ fi
 
 state_of() {
   local f=$1
-  if [ ! -e "$DEST/$f" ] && [ ! -L "$DEST/$f" ]; then
+  if [ -d "$DEST/$f" ] && [ ! -L "$DEST/$f" ]; then
+    # A real directory now sits where the backed-up file was. Never removed.
+    echo directory
+  elif [ ! -e "$DEST/$f" ] && [ ! -L "$DEST/$f" ]; then
     echo missing
   elif [ -L "$BD/files/$f" ] || [ -L "$DEST/$f" ]; then
     if [ "$(readlink "$BD/files/$f" 2>/dev/null)" = "$(readlink "$DEST/$f" 2>/dev/null)" ] &&
@@ -120,13 +123,30 @@ fi
 
 # restore: snapshot what is about to be overwritten, then copy back.
 to_restore=()
+blocked=()
 for f in "${files[@]}"; do
-  [ "$(state_of "$f")" = identical ] || to_restore+=("$f")
+  case $(state_of "$f") in
+    identical) ;;
+    directory) blocked+=("$f") ;;
+    *) to_restore+=("$f") ;;
+  esac
 done
+report_blocked() {
+  local b
+  for b in ${blocked[@]+"${blocked[@]}"}; do
+    echo "  FAILED   $b (a directory is in the way; not removed)" >&2
+  done
+}
 if [ "${#to_restore[@]}" -eq 0 ]; then
-  echo "Nothing to restore: every file already matches the backup."
+  if [ "${#blocked[@]}" -eq 0 ]; then
+    echo "Nothing to restore: every file already matches the backup."
+  else
+    echo "Nothing could be restored."
+  fi
+  report_blocked
   report_created
-  exit 0
+  [ "${#blocked[@]}" -eq 0 ]
+  exit
 fi
 
 SNAP_ID="$(date +%Y-%m-%d_%H-%M-%S)_pre-undo"
@@ -167,17 +187,24 @@ done
 echo "Saved the current copies first: $SNAP_ID"
 
 failed=0
+[ "${#blocked[@]}" -eq 0 ] || failed=1
 for f in "${to_restore[@]}"; do
   mkdir -p "$DEST/$(dirname "$f")"
-  # Copy beside the target, then rename over it: a symlink is replaced, not followed,
-  # and a failed copy leaves the current file in place.
+  # Copy beside the target, then rename over it, so a failed copy leaves the current
+  # file in place. A symlink at the target is removed first: `mv` would follow a
+  # symlink to a directory and drop the file inside it. Its copy is already in the
+  # pre-undo snapshot.
   tmp="$DEST/$f.undo-tmp.$$"
-  if cp -pP "$BD/files/$f" "$tmp" && mv -f "$tmp" "$DEST/$f"; then
+  if cp -pP "$BD/files/$f" "$tmp" &&
+    { [ ! -L "$DEST/$f" ] || rm -f "$DEST/$f"; } &&
+    mv -f "$tmp" "$DEST/$f"; then
     echo "  restored $f"
   else
+    rm -f "$tmp"
     echo "  FAILED   $f" >&2
     failed=1
   fi
 done
+report_blocked
 report_created
 exit "$failed"

@@ -1,7 +1,7 @@
 ---
 name: chezmoi-unmanaged
 description: Sort the entries in the home directory that chezmoi neither manages nor ignores into managed, ignored or deliberately left alone. Use when `chezmoi unmanaged` has grown, when the user asks to clean up or review unmanaged files, or to start managing a new config file.
-allowed-tools: Bash(chezmoi unmanaged*), Bash(chezmoi add*), Bash(chezmoi status*), Bash(chezmoi git*), Bash(ls *), Read, Edit, Glob, Grep, AskUserQuestion
+allowed-tools: Bash(chezmoi unmanaged*), Bash(chezmoi add*), Bash(chezmoi status*), Bash(chezmoi git -- status*), Bash(ls *), Read, Edit, Glob, Grep, AskUserQuestion
 ---
 
 # /chezmoi-unmanaged
