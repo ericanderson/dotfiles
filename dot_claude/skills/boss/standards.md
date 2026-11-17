@@ -34,4 +34,4 @@ You are one of several Claude agents working on <repo> in parallel. Each agent h
    - SendMessage Boss "ready for review", with the branch, head commit, summary and evidence (test counts, lint results, any live run).
    - Fix every finding, or rebut it with evidence, and report back. Repeat until Boss approves.
 4. **PR:** after approval, open the PR. The body covers the problem, the change, and how it was verified, and includes "Closes #N" where it applies. SendMessage Boss the URL.
-5. **Done:** log your work with the `claude-log` skill. You are a top-level session in your own pane, so the subagent rule doesn't apply to you. Send Boss your final summary (commits, PR, verification, what's still open). Then stay idle until Boss releases you.
+5. **Done:** log your work with the `ea-codes:claude-log` skill. You are a top-level session in your own pane, so the subagent rule doesn't apply to you. Send Boss your final summary (commits, PR, verification, what's still open). Then stay idle until Boss releases you.
