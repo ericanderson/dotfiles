@@ -12,3 +12,6 @@ bin/chezmoi-auto-update.sh.backup
 .config/nvim/init.vim
 .config/nvim/autoload/plug.vim
 .config/nvim/autoload
+
+# claude-log skill, moved to the ea-codes plugin (ea-codes:claude-log)
+.claude/skills/claude-log
