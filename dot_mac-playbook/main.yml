@@ -27,7 +27,6 @@
         - go
         - reattach-to-user-namespace
         - tmux
-        - bash-completion
         - yarn
         - node
 
