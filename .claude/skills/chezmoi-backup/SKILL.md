@@ -1,125 +1,49 @@
 ---
 name: chezmoi-backup
-description: Create timestamped backup of files that would be changed by chezmoi
-allowed-tools: Bash(chezmoi:*), Bash(mkdir:*), Bash(cp:*), Bash(ln:*), Write
+description: Save the current deployed copy of every file that `chezmoi apply` would change, so an apply can be undone. Use before applying pending chezmoi changes, when the user asks for a backup of their dotfiles state, or when another chezmoi skill says a backup is needed.
+argument-hint: "[note]"
+allowed-tools: Bash(bash *backup.sh*), Bash(chezmoi status*), Bash(readlink *), Read
 ---
 
 # /chezmoi-backup
 
-## Creating Backup
-- Timestamp: !`date +%Y-%m-%d_%H-%M-%S`
-- Affected files: !`chezmoi diff --exclude=externals | grep '^diff' | wc -l`
-- Backup location: ~/.chezmoi-backups/
+## Current state
 
-<task>
-You are a chezmoi backup assistant that creates safe, timestamped backups of files before changes are applied. Your goal is to ensure users can safely experiment with chezmoi configurations knowing they can restore their original files if needed.
-</task>
+Files `chezmoi apply` would change (externals and scripts excluded):
 
-<workflow>
-1. Create timestamped backup directory
-2. Get list of files that would be modified by chezmoi apply
-3. Copy current versions of those files to backup directory
-4. Save the current diff output for reference
-5. Create manifest file with metadata
-6. Update 'latest' symlink to point to new backup
-7. Report success with backup location
-</workflow>
+```!
+chezmoi status --exclude=externals,scripts
+```
 
-<backup_process>
-Execute these steps:
+Latest backup: !`readlink ~/.chezmoi-backups/latest || true`
 
-1. **Create backup directory structure**:
-   ```bash
-   TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
-   BACKUP_DIR="$HOME/.chezmoi-backups/$TIMESTAMP"
-   mkdir -p "$BACKUP_DIR/files"
-   ```
+## What to do
 
-2. **Identify files to backup**:
-   - Parse `chezmoi diff --exclude=externals`
-   - Extract file paths that would be modified
-   - Only backup files that exist (not new files)
-   - **Skip `run_once_` script artifacts**: A `run_once_` source script appears in the diff as a "new file" at its rendered name (e.g. `install-packages-darwin.sh`), but chezmoi only materializes it temporarily, runs it, then discards it. There is nothing on disk to back up and nothing will exist after apply. Cross-reference each "new file" entry with `chezmoi source-path <target>` — if the source path starts with `run_once_`, skip it.
+Run the script in this skill's directory once:
 
-3. **Copy files to backup**:
-   ```bash
-   # For each file that would be modified
-   cp -p "$HOME/.example" "$BACKUP_DIR/files/.example"
-   ```
+```
+bash <this skill's directory>/backup.sh "<note>"
+```
 
-4. **Save diff for reference**:
-   ```bash
-   chezmoi diff --exclude=externals > "$BACKUP_DIR/chezmoi-diff.txt"
-   ```
+For the note, use the arguments the skill was invoked with, if any. Otherwise write one line saying why the backup is being taken, for example "before applying the gitconfig change".
 
-5. **Create manifest.json**:
-   ```json
-   {
-     "timestamp": "2025-01-03_14-30-45",
-     "date": "2025-01-03 14:30:45",
-     "files_backed_up": [
-       ".zshrc",
-       ".gitconfig"
-     ],
-     "chezmoi_version": "$(chezmoi --version)",
-     "total_files": 2
-   }
-   ```
+The script does the whole job: it reads `chezmoi status`, copies each pending file from the home directory into `~/.chezmoi-backups/<timestamp>/files/` with modes and symlinks kept, saves the pending diff and a `manifest.json`, and repoints the `latest` symlink. Do not reimplement those steps by hand.
 
-6. **Update latest symlink**:
-   ```bash
-   ln -sfn "$BACKUP_DIR" "$HOME/.chezmoi-backups/latest"
-   ```
-</backup_process>
+If the list above is empty, there is nothing to back up. Say so and stop; the script would say the same and create nothing.
 
-<output_format>
-## Backup Complete
+## Rules
 
-**Backup ID**: [timestamp]
-**Location**: ~/.chezmoi-backups/[timestamp]/
-**Files backed up**: [count]
+- This skill never runs `chezmoi apply` and never changes the source or the home directory. It only writes under `~/.chezmoi-backups/`.
+- Do not print the contents of the saved diff or of backed-up files. They can hold secrets and the decrypted private lines from `.private/claude.json.age`.
+- Backups stay in the home directory. Never copy one into the chezmoi source: this repo is public.
 
-### Backed up files:
-- ~/.zshrc
-- ~/.gitconfig
-- [etc...]
+## Report
 
-### Next steps:
-1. Review changes with `/integrate-changes`
-2. Apply changes with `chezmoi apply` when ready
-3. If needed, restore with `/chezmoi-undo [timestamp]`
+Tell the user:
 
-**Tip**: Your backup is also available at `~/.chezmoi-backups/latest/`
-</output_format>
+- the backup ID and location;
+- each file saved;
+- any file listed as `new` (apply would create it, so there was nothing to save; `/chezmoi-undo` will not remove it);
+- any `FAILED` line, with the script's error. A failure means that file is not protected, so say that before anything else.
 
-<error_handling>
-Handle these scenarios gracefully:
-
-1. **No changes to backup**:
-   - If `chezmoi diff` is empty, inform user no backup needed
-   - Exit gracefully
-
-2. **Backup directory exists**:
-   - This shouldn't happen with timestamp, but check anyway
-   - Add sub-second precision if needed
-
-3. **Permission errors**:
-   - Report which files couldn't be backed up
-   - Continue with other files
-   - Note failures in manifest
-
-4. **Disk space issues**:
-   - Check available space before starting
-   - Warn if backup might fill disk
-</error_handling>
-
-<manifest_structure>
-The manifest.json file should contain:
-- timestamp: Directory name timestamp
-- date: Human-readable date/time
-- files_backed_up: Array of relative paths
-- chezmoi_version: Version used for backup
-- total_files: Count of backed up files
-- failed_files: Array of files that couldn't be backed up (if any)
-- notes: Any special conditions or warnings
-</manifest_structure>
+Then give the next steps: `/integrate-changes` to decide what to apply, and `/chezmoi-undo <backup ID>` as the way back.

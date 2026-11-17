@@ -65,14 +65,32 @@ The repository uses chezmoi template variables including:
 - `{{ .chezmoi.os }}`: Operating system (darwin, linux)
 - `{{ .chezmoi.hostname }}`: Machine hostname
 
+### Never hard-code a home directory
+
+Do not write `/Users/eanderson`, `/home/<name>` or any other literal home path when an alternative exists. These files are deployed to machines with different users and operating systems. Use, in order of preference:
+
+- `~` or `$HOME`, when the program reading the file expands them (shell scripts, most Claude Code settings such as permission rules and sandbox paths).
+- `{{ .chezmoi.homeDir }}` or `{{ joinPath .chezmoi.homeDir "..." }}` in a template, when the program needs an absolute path. Turn the file into a `.tmpl` if that is what it takes.
+- `{{ .chezmoi.sourceDir }}` for paths into this repo.
+
+The same applies when capturing a deployed file into the source: an app that wrote an absolute home path gets it replaced with one of the above, not copied as is. A literal home path is acceptable only inside a comment or where none of these work, and then say why next to it.
+
 ### Machine-Specific Configurations
 
 There is no work/personal split; every machine gets the same configuration. Templates vary only by OS and by what exists on the machine at apply time:
 
-- `dot_gitconfig.tmpl` - `gh` credential helper only when `gh` is on PATH (`lookPath`)
+- `dot_gitconfig.tmpl` - `gh` credential helper only when a real `gh` is installed (fixed install paths first, then `lookPath`; never the claude-flow wrapper)
 - `private_dot_ssh/private_config.tmpl` - OrbStack include and FIDO2 `IdentityFile`s only when present (`stat`)
-- `dot_claude/private_settings.json.tmpl` - herdr `SessionStart` hook only when herdr's script exists (`stat`)
+- `dot_claude/private_settings.json.tmpl` - herdr `SessionStart` hook only when herdr's script exists (`stat`); private auto-mode entries only when the age identity exists
 - `run_once_install-packages-darwin.sh.tmpl` - OS-specific installations
+
+### This repo is public: private data is encrypted
+
+Never commit a host name, internal domain, tailnet name or IP address as plain text. The names of Eric's private GitHub repos (for example `boss-board`) are fine to publish; what is inside them is not. The auto-mode entries in `~/.claude/settings.json` that describe the homelab are age-encrypted in `.private/claude.json.age` and spliced into the settings template at apply time.
+
+- The identity is `~/.config/chezmoi/key.txt` (master copy in 1Password). A machine without it renders settings without the private entries; that is expected, not drift.
+- The public half is `.private/age-recipients.txt`. `.chezmoi.toml.tmpl` points chezmoi at both.
+- Edit the private entries with `chezmoi edit-encrypted .private/claude.json.age`. Never leave a decrypted copy in the source directory.
 
 ## Reading `chezmoi diff` Output
 

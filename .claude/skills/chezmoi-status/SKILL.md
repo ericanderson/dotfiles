@@ -1,161 +1,95 @@
 ---
 name: chezmoi-status
-description: Comprehensive chezmoi and dotfiles status overview
-allowed-tools:
-  - Bash(chezmoi *)
-  - Bash(git *)
-  - Bash(ls *)
-  - Bash(find *)
-  - Bash(du *)
-  - Bash(readlink *)
-  - Bash(xargs *)
-  - Bash(basename *)
-  - Bash(wc *)
-  - Bash(grep *)
-  - Bash(cut *)
-  - Bash(echo *)
-  - Read
+description: Read-only overview of the dotfiles state - what `chezmoi apply` would change and which side changed, the source repo's git state, backups, and what to do next. Use when the user asks for chezmoi or dotfiles status, or at the start of any chezmoi work.
+allowed-tools: Bash(chezmoi status*), Bash(chezmoi diff*), Bash(chezmoi git -- status*), Bash(chezmoi git -- log*), Bash(chezmoi managed*), Bash(chezmoi unmanaged*), Bash(ls *), Bash(readlink *), Bash(wc *), Bash(grep *), Read
 ---
 
 # /chezmoi-status
 
-## Repository Status
-- Location: ~/.local/share/chezmoi
-- Branch: !`git -C ~/.local/share/chezmoi branch --show-current`
-- Last commit: !`git -C ~/.local/share/chezmoi log -1 --oneline`
-- Uncommitted changes: !`git -C ~/.local/share/chezmoi status --porcelain | wc -l`
+## Source repo
 
-## Chezmoi Status
-- Managed files: !`chezmoi managed | wc -l`
-- Unmanaged files: !`chezmoi unmanaged | wc -l`
-- Files with changes: !`chezmoi diff --exclude=externals | grep '^diff' | wc -l`
-- Total removals pending: !`chezmoi diff --exclude=externals | grep '^-' | grep -v '^---' | wc -l`
-- Total additions pending: !`chezmoi diff --exclude=externals | grep '^+' | grep -v '^+++' | wc -l`
+Branch and uncommitted changes:
 
-## Backup Status
-- Latest backup: !`readlink ~/.chezmoi-backups/latest 2>/dev/null | xargs basename 2>/dev/null || echo "No backups yet"`
-- Backup directory size: !`du -sh ~/.chezmoi-backups 2>/dev/null | cut -f1 || echo "0"`
+```!
+chezmoi git -- status --short --branch
+```
 
-<task>
-You are a chezmoi status assistant that provides a comprehensive overview of the current dotfiles state, helping users understand their configuration status at a glance.
-</task>
+Last commit: !`chezmoi git -- log -1 --oneline`
 
-<workflow>
-1. Display repository information from embedded commands above
-2. Show chezmoi management statistics
-3. Summarize any pending changes
-4. Display backup information
-5. Provide actionable recommendations based on current state
-6. Suggest appropriate next commands
-</workflow>
+## Pending changes (externals excluded)
 
-<status_sections>
+```!
+chezmoi status --exclude=externals
+```
 
-### 1. Repository Overview
-Display information about the git repository:
-- Current branch and sync status
-- Recent commits
-- Any uncommitted changes in the chezmoi source
+- Lines apply would remove: !`chezmoi diff --exclude=externals --no-pager | grep '^-' | grep -v '^---' | wc -l`
+- Lines apply would add: !`chezmoi diff --exclude=externals --no-pager | grep '^+' | grep -v '^+++' | wc -l`
+- External entries that would update: !`chezmoi status --include=externals | wc -l`
 
-### 2. File Management Status
-Show statistics about:
-- How many files are managed by chezmoi
-- How many files are unmanaged
-- Quick summary of pending changes
+## Machine
 
-### 3. Pending Changes Summary
-If there are pending changes, categorize them:
-- High risk (removals)
-- Medium risk (modifications)  
-- Low risk (additions only)
-
-### 4. Backup Information
-Display:
-- Number of backups available
-- When the last backup was created
-- Total space used by backups
-
-### 5. Recommendations
-Based on the current state, suggest actions:
-- If many unmanaged files: suggest `/chezmoi-unmanaged`
-- If pending changes: suggest `/integrate-changes`
-- If no recent backup and changes pending: suggest `/chezmoi-backup`
-- If uncommitted changes in repo: suggest committing
-</status_sections>
-
-<output_format>
-# Chezmoi Status Overview
-
-## Repository
-- **Branch**: [branch-name]
-- **Status**: [Clean|X uncommitted changes]
-- **Last commit**: [hash] [message]
-
-## File Management
-- **Managed files**: [count]
-- **Unmanaged files**: [count]
-- **Pending changes**: [count] files affected
-
-## Pending Changes
-[If changes exist, show summary]
-- **Removals**: [count] lines would be removed
-- **Additions**: [count] lines would be added
-- **Files affected**: [list top 5]
+- Managed entries: !`chezmoi managed | wc -l`
+- Unmanaged entries: !`chezmoi unmanaged | wc -l`
+- Age identity: !`ls ~/.config/chezmoi/key.txt || true`
 
 ## Backups
-- **Total backups**: [count]
-- **Latest backup**: [timestamp or "None"]
-- **Storage used**: [size]
+
+```!
+ls -1 ~/.chezmoi-backups || true
+```
+
+Latest: !`readlink ~/.chezmoi-backups/latest || true`
+
+## How to read it
+
+This skill is read-only. Run nothing that changes the source, the home directory or git.
+
+**Pending changes.** Each line is two columns and a path:
+
+| Columns | Meaning | Risk on apply |
+|---|---|---|
+| ` M` | Only the source changed since the last apply | Low: nothing local is lost |
+| `MM` | The deployed file was edited too | Local edits would be overwritten |
+| ` A` | Apply would create the file | Low, unless an unmanaged file is already there |
+| ` D` | Apply would delete the entry | The entry is lost |
+| ` R` | A script would run | Depends on the script; read its header to say what it does |
+
+The line counts show size, not risk. A removed line may be a local edit about to be lost or a line deliberately deleted from the source; the columns say which.
+
+**Source repo.** The first line shows the branch and whether it is ahead of or behind its remote. If the branch is not `master`, say so: `chezmoi apply` deploys whatever branch is checked out.
+
+**Age identity.** The line above shows the key file's path when it exists and "No such file or directory" when it does not. Without it, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
+
+**Warnings.** If any block above contains "config file template has changed", the machine's chezmoi config is older than `.chezmoi.toml.tmpl`; recommend `chezmoi init`.
+
+**Backups.** A backup is a folder holding a `manifest.json`. Other items in that directory are not backups. Count only the real ones.
+
+## Report
+
+Lead with one sentence that answers "is anything waiting, and is any of it risky?" Then:
+
+```
+## Source repo
+Branch, ahead/behind, last commit, uncommitted files (list them).
+
+## Pending changes
+A table of the pending entries with what each status means here, or "None".
+Removal and addition line counts. Externals count.
+
+## Machine
+Managed and unmanaged counts. Whether the age identity is present.
+
+## Backups
+How many, the latest and its date.
 
 ## Recommendations
+```
 
-[Dynamic recommendations based on state]
+Recommend only what the state calls for, most important first:
 
-### Quick Actions
-- Review changes: `/integrate-changes`
-- Process unmanaged: `/chezmoi-unmanaged`
-- Create backup: `/chezmoi-backup`
-- View all commands: `/help chezmoi`
-</output_format>
-
-<smart_recommendations>
-Provide contextual recommendations:
-
-1. **If unmanaged files > 10**:
-   ```
-   You have [X] unmanaged files. Consider reviewing them:
-   Run: /chezmoi-unmanaged
-   ```
-
-2. **If pending changes exist without recent backup**:
-   ```
-   You have pending changes but no recent backup.
-   Recommend: /chezmoi-backup before applying changes
-   ```
-
-3. **If high-risk removals detected**:
-   ```
-   Warning: [X] lines would be removed if you apply changes.
-   Review carefully: /integrate-changes
-   ```
-
-4. **If repository has uncommitted changes**:
-   ```
-   You have uncommitted changes in your chezmoi repository.
-   Consider committing: cd ~/.local/share/chezmoi && git add -A && git commit
-   ```
-
-5. **If everything is clean**:
-   ```
-   Everything is in sync! No actions needed.
-   ```
-</smart_recommendations>
-
-<detailed_info>
-If user wants more detail on any section, provide:
-
-1. **For pending changes**: Show first few files with changes
-2. **For unmanaged files**: Show first 10 unmanaged files
-3. **For backups**: Show recent backup timestamps
-4. **For repository**: Show recent commit history
-</detailed_info>
+- Any `MM` or ` D` entry: `/integrate-changes` to decide direction before applying. If the latest backup predates those files' current contents, `/chezmoi-backup` first.
+- Only ` M`, ` A` or ` R` entries: safe to review with `chezmoi diff` and apply.
+- Uncommitted source changes: list them and suggest committing on a branch. Do not suggest `git add -A`.
+- Branch behind its remote: a pull would change what apply does; mention it.
+- More than about ten unmanaged entries: `/chezmoi-unmanaged`.
+- Nothing pending, nothing uncommitted: say everything is in sync and stop.

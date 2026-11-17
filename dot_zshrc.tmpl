@@ -76,6 +76,9 @@ fi
 alias wm='workmux'
 eval "$(workmux completions zsh)"
 
+# claude-flow dispatcher
+alias cf-dispatch='$HOME/.config/claude-agents/flow/plugin/claude-flow/dispatch/cf-dispatch'
+
 # nvm (Node Version Manager)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -136,3 +139,9 @@ if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] &&
   tmux new-session -A -s 0
 fi
 
+# oMLX: CLI shim path begin
+case ":$PATH:" in
+  *":$HOME/.omlx/bin:"*) ;;
+  *) export PATH="$HOME/.omlx/bin:$PATH" ;;
+esac
+# oMLX: CLI shim path end

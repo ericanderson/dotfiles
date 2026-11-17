@@ -1,4 +1,13 @@
 {{- $herdrHook := joinPath .chezmoi.homeDir ".claude/hooks/herdr-agent-state.sh" -}}
+{{- /* This repo is public. The auto-mode entries that describe the homelab (domains,
+       tailnet, hosts) are age-encrypted in .private/claude.json.age. Decrypt them only
+       on a machine that has the age identity; everywhere else render without them.
+       Edit them with: chezmoi edit-encrypted .private/claude.json.age */ -}}
+{{- $private := dict "autoModeAllow" (list) "autoModeEnvironment" (list) -}}
+{{- $identity := .chezmoi.config.age.identity -}}
+{{- if and $identity (stat $identity) -}}
+{{-   $private = joinPath .chezmoi.sourceDir ".private/claude.json.age" | include | decrypt | fromJson -}}
+{{- end -}}
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "attribution": {
@@ -8,6 +17,15 @@
   },
   "permissions": {
     "allow": [
+      "Bash(flow-merge *)",
+      "Bash(flow-review *)",
+      "Bash(flow-check *)",
+      "Bash(flow-token *)",
+      "Bash(cf-merge *)",
+      "Bash(cf-review *)",
+      "Bash(cf-check *)",
+      "Bash(cf-token *)",
+      "Bash(cf-gh *)",
       "Read",
       "Glob",
       "Grep",
@@ -93,7 +111,30 @@
       "Bash(git worktree remove -f)",
       "Bash(git worktree remove * --force*)",
       "Bash(git worktree remove * -f *)",
-      "Bash(git worktree remove * -f)"
+      "Bash(git worktree remove * -f)",
+      "Read(~/.ssh/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/op/**)",
+      "Read(~/.gitconfig_local)",
+      "Read(~/.netrc)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.kube/**)",
+      "Read(~/.pulumi/credentials.json)",
+      "Read(~/Library/Keychains/**)",
+      "Read(~/.config/claude-agents/*/github-app.pem)",
+      "Edit(~/.ssh/**)",
+      "Edit(~/.config/gh/**)",
+      "Edit(~/.aws/**)",
+      "Edit(~/.config/op/**)",
+      "Edit(~/.gitconfig_local)",
+      "Edit(~/.netrc)",
+      "Edit(~/.docker/config.json)",
+      "Edit(~/.kube/**)",
+      "Edit(~/.pulumi/credentials.json)",
+      "Edit(~/Library/Keychains/**)",
+      "Edit(~/.config/claude-agents/*/github-app.pem)",
+      "Edit(~/.config/claude-agents/**)"
     ],
     "ask": [
       "Bash(find * -exec *)",
@@ -133,7 +174,9 @@
       "Bash(gh api * -F *)",
       "Bash(gh api * --field *)",
       "Bash(gh api * --raw-field *)",
-      "Bash(gh api * --input *)"
+      "Bash(gh api * --input *)",
+      "Bash(direnv exec . ansible-playbook -i ansible/inventory/prod *)",
+      "Bash(ansible-playbook -i ansible/inventory/prod *)"
     ],
     "additionalDirectories": [
       "~/.cargo/registry/src/"
@@ -241,7 +284,8 @@
     "superpowers@claude-plugins-official": false,
     "tmux@ea-codes": false,
     "typescript-lsp@claude-plugins-official": true,
-    "ea@ea-private": true
+    "eric-board@boss-board": true,
+    "claude-flow@claude-flow": true
   },
   "extraKnownMarketplaces": {
     "agents": {
@@ -261,33 +305,102 @@
     "ea-claude": {
       "source": {
         "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-plugins"
+        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-plugins" | toJson }}
       },
       "autoUpdate": true
     },
     "ea-codes": {
       "source": {
         "source": "directory",
-        "path": "/Users/eanderson/src/github.com/ericanderson/claude-ea-codes"
+        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" | toJson }}
       },
       "autoUpdate": true
     },
-    "ea-private": {
+    "boss-board": {
       "source": {
-        "source": "git",
-        "url": "https://github.com/ericanderson/private-claude-plugins.git"
+        "source": "github",
+        "repo": "ericanderson/boss-board"
+      },
+      "autoUpdate": true
+    },
+    "claude-flow": {
+      "source": {
+        "source": "directory",
+        "path": {{ joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" | toJson }}
       }
     }
   },
   "sandbox": {
+    "enabled": true,
     "network": {
       "allowedDomains": [
-        "git.anderson.haus"
+        "git.anderson.haus",
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com",
+        "raw.githubusercontent.com"
+      ],
+      "allowMachLookup": [
+        "com.apple.trustd.agent"
       ]
     },
     "filesystem": {
       "allowWrite": [
-        "~/Library/Application Support/Cyborus.forgejo-cli"
+        "~/Library/Application Support/Cyborus.forgejo-cli",
+        "~/.cache/claude-agents/coder"
+      ],
+      "denyWrite": [
+        "~/.config/claude-agents"
+      ],
+      "denyRead": [
+        "~/.ssh",
+        "~/.gitconfig",
+        "~/.gitconfig_local",
+        "~/.config/gh",
+        "~/.aws",
+        "~/.config/op",
+        "~/.pulumi",
+        "~/.docker/config.json",
+        "~/.kube",
+        "~/.netrc",
+        "~/Library/Keychains"
+      ]
+    },
+    "credentials": {
+      "envVars": [
+        {
+          "name": "SSH_AUTH_SOCK",
+          "mode": "deny"
+        },
+        {
+          "name": "GH_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "OP_SERVICE_ACCOUNT_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_SESSION_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "PULUMI_ACCESS_TOKEN",
+          "mode": "deny"
+        }
       ]
     },
     "enableWeakerNetworkIsolation": true
@@ -301,7 +414,7 @@
       "effortLevel": "high"
     }
   },
-  "tui": "default",
+  "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold"
@@ -314,12 +427,23 @@
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
-    "environment": [
-      "$defaults"
+    "allow": [
+      "$defaults",
+      "Force-With-Lease Feature Branch Push: `git push --force-with-lease` (also via `git -C <path> push --force-with-lease ...`) of the session's own feature branch, e.g. after rebasing it onto origin/main. Eric approved this on 2026-11-03 for worker agents. Not this rule: a push targeting main, master, develop, production or release/*, a plain `--force`/`-f` push, a `+refspec` push, or a branch deletion."
+{{- range $private.autoModeAllow }},
+      {{ . | toJson }}
+{{- end }}
     ],
     "soft_deny": [
       "$defaults",
       "Protected Branch Merge [named+specifics — **must name:** the merge and the protected branch it lands on]: Running `git merge`, `git pull`, or `git rebase` that lands commits on `main`, `master`, `develop`, `production`, or `release/*` — i.e. the checkout's current branch is one of those. Work out the current branch from the commands visible in the transcript (`git switch`/`git checkout`, `git worktree add -b`, `cd` into a worktree) and the session's starting git status; if it is unknown, treat it as protected. Not this rule: merging or rebasing `origin/main` (or `origin/master`) INTO a feature branch to bring it up to date, and a fast-forward-only update of a protected branch to its own upstream (`git merge --ff-only origin/main` or `git pull --ff-only` while on that branch) — both are routine."
+    ],
+    "environment": [
+      "$defaults",
+      "**Organization**: Eric Anderson's personal homelab and projects. GitHub owner `ericanderson`; Eric's bot accounts (`0xea-coder[bot]`, `ericanderson-bot`) act for him."
+{{- range $private.autoModeEnvironment }},
+      {{ . | toJson }}
+{{- end }}
     ]
   },
   "voiceEnabled": true
