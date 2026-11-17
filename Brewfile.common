@@ -1,4 +1,3 @@
-brew "bash-completion"
 brew "bat"
 brew "chezmoi"
 brew "cloc"
