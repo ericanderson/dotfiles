@@ -19,7 +19,9 @@ left to the prompt. So it stays silent when:
 - a field other than `query` reads a file (`-F name=@path`), which would send
   that file's contents to GitHub;
 - a field name is not a plain identifier (`a[b]=`, `query[]=`);
-- -X/--method is given, or a short flag has its value attached (`-Fx=@f`);
+- any flag outside a fixed list of `gh api` flags appears (so -X/--method,
+  short-flag clusters such as `-iF`, attached values such as `-Fx=@f`, `--`),
+  or a bare argument follows `graphql`;
 - `graphql` is not the first argument after `gh api`.
 """
 import json
@@ -28,6 +30,12 @@ import re
 import sys
 
 FIELD_FLAGS = {"-f", "--raw-field", "-F", "--field"}
+# Every other `gh api` flag the hook accepts, spelled exactly. Anything else
+# starting with "-" (short-flag clusters such as -iF, --, unknown flags) and
+# any bare argument after `graphql` leaves the call to the prompt.
+VALUE_FLAGS = {"-H", "--header", "--hostname", "-q", "--jq", "-t", "--template",
+               "--cache", "-p", "--preview"}
+BOOL_FLAGS = {"-i", "--include", "--paginate", "--silent", "--slurp", "--verbose"}
 # Characters allowed outside quotes. Excludes everything the shell treats
 # specially: operators, $, `, \, globs, braces, ~, quotes, #, !, and = at the
 # start of a word (zsh expands =cmd).
@@ -120,12 +128,15 @@ def main():
     i = 3
     while i < len(tokens):
         tok = tokens[i]
-        if len(tok) > 2 and tok[:2] in ("-f", "-F", "-X"):
-            silent()
         flag, _, inline = tok.partition("=") if tok.startswith("--") else (tok, "", "")
-        if flag in ("-X", "--method"):
-            silent()
-        if flag in FIELD_FLAGS or flag == "--input":
+        if flag in BOOL_FLAGS and not inline:
+            pass
+        elif flag in VALUE_FLAGS:
+            if not inline:
+                i += 1
+                if i >= len(tokens):
+                    silent()
+        elif flag in FIELD_FLAGS or flag == "--input":
             if inline:
                 value = inline
             elif i + 1 < len(tokens):
@@ -154,6 +165,8 @@ def main():
                     queries.append(q)
                 elif reads_file:
                     silent()
+        else:
+            silent()
         i += 1
 
     if queries and not any(WRITE_OPS.search(q) for q in queries):
