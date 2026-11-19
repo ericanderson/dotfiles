@@ -8,7 +8,7 @@ This is a personal dotfiles repository managed by [chezmoi](https://chezmoi.io/)
 
 ## Key Commands
 
-For detailed chezmoi command usage, use `/agent chezmoi-specialist`. Common commands:
+For detailed chezmoi command usage, ask for the `chezmoi-specialist` agent (or `@agent-chezmoi-specialist`). Common commands:
 - `chezmoi diff` - Preview changes before applying
 - `chezmoi apply` - Apply configurations to system
 - `chezmoi add [--template] <file>` - Add files to management
@@ -38,7 +38,7 @@ Safe conflict resolution:
 
 ### Chezmoi Conventions
 
-For comprehensive chezmoi naming conventions and patterns, use `/agent chezmoi-specialist`.
+For comprehensive chezmoi naming conventions and patterns, ask for the `chezmoi-specialist` agent (or `@agent-chezmoi-specialist`).
 Key prefixes: `dot_` (dotfiles), `private_` (600 permissions), `run_once_` (one-time scripts), `.tmpl` (templates)
 
 ### Key Configuration Areas
@@ -121,12 +121,17 @@ A `run_once_` source script (e.g. `run_once_install-packages-darwin.sh.tmpl`) ap
 1. Edit files in the chezmoi source directory (this repository)
 2. Run `chezmoi diff` to preview changes
 3. Run `chezmoi apply` to apply changes
-4. Commit with descriptive messages (see `/agent changes-documenter`)
+4. On `master`, branch to `claude/<topic>`, add a `CHANGES/YYYY-MM-DD.md` entry, and open a PR to `master`
 
+## Gotchas
+
+- `claude plugin install/uninstall` rewrites `~/.claude/settings.json`. Mirror the change in `enabledPlugins` in `dot_claude/private_settings.json.tmpl`, or the next `chezmoi apply` reverts it.
+- When something other than chezmoi has rewritten a deployed file, `chezmoi apply` needs a TTY to confirm ("could not open a new TTY"). Claude can't answer it, so ask Eric to run the apply.
+- Tests live in `.tests/`. chezmoi never deploys dot-prefixed source entries. Run: `python3 -I .tests/<name>_test.py`.
 
 ## Change Tracking
 
-Changes are documented in the `CHANGES/` directory. For creating properly formatted change entries, use `/agent changes-documenter`.
+Changes are documented in the `CHANGES/` directory. For creating properly formatted change entries, ask for the `changes-documenter` agent (or `@agent-changes-documenter`).
 
 - `CHANGES/YYYY-MM-DD.md`: Daily change logs
 - `CHANGES/TODO.md`: Pending tasks
@@ -134,11 +139,21 @@ Changes are documented in the `CHANGES/` directory. For creating properly format
 ## Claude Code Workflow Guidelines
 
 - When recording changes, look for files in the CHANGES/ directory and follow the pattern you see there
-- The `.chezmoiignore` file has formatting rules documented at the top of the file itself
+- The `.chezmoiignore.tmpl` file has formatting rules documented at the top of the file itself
+
+## Project Skills
+
+Skills in `.claude/skills/`:
+
+- `chezmoi-status`: read-only overview of pending changes, repo state and backups. Start here.
+- `integrate-changes`: decide, file by file, whether to apply or fold back into the source. Use before any `chezmoi apply`.
+- `chezmoi-backup`: save the deployed copy of every file an apply would change.
+- `chezmoi-undo`: restore deployed files from a backup.
+- `chezmoi-unmanaged`: sort home-directory entries chezmoi neither manages nor ignores.
 
 ## Available Sub-Agents
 
-This repository includes specialized Claude Code sub-agents for common tasks. Use `/agent <name>` to invoke them:
+This repository includes specialized Claude Code sub-agents in `.claude/agents/`. To invoke one, ask for it by name or mention it as `@agent-<name>`:
 
 ### chezmoi-specialist
 Expert in chezmoi operations, conventions, and template management. Use for:
@@ -151,7 +166,7 @@ Expert in chezmoi operations, conventions, and template management. Use for:
 Specialist for migrating existing dotfiles to chezmoi management. Use for:
 - Adding new configuration files to chezmoi
 - Converting files to templates
-- Updating .chezmoiignore appropriately
+- Updating `.chezmoiignore.tmpl` appropriately
 - Testing migrations across environments
 
 ### shell-config-specialist
@@ -177,5 +192,5 @@ Dedicated agent for maintaining CHANGES/ documentation. Use for:
 
 ## Ignored Files
 
-See `.chezmoiignore` for the complete list of ignored file patterns, organized by category with descriptive headers.
-- If you expect something in chezmoi diff and its not there, always check the .chezmoiignore file
+See `.chezmoiignore.tmpl` for the complete list of ignored file patterns, organized by category with descriptive headers.
+- If you expect something in chezmoi diff and its not there, always check the `.chezmoiignore.tmpl` file
