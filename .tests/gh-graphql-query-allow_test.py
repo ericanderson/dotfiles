@@ -20,6 +20,14 @@ open(os.path.join(d, "trick.graphql"), "w").write('# "\nmutation { addStar(input
 open(os.path.join(d, "in.json"), "w").write(json.dumps({"query": "{ viewer { login } }"}))
 open(os.path.join(d, "in-m.json"), "w").write(json.dumps({"query": "mutation { x }"}))
 
+# Redirect targets: the hook accepts only paths inside /tmp/claude-<uid>/.
+UID_ROOT = "/tmp/claude-%d" % os.getuid()
+os.makedirs(UID_ROOT, mode=0o700, exist_ok=True)
+s = tempfile.mkdtemp(dir=os.path.realpath(UID_ROOT))
+atexit.register(shutil.rmtree, s, ignore_errors=True)
+os.symlink(d, os.path.join(s, "link"))  # points outside the scratch root
+Q = "gh api graphql -F query=@q.graphql --paginate --slurp "
+
 cases = [
     # (expect_allow, command)
     (True,  "gh api graphql -F query=@q.graphql"),
@@ -70,11 +78,35 @@ cases = [
     (False, "gh api repos/o/r/issues -f title=x"),
     (False, "gh api graphql"),
     (False, "echo gh api graphql -f query='{ a }'"),
+    # One trailing redirect into the scratch root is allowed.
+    (True,  Q + "> SDIR/all.json"),
+    (True,  Q + ">> SDIR/all.json"),
+    (True,  Q + ">SDIR/all.json"),
+    (True,  Q + "> 'SDIR/all.json'"),
+    (True,  Q + "> " + UID_ROOT + "/SBASE/all.json"),
+    (False, Q + "> all.json"),
+    (False, Q + "> QDIR/all.json"),
+    (False, Q + "> SDIR/link/all.json"),
+    (False, Q + "> SDIR/../../../etc/zshrc"),
+    (False, Q + "> " + UID_ROOT),
+    (False, Q + ">"),
+    (False, Q + "2> SDIR/err"),
+    (False, Q + "x> SDIR/err"),
+    (False, Q + ">| SDIR/all.json"),
+    (False, Q + ">& SDIR/all.json"),
+    (False, Q + ">>> SDIR/all.json"),
+    (False, Q + "> SDIR/a > SDIR/b"),
+    (False, Q + "> SDIR/a extra"),
+    (False, Q + "> SDIR/a -f x=1"),
+    (False, Q + "> SDIR/a ; echo hi"),
+    (False, Q + "> SDIR/$X"),
+    (False, "gh api graphql -F query=@m.graphql > SDIR/all.json"),
+    (False, "> SDIR/all.json gh api graphql -F query=@q.graphql"),
 ]
 
 fails = 0
 for expect, cmd in cases:
-    cmd = cmd.replace("QDIR", d)
+    cmd = cmd.replace("QDIR", d).replace("SDIR", s).replace("SBASE", os.path.basename(s))
     ev ={"hook_event_name": "PermissionRequest", "tool_name": "Bash", "cwd": d,
           "tool_input": {"command": cmd}}
     r = subprocess.run([sys.executable, "-I", HOOK], input=json.dumps(ev), capture_output=True, text=True)
