@@ -13,6 +13,9 @@ left to the prompt. So it stays silent when:
 - the command uses any shell syntax beyond plain words, 'single quotes' and
   "double quotes" without $, backtick or backslash inside (no operators, expansions, globs,
   ~, escapes or newlines);
+- the one exception, a single `> file` or `>> file` at the very end, names a
+  file that is not an absolute path inside /tmp/claude-<uid>/ (where Claude
+  Code keeps session scratchpads) once symlinks are followed;
 - the query cannot be found or read, or comes from stdin;
 - `mutation` or `subscription` appears anywhere in the query text, even in a
   comment or string (a false alarm only costs a prompt);
@@ -59,12 +62,24 @@ def approve():
 
 
 def split_words(command):
-    """Split a command into words the way bash and zsh would, or return None
-    if it uses any syntax this function does not model."""
+    """Split a command into words the way bash and zsh would.
+
+    Returns (words, redirect_target), where redirect_target is the file named
+    by one trailing `> file` or `>> file`, or None if there is none. Returns
+    None if the command uses any syntax this function does not model."""
     words, cur, in_word, i, n = [], [], False, 0, len(command)
+    redirect_at = None
     while i < n:
         c = command[i]
-        if c in " \t":
+        if c == ">":
+            # Only a standalone `>` or `>>` (so not `2>`, `x>`, `>|`, `>&`,
+            # `>(`), and only once. The characters after it go through the
+            # normal rules, which reject |, & and (.
+            if in_word or redirect_at is not None:
+                return None
+            redirect_at = len(words)
+            i += 2 if command.startswith(">>", i) else 1
+        elif c in " \t":
             if in_word:
                 words.append("".join(cur))
                 cur, in_word = [], False
@@ -93,7 +108,27 @@ def split_words(command):
             return None
     if in_word:
         words.append("".join(cur))
-    return words
+    if redirect_at is None:
+        return words, None
+    # The redirect must name exactly one file and end the command.
+    if len(words) != redirect_at + 1:
+        return None
+    return words[:-1], words[-1]
+
+
+def scratch_target(path):
+    """True if path is an absolute file path whose real location (symlinks
+    followed) is inside /tmp/claude-<uid>/, the parent of Claude Code's
+    session scratchpads, and that directory belongs to this user."""
+    if not os.path.isabs(path):
+        return False
+    root = os.path.realpath("/tmp/claude-%d" % os.getuid())
+    try:
+        if os.stat(root).st_uid != os.getuid():
+            return False
+    except OSError:
+        return False
+    return os.path.realpath(path).startswith(root + os.sep)
 
 
 def read_file(path, cwd):
@@ -118,10 +153,15 @@ def main():
     command = (event.get("tool_input") or {}).get("command", "")
     cwd = event.get("cwd") or os.getcwd()
 
-    tokens = split_words(command)
+    split = split_words(command)
+    if split is None:
+        silent()
+    tokens, target = split
+    if target is not None and not scratch_target(target):
+        silent()
     # The endpoint must come first, so a later "graphql" token (a --jq value,
     # say) cannot make a REST call look like a query.
-    if not tokens or tokens[:3] != ["gh", "api", "graphql"]:
+    if tokens[:3] != ["gh", "api", "graphql"]:
         silent()
 
     queries = []
