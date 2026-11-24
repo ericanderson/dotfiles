@@ -56,7 +56,7 @@ This skill is read-only. Run nothing that changes the source, the home directory
 
 The line counts show size, not risk. A removed line may be a local edit about to be lost or a line deliberately deleted from the source; the columns say which.
 
-**Source repo.** The first line shows the branch and whether it is ahead of or behind its remote. If the branch is not `master`, say so: `chezmoi apply` deploys whatever branch is checked out.
+**Source repo.** The first line shows the branch and whether it is ahead of or behind its remote. If the branch is not `main`, say so: `chezmoi apply` deploys whatever branch is checked out.
 
 **Age identity.** The line above shows the key file's path when it exists and "No such file or directory" when it does not. Without it, the settings template renders without the encrypted private auto-mode lines. On such a machine a pending removal of those lines from `~/.claude/settings.json` is expected and must not be "fixed" by capturing it into the source.
 
