@@ -6,10 +6,11 @@
 {{- $eaCodesDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" -}}
 {{- $claudeFlowDir := joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" -}}
 {{- /* This repo is public. The auto-mode entries that describe the homelab (domains,
-       tailnet, hosts) are age-encrypted in .private/claude.json.age. Decrypt them only
+       tailnet, hosts) and the sandbox's homelab network domains are age-encrypted in
+       .private/claude.json.age. Decrypt them only
        on a machine that has the age identity; everywhere else render without them.
        Edit them with: chezmoi edit-encrypted .private/claude.json.age */ -}}
-{{- $private := dict "autoModeAllow" (list) "autoModeEnvironment" (list) -}}
+{{- $private := dict "autoModeAllow" (list) "autoModeEnvironment" (list) "sandboxAllowedDomains" (list) -}}
 {{- $identity := .chezmoi.config.age.identity -}}
 {{- if and $identity (stat $identity) -}}
 {{-   $private = joinPath .chezmoi.sourceDir ".private/claude.json.age" | include | decrypt | fromJson -}}
@@ -303,13 +304,6 @@
     "claude-flow@claude-flow": true{{ end }}
   },
   "extraKnownMarketplaces": {
-    "agents": {
-      "source": {
-        "source": "github",
-        "repo": "wshobson/agents"
-      },
-      "autoUpdate": true
-    },
     "claude-hud": {
       "source": {
         "source": "github",
@@ -359,7 +353,9 @@
     "enabled": true,
     "network": {
       "allowedDomains": [
-        "git.anderson.haus",
+{{- range $private.sandboxAllowedDomains }}
+        {{ . | toJson }},
+{{- end }}
         "github.com",
         "api.github.com",
         "codeload.github.com",
