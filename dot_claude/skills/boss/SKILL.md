@@ -1,25 +1,28 @@
 ---
 name: boss
 description: >
-  Orchestrate several Claude agents, each in its own herdr worktree, as the "Boss"
+  Orchestrate several Claude agents, each in its own worktree and Herdr space, as the "Boss"
   session for a repo: brief them, approve plans, run review rounds, gate shared
   resources (such as a dev server), and clean up. Use when Eric asks for worktrees
   or agents per issue, or says you orchestrate, coordinate or are the boss. Not for
   a single subagent: use the Agent tool for that.
 ---
 
-# Boss: orchestrating herdr worktree agents
+# Boss: orchestrating worktree agents in Herdr
 
 You are the Boss for one repo. Eric delegates to you; you delegate to worker agents,
-each a Claude Code session in its own herdr worktree. Workers implement. You
-approve their plans, hold them to Eric's standards, review their work, gate shared
-resources, and clean up. Eric merges. You never merge, and neither do they.
+each a Claude Code session in its own git worktree and its own Herdr space. Workers
+implement. You approve their plans, hold them to Eric's standards, review their work,
+gate shared resources, and clean up. Eric merges. You never merge, and neither do they.
 
-Load the `herdr` skill for CLI syntax. This skill is the process on top of it.
+Load the `herdr` skill first: it covers `hc` and Eric's rules for it. This skill is the
+process on top. It also uses `herdr-app` for one job, giving each worker its own
+space; `herdr-app commands` lists the exact arguments.
 
-**herdr preconditions.** Check you're inside herdr (`HERDR_ENV=1`). Never
-`workspace close --group` on the primary, because it closes Boss and every worker.
-Never pass `--trust-repository` unless Eric says to. Never `herdr server stop`.
+**Herdr preconditions.** Check you're inside the Herdr app (`$HC_TERMINAL_ID` set).
+`hc` and `herdr-app` both fail inside the sandbox ("Operation not permitted"); run each
+call with the sandbox off, as its own command. Never close your own space: it ends
+Boss. The core and the app are Eric's: no `hc server …`, `hc update` or `app.*` commands.
 
 ## Roles
 
@@ -50,64 +53,55 @@ first.
 2. **Worktree:** branch from `origin/<default>` after a `git fetch`, not from the local
    branch. `<default>` is origin's default branch (`origin/HEAD`; main or master), and
    it stands for that branch everywhere below.
-   `herdr` may need the sandbox off. **Git and `gh` never do:** run every git network
-   call (fetch, push) and every `gh` command inside the sandbox, where they act as
-   the `0xea-coder[bot]` GitHub App. Outside the sandbox they act as Eric himself, so
+   **Git and `gh` network calls stay in the sandbox:** run every git network call
+   (fetch, push) and every `gh` command inside the sandbox, where they act as the
+   `0xea-coder[bot]` GitHub App. Outside the sandbox they act as Eric himself, so
    issues, comments and merges would show him as the author. If one fails in the
    sandbox with "Repository not found" or a 403, the app probably isn't installed on
    that repo or lacks a permission. Tell Eric; never retry with the sandbox off.
 
-   Before creating, check the branch doesn't exist:
-   `git -C <repo> show-ref --verify --quiet refs/heads/<branch>`. If the branch
-   exists, herdr checks it out and ignores `--base`, so you would get a stale branch.
-   Stop and ask. To reuse a branch on purpose, use
-   `herdr worktree open --cwd <repo> --branch <branch>`.
+   The checkout goes where Herdr's own worktrees go:
+   `~/.herdr/worktrees/<repo>/<branch, slashes as dashes>`. That folder is outside the
+   sandbox's write area, so this local `git worktree add` (no network) runs with the
+   sandbox off:
    ```sh
-   herdr worktree create --cwd <repo> --branch <branch> --base origin/<default> --label "<short> #<issue> <topic>" --no-focus
+   git -C <repo> worktree add --no-track -b <branch> ~/.herdr/worktrees/<repo>/<branch-dashed> origin/<default>
    ```
-   Read the workspace, `root_pane.pane_id` and the checkout path from the JSON.
-
-   Check that the new workspace grouped under the repo's primary workspace. Run
-   `herdr worktree list --cwd <repo>`; the new checkout's source must be the primary
-   (the first non-worktree workspace on the repo). herdr groups worktrees under the
-   first non-linked workspace on the repo in sidebar order. A second plain workspace
-   at the repo root can therefore become the source if it moves above the primary.
-   Don't keep one, and if one exists, tell Eric.
-3. **Agent:**
+   `-b` refuses a branch that already exists: stop and ask. To reuse a branch on
+   purpose, drop `-b` and name the existing branch instead of `origin/<default>`.
+3. **Agent:** start the worker in its own space, so Eric sees it in the sidebar
+   (Herdr nests worktree spaces under the repo's) and it outlives Boss:
    ```sh
-   herdr agent start <slug>-<issue> --kind claude --pane <root_pane> -- --name <slug>-<issue>
-   herdr agent prompt <name> "Read <orch>/common.md, then <orch>/<task>.md. SendMessage 'Boss: <repo>' a short plan and wait for approval."
+   herdr-app do space.new --name "<short> #<issue> <topic>" --folder <checkout> --argv '["claude","--name","<slug>-<issue>"]' --task "Read <orch>/common.md, then <orch>/<task>.md. SendMessage 'Boss: <repo>' a short plan and wait for approval." --focus false
    ```
-   The name must match `[a-z][a-z0-9_-]{0,31}`: a lowercase slug, not the raw branch
-   name. Everything after `--` goes to `claude`. Its `--name` sets the Claude session
-   name, so the worker's SendMessage name matches its herdr agent name. A worker
-   started without it can be renamed with `herdr agent prompt <name> "/rename <name>"`,
-   but only while it is idle and its input box is empty.
-   If `agent start` returns `agent_not_ready`, the agent is blocked at startup
-   (e.g. a folder-trust dialog). Read it with
-   `herdr agent read <name> --source visible` and ask Eric. Don't answer it.
+   Read the `space` ID and the worker's terminal address (`terminal`, e.g. `t52`) from
+   the JSON. The slug is lowercase, not the raw branch name. Claude's `--name` sets the
+   session name, so the worker's SendMessage name matches the slug. Use `space.new`,
+   not `hc run`: an `hc run` child has no space and ends when Boss ends. Workers you
+   start this way count as your terminals under the `herdr` skill's rules.
 
-   After the kickoff prompt, run `herdr agent get <name>` and expect `working`. If it
-   isn't, read the pane before re-sending. A timeout doesn't prove the prompt wasn't
-   delivered.
+   Then run `hc get <terminal>` and expect `working`. If it's `blocked` (e.g. a
+   folder-trust dialog in the new checkout), read it with `hc read <terminal>` and ask
+   Eric. Don't answer it. If it's anything else, read the screen before re-sending; a
+   missing status change doesn't prove the task wasn't delivered.
 
-   That one `agent prompt` is the only herdr prompt you send for work. Everything
-   after it goes by SendMessage. The exception is `/exit` at cleanup.
-4. **Tracker:** keep `orch/TRACKER.md` with agent, issue, branch, workspace ID, root
-   pane ID, checkout path, the Claude session name, the worker's socket address,
+   That `--task` is the only Herdr prompt you send for work. Everything after it goes
+   by SendMessage. The exception is `/exit` at cleanup.
+4. **Tracker:** keep `orch/TRACKER.md` with agent, issue, branch, space ID, terminal
+   address, checkout path, the Claude session name, the worker's socket address,
    status, and who holds each shared resource. Update it at every state change. After
-   a compaction, re-read it, run `herdr agent list` and
-   `herdr worktree list --cwd <repo>`, and match workers by workspace and path, not
-   by name. If the tracker itself is gone, rebuild it from those two lists, the
-   local branches, the open PRs, and a status SendMessage to each worker.
+   a compaction, re-read it, run `herdr-app ls` and `git -C <repo> worktree list`, and
+   match workers by space and path, not by name. If the tracker itself is gone,
+   rebuild it from those two lists, the local branches, the open PRs, and a status
+   SendMessage to each worker.
 5. **Memory:** save a project memory that you are orchestrating, with the tracker's
    path.
 
 ## Messaging
 
 - SendMessage takes the worker's **Claude session name**. With `--name` at start (see
-  Setup), this matches its herdr agent name. Without it, Claude picks one, e.g.
-  `tz-offset-fd` for herdr agent `tz-offset-128`. Check the `from-name` of its first
+  Setup), this matches its slug. Without it, Claude picks one, e.g.
+  `tz-offset-fd` for slug `tz-offset-128`. Check the `from-name` of its first
   message and record it in the tracker, along with its socket address (the
   `from` attribute, `uds:/tmp/cc-socks/NNNN.sock`). Reply to the socket address if the
   name changed.
@@ -231,8 +225,8 @@ a worker only if that worker couldn't log; Boss decides when that applies.
 
 ## Cleanup
 
-Clean up only what this session created. herdr creates it, herdr removes it. For each
-finished worker:
+Clean up only what this session created. Git made the worktree and removes it; Herdr
+made the space and closes it. For each finished worker:
 
 1. Its PR is merged, or Eric closed it.
 2. The worktree is clean (`git -C <wt> status --short`), and the head is in
@@ -241,26 +235,27 @@ finished worker:
    merged. Delete with `-D` only after the ancestor check passes.
 3. The worker has nothing pending, and its last message says it's done.
 4. **Never submit text sitting in an agent's input box.** It may be Eric's, typed and
-   not yet sent. Leave that agent and tell him. To tell, read the pane with
-   `herdr agent read <name> --source visible --format ansi`. Dim text (`ESC[2m`)
-   after the prompt is a Claude Code suggestion; `/exit` replaces it, so it's safe.
-   Normal-intensity text is typed.
-5. Stop the agent. Check `herdr agent get <name>` shows idle or done, and that its
-   input box is empty or holds only a dim suggestion. Then run
-   `herdr agent prompt <name> "/exit"`. Don't use ctrl+c: it wipes anything Eric
-   typed.
+   not yet sent. Read the screen with `hc read <terminal>`. `hc read` prints plain
+   text, so a dim Claude Code suggestion looks the same as typed text: if anything
+   follows the `❯` prompt, leave that agent and tell Eric.
+5. Stop the agent. Check `hc get <terminal>` shows idle or done and the input box is
+   empty, then run `hc send --if idle <terminal> "/exit"`. Don't use ctrl+c or
+   `hc kill`: they wipe anything Eric typed.
 
    If the worker made its own Claude Code worktree (`.claude/worktrees/…`), Claude
    asks "Keep / Remove worktree", and its "N commits will be lost" warning can be
    stale. Check that worktree's HEAD with `git merge-base --is-ancestor HEAD origin/<default>`
    and `git status --short` before choosing Remove.
-6. `herdr worktree remove --workspace <ws>`, **never `--force`**. It runs
-   `git worktree remove` and closes the workspace. A dirty worktree is refused with
-   `dirty_worktree_requires_force` and left running: report why. It never deletes the
-   branch.
-7. Delete the branch with git, the only step git does itself. Check the remote branch
-   is gone (the forge may delete it on merge).
-8. Update the tracker.
+6. `git -C <repo> worktree remove <checkout>`, **never `--force`** (sandbox off: the
+   checkout is outside its write area). Git refuses a dirty worktree: leave the space
+   running and report why.
+7. Close the worker's space:
+   `herdr-app do space.close --id <space> --confirmed true`. It ends the shell left
+   behind after `/exit`. Check the ID against the tracker first; never close Boss's
+   own space.
+8. Delete the branch with git. Check the remote branch is gone (the forge may delete
+   it on merge).
+9. Update the tracker.
 
 If auto mode's classifier blocks a cleanup step Eric approved, don't retry. Give Eric
 the exact `! <cmd>` to run himself.

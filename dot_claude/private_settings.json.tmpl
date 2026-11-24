@@ -27,10 +27,6 @@
   },
   "permissions": {
     "allow": [
-      "Bash(flow-merge *)",
-      "Bash(flow-review *)",
-      "Bash(flow-check *)",
-      "Bash(flow-token *)",
       "Bash(cf-merge *)",
       "Bash(cf-review *)",
       "Bash(cf-check *)",
@@ -113,7 +109,8 @@
       "Bash(mkdir *)",
       "Bash(find *)",
       "Bash(git push *)",
-      "Bash(gh api *)"
+      "Bash(gh api *)",
+      "Bash(gh issue edit *)"
     ],
     "deny": [
       "Bash(git worktree remove --force*)",
@@ -144,7 +141,8 @@
       "Edit(~/.pulumi/credentials.json)",
       "Edit(~/Library/Keychains/**)",
       "Edit(~/.config/claude-agents/*/github-app.pem)",
-      "Edit(~/.config/claude-agents/**)"
+      "Edit(~/.config/claude-agents/**)",
+      "Edit(~/Library/LaunchAgents/com.ericanderson.claude-flow-dispatch.plist)"
     ],
     "ask": [
       "Bash(find * -exec *)",
@@ -186,7 +184,20 @@
       "Bash(gh api * --raw-field *)",
       "Bash(gh api * --input *)",
       "Bash(direnv exec . ansible-playbook -i ansible/inventory/prod *)",
-      "Bash(ansible-playbook -i ansible/inventory/prod *)"
+      "Bash(ansible-playbook -i ansible/inventory/prod *)",
+      "Bash(gh issue edit * --body*)",
+      "Bash(gh issue edit --body*)",
+      "Bash(gh issue edit * -b*)",
+      "Bash(gh issue edit -b*)",
+      "Bash(gh issue edit * -F*)",
+      "Bash(gh issue edit -F*)",
+      "Bash(gh issue edit * --attach*)",
+      "Bash(gh issue edit --attach*)",
+      "Bash(gh issue edit * --add-assignee*)",
+      "Bash(gh issue edit --add-assignee*)",
+      "Bash(gh issue edit * --remove-assignee*)",
+      "Bash(gh issue edit --remove-assignee*)",
+      "Bash(gh issue edit *label*stuck*)"
     ],
     "additionalDirectories": [
       "~/.cargo/registry/src/"
@@ -294,7 +305,6 @@
     "hookify@claude-plugins-official": true,
     "mattpocock-skills@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
-    "remember@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
@@ -360,7 +370,9 @@
         "api.github.com",
         "codeload.github.com",
         "objects.githubusercontent.com",
-        "raw.githubusercontent.com"
+        "raw.githubusercontent.com",
+        "index.crates.io",
+        "static.crates.io"
       ],
       "allowMachLookup": [
         "com.apple.trustd.agent"
@@ -369,7 +381,9 @@
     "filesystem": {
       "allowWrite": [
         "~/Library/Application Support/Cyborus.forgejo-cli",
-        "~/.cache/claude-agents/coder"
+        "~/.cache/claude-agents/coder",
+        "~/.cargo/registry/cache",
+        "~/.cargo/registry/index"
       ],
       "denyWrite": [
         "~/.config/claude-agents"
@@ -464,7 +478,10 @@
       "**Organization**: Eric Anderson's personal homelab and projects. GitHub owner `ericanderson`; Eric's bot accounts (`0xea-coder[bot]`, `ericanderson-bot`) act for him."
 {{- range $private.autoModeEnvironment }},
       {{ . | toJson }}
-{{- end }}
+{{- end }},
+      "GitHub identity: Claude sessions act on GitHub as role-scoped GitHub Apps (0xEA-Coder, 0xEA-Tech-Lead), never as Eric, and each App can do only what its permissions allow.",
+      "GitHub repos: rulesets lock down the repos under github.com/ericanderson.",
+      "Merges: a pull request merges only after the tech lead (0xEA-Tech-Lead) approves it and its tech-lead check passes."
     ]
   },
   "voiceEnabled": true

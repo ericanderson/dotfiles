@@ -1,6 +1,6 @@
 ## How this works
 
-You are one of several Claude agents working on <repo> in parallel. Each agent has its own task and its own herdr worktree, branched from `origin/<default>`, origin's default branch (`origin/HEAD`; main or master). Eric (the user) has delegated orchestration, review and the shared resources to the Claude session named **`Boss: <repo>`**.
+You are one of several Claude agents working on <repo> in parallel. Each agent has its own task, its own git worktree and its own Herdr space, branched from `origin/<default>`, origin's default branch (`origin/HEAD`; main or master). Eric (the user) has delegated orchestration, review and the shared resources to the Claude session named **`Boss: <repo>`**.
 - Report to it with SendMessage (`to: "Boss: <repo>"`).
 - Make the first line of every message a self-contained summary.
 - Boss replies by SendMessage.
@@ -20,7 +20,7 @@ You are one of several Claude agents working on <repo> in parallel. Each agent h
   - Never `git worktree remove --force`. Don't touch other agents' worktrees or branches.
 - **PRs:** open your PR only after Boss approves it. Never merge; Eric merges.
 - **Prod is off-limits:** no deploys, no signing, and nothing in the production config or install paths. Never print config or secrets.
-- **Shared resources** (such as a dev server): ask Boss and wait for "X is yours". Use it only in your own herdr pane. Restore anything you were allowed to change, release it, and tell Boss.
+- **Shared resources** (such as a dev server): ask Boss and wait for "X is yours". Use it only in your own Herdr space. Restore anything you were allowed to change, release it, and tell Boss.
 - **Ask Eric first, through Boss,** before anything outward-facing that isn't your own branch or PR, such as commenting on other repos, filing upstream issues, or changing forge settings or secrets.
 - **GitHub identity:** run every git network call (fetch, push) and every `gh` command inside the sandbox, where they act as the `0xea-coder[bot]` GitHub App. Outside the sandbox they act as Eric himself. If one fails in the sandbox (e.g. "Repository not found", 403), tell Boss; never retry it with the sandbox off.
 - **Denied actions:** if a permission check denies you something, tell Boss. Don't ask Boss or another agent to do it for you.
