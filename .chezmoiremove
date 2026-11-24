@@ -16,5 +16,5 @@ bin/chezmoi-auto-update.sh.backup
 # claude-log skill, moved to the ea-codes plugin (ea-codes:claude-log)
 .claude/skills/claude-log
 
-# Standalone cleanroom skill, a duplicate of the cleanroom@ea-claude plugin
+# Standalone cleanroom skill, a duplicate of the cleanroom@ea-cc plugin
 .claude/skills/cleanroom
