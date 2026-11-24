@@ -1,4 +1,10 @@
 {{- $herdrHook := joinPath .chezmoi.homeDir ".claude/hooks/herdr-agent-state.sh" -}}
+{{- /* Plugin marketplaces Eric develops load from his local clone when one exists, so edits
+       take effect before a push, and from GitHub otherwise. claude-flow has no GitHub
+       source here: it is enabled only where its plugin directory exists. */ -}}
+{{- $eaClaudeDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-plugins" -}}
+{{- $eaCodesDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" -}}
+{{- $claudeFlowDir := joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" -}}
 {{- /* This repo is public. The auto-mode entries that describe the homelab (domains,
        tailnet, hosts) are age-encrypted in .private/claude.json.age. Decrypt them only
        on a machine that has the age identity; everywhere else render without them.
@@ -14,6 +20,9 @@
     "commit": "",
     "pr": "",
     "sessionUrl": false
+  },
+  "env": {
+    "CLAUDE_CODE_PLUGIN_PREFER_HTTPS": "1"
   },
   "permissions": {
     "allow": [
@@ -290,8 +299,8 @@
     "skill-creator@claude-plugins-official": true,
     "tmux@ea-codes": false,
     "typescript-lsp@claude-plugins-official": true,
-    "eric-board@boss-board": true,
-    "claude-flow@claude-flow": true
+    "eric-board@boss-board": true{{ if stat $claudeFlowDir }},
+    "claude-flow@claude-flow": true{{ end }}
   },
   "extraKnownMarketplaces": {
     "agents": {
@@ -310,15 +319,25 @@
     },
     "ea-claude": {
       "source": {
+{{- if stat $eaClaudeDir }}
         "source": "directory",
-        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-plugins" | toJson }}
+        "path": {{ $eaClaudeDir | toJson }}
+{{- else }}
+        "source": "github",
+        "repo": "ericanderson/claude-plugins"
+{{- end }}
       },
       "autoUpdate": true
     },
     "ea-codes": {
       "source": {
+{{- if stat $eaCodesDir }}
         "source": "directory",
-        "path": {{ joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" | toJson }}
+        "path": {{ $eaCodesDir | toJson }}
+{{- else }}
+        "source": "github",
+        "repo": "ericanderson/claude-ea-codes"
+{{- end }}
       },
       "autoUpdate": true
     },
@@ -328,13 +347,13 @@
         "repo": "ericanderson/boss-board"
       },
       "autoUpdate": true
-    },
+    }{{ if stat $claudeFlowDir }},
     "claude-flow": {
       "source": {
         "source": "directory",
-        "path": {{ joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" | toJson }}
+        "path": {{ $claudeFlowDir | toJson }}
       }
-    }
+    }{{ end }}
   },
   "sandbox": {
     "enabled": true,
