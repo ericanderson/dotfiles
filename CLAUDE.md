@@ -121,7 +121,7 @@ A `run_once_` source script (e.g. `run_once_install-packages-darwin.sh.tmpl`) ap
 1. Edit files in the chezmoi source directory (this repository)
 2. Run `chezmoi diff` to preview changes
 3. Run `chezmoi apply` to apply changes
-4. On `master`, branch to `claude/<topic>`, add a `CHANGES/YYYY-MM-DD.md` entry, and open a PR to `master`
+4. On `main`, branch to `claude/<topic>`, add a `CHANGES/YYYY-MM-DD.md` entry, and open a PR to `main`
 
 ## Gotchas
 
