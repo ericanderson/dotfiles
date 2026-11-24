@@ -2,8 +2,8 @@
 {{- /* Plugin marketplaces Eric develops load from his local clone when one exists, so edits
        take effect before a push, and from GitHub otherwise. claude-flow has no GitHub
        source here: it is enabled only where its plugin directory exists. */ -}}
-{{- $eaClaudeDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-plugins" -}}
-{{- $eaCodesDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-ea-codes" -}}
+{{- $eaCcDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-code-plugins" -}}
+{{- $eaCcPrivDir := joinPath .chezmoi.homeDir "src/github.com/ericanderson/claude-code-plugins-priv" -}}
 {{- $claudeFlowDir := joinPath .chezmoi.homeDir ".config/claude-agents/flow/plugin" -}}
 {{- /* This repo is public. The auto-mode entries that describe the homelab (domains,
        tailnet, hosts) and the sandbox's homelab network domains are age-encrypted in
@@ -284,13 +284,13 @@
   "enabledPlugins": {
     "claude-hud@claude-hud": true,
     "claude-md-management@claude-plugins-official": true,
-    "cleanroom@ea-claude": true,
+    "cleanroom@ea-cc": true,
     "context7@claude-plugins-official": true,
-    "dagu@ea-claude": true,
-    "ea-codes@ea-codes": true,
+    "dagu@ea-cc": true,
+    "ea-codes@ea-cc-priv": true,
     "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "git@ea-claude": true,
+    "git@ea-cc": true,
     "hookify@claude-plugins-official": true,
     "mattpocock-skills@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
@@ -298,7 +298,7 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "tmux@ea-codes": false,
+    "tmux@ea-cc-priv": false,
     "typescript-lsp@claude-plugins-official": true,
     "eric-board@boss-board": true{{ if stat $claudeFlowDir }},
     "claude-flow@claude-flow": true{{ end }}
@@ -311,26 +311,26 @@
       },
       "autoUpdate": true
     },
-    "ea-claude": {
+    "ea-cc": {
       "source": {
-{{- if stat $eaClaudeDir }}
+{{- if stat $eaCcDir }}
         "source": "directory",
-        "path": {{ $eaClaudeDir | toJson }}
+        "path": {{ $eaCcDir | toJson }}
 {{- else }}
         "source": "github",
-        "repo": "ericanderson/claude-plugins"
+        "repo": "ericanderson/claude-code-plugins"
 {{- end }}
       },
       "autoUpdate": true
     },
-    "ea-codes": {
+    "ea-cc-priv": {
       "source": {
-{{- if stat $eaCodesDir }}
+{{- if stat $eaCcPrivDir }}
         "source": "directory",
-        "path": {{ $eaCodesDir | toJson }}
+        "path": {{ $eaCcPrivDir | toJson }}
 {{- else }}
         "source": "github",
-        "repo": "ericanderson/claude-ea-codes"
+        "repo": "ericanderson/claude-code-plugins-priv"
 {{- end }}
       },
       "autoUpdate": true
